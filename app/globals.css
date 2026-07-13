@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f8f7;
+  --foreground: #14201c;
+  --surface: #ffffff;
+  --border: #e3e7e5;
+  --muted: #6b7a75;
+
+  /* Overridden at runtime from SchoolSettings (brand is configurable). */
+  --brand: #1e6f5c;
+  --brand-contrast: #ffffff;
+  --accent: #c8a35a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-accent: var(--accent);
+
+  --font-sans: var(--font-latin);
+  --font-arabic: var(--font-arabic);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-latin), system-ui, sans-serif;
+}
+
+/* Arabic gets its own face; RTL flow is handled by dir="rtl" + logical
+   utilities (ps-/pe-/ms-/me-/start-/end-), never by hardcoded left/right. */
+html[dir="rtl"] body {
+  font-family: var(--font-arabic), system-ui, sans-serif;
+}
+
+/* Arabic script needs a touch more line height to stay legible. */
+html[lang="ar"] {
+  line-height: 1.75;
+}
