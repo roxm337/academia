@@ -127,6 +127,24 @@ export const teacherAssignments = cache(async (userId: string) => {
   return profile;
 });
 
+/**
+ * The teacher profile id if this user is a teacher assigned to that
+ * class+subject, else null. The boolean-with-id form the write actions want:
+ * the teacherId is needed as an FK when they create a row.
+ */
+export async function teacherOwning(
+  userId: string,
+  classId: string,
+  subjectId: string,
+): Promise<string | null> {
+  const profile = await teacherAssignments(userId);
+  if (!profile) return null;
+  const owns = profile.assignments.some(
+    (a) => a.classId === classId && a.subjectId === subjectId,
+  );
+  return owns ? profile.id : null;
+}
+
 /** Throws unless this teacher is assigned to that class+subject. */
 export async function assertTeacherOwns(
   userId: string,

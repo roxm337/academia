@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  BookOpen, Briefcase, CalendarDays, ClipboardList, FileCheck, FileText,
+  Bell, BookOpen, Briefcase, CalendarDays, ClipboardList, FileCheck, FileText,
   LayoutDashboard, LogOut, Megaphone, MessageSquare, Menu, NotebookPen,
   School, ScrollText, Settings, ShieldAlert, UserCheck, Users, Wallet, X,
 } from "lucide-react";
@@ -23,12 +23,13 @@ type Props = {
   schoolName: string;
   userName: string;
   roleLabel: string;
+  unread: number;
   logout: () => Promise<void>;
   children: React.ReactNode;
 };
 
 export function AppShell({
-  items, schoolName, userName, roleLabel, logout, children,
+  items, schoolName, userName, roleLabel, unread, logout, children,
 }: Props) {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
@@ -123,7 +124,19 @@ export function AppShell({
             <Menu className="size-5" />
           </button>
           <p className="truncate text-sm font-medium">{userName}</p>
-          <div className="ms-auto">
+          <div className="ms-auto flex items-center gap-2">
+            <Link
+              href="/notifications"
+              aria-label={t("notifications")}
+              className="relative rounded-md p-2 hover:bg-black/[0.05]"
+            >
+              <Bell className="size-5" />
+              {unread > 0 ? (
+                <span className="absolute -top-0.5 -end-0.5 flex min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              ) : null}
+            </Link>
             <LocaleSwitcher />
           </div>
         </header>

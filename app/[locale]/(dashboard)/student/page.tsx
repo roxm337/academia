@@ -1,32 +1,19 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { EmptyState, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
+import { KpiGrid } from "@/components/kpi";
 import { requireRole } from "@/lib/dal";
-import { getSchoolSettings } from "@/lib/school";
+import { studentKpis } from "@/lib/data/dashboard";
 
-export default async function Page({
-  params,
-}: PageProps<"/[locale]/student">) {
+export default async function Page({ params }: PageProps<"/[locale]/student">) {
   const { locale } = await params;
   setRequestLocale(locale);
-
   const user = await requireRole("STUDENT");
   const t = await getTranslations("dashboard");
-  const settings = await getSchoolSettings();
-
+  const kpis = await studentKpis(user, locale);
   return (
     <>
-      <PageHeader
-        title={t("student")}
-        subtitle={t("welcome", {
-          name: locale === "ar" ? user.nameAr : user.name,
-        })}
-      />
-      {settings?.currentSchoolYear ? (
-        <p className="mb-4 text-sm text-[var(--muted)]">
-          {t("schoolYear", { year: settings.currentSchoolYear.label })}
-        </p>
-      ) : null}
-      <EmptyState message={t("noDataYet")} />
+      <PageHeader title={t("student")} subtitle={t("welcome", { name: locale === "ar" ? user.nameAr : user.name })} />
+      <KpiGrid items={kpis} />
     </>
   );
 }

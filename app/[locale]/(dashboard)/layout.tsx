@@ -3,6 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { verifySession } from "@/lib/dal";
 import { NAV } from "@/lib/nav";
 import { getSchoolSettings, schoolName } from "@/lib/school";
+import { unreadNotificationCount } from "@/lib/data/notifications";
 import { logout } from "@/lib/actions/auth";
 
 export default async function DashboardLayout({
@@ -15,7 +16,10 @@ export default async function DashboardLayout({
   // Authentication gate for every dashboard route. Actions re-check on their own.
   const user = await verifySession();
   const t = await getTranslations("roles");
-  const settings = await getSchoolSettings();
+  const [settings, unread] = await Promise.all([
+    getSchoolSettings(),
+    unreadNotificationCount(user.id),
+  ]);
 
   async function logoutAction() {
     "use server";
@@ -28,6 +32,7 @@ export default async function DashboardLayout({
       schoolName={schoolName(settings, locale)}
       userName={locale === "ar" ? user.nameAr : user.name}
       roleLabel={t(user.role)}
+      unread={unread}
       logout={logoutAction}
     >
       {children}
