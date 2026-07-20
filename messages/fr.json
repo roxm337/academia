@@ -169,7 +169,8 @@
     "auditLog": "Journal d'audit",
     "myAttendance": "Mes absences",
     "lessons": "Cours et leçons",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "council": "Conseil de classe"
   },
   "lessons": {
     "teacherTitle": "Cours et leçons",
@@ -734,10 +735,34 @@
       "invalid": "Données invalides.",
       "notAllowed": "Vous n'êtes pas autorisé à modifier ce carnet de notes.",
       "notFound": "Introuvable.",
-      "semesterLocked": "Ce semestre est verrouillé.",
+      "semesterLocked": "Le semestre est verrouillé.",
       "duplicateItem": "Une évaluation porte déjà ce type et ce numéro.",
       "badScore": "Note hors barème."
-    }
+    },
+    "council": {
+      "title": "Conseil de classe",
+      "subtitle": "Décisions du conseil et archivage des résultats du semestre.",
+      "decision": "Décision du conseil",
+      "directorAppreciation": "Appréciation du directeur",
+      "suggestion": "Proposition",
+      "refresh": "Actualiser les résultats",
+      "refreshed": "Résultats actualisés",
+      "noDecision": "Aucune décision",
+      "archived": "Archivé",
+      "notArchived": "Non archivé",
+      "finalNotice": "Semestre verrouillé : les résultats sont archivés et ne changent plus.",
+      "openNotice": "Semestre ouvert : les chiffres sont recalculés en direct jusqu’au verrouillage.",
+      "archivedCount": "{count} résultat(s) archivé(s)",
+      "decisions": {
+        "FELICITATIONS": "Félicitations",
+        "ENCOURAGEMENTS": "Encouragements",
+        "TABLEAU_HONNEUR": "Tableau d’honneur",
+        "AVERTISSEMENT_TRAVAIL": "Avertissement — travail",
+        "AVERTISSEMENT_CONDUITE": "Avertissement — conduite",
+        "BLAME_TRAVAIL": "Blâme — travail"
+      }
+    },
+    "noStudentsInClass": "Aucun élève dans cette classe."
   },
   "cahier": {
     "title": "Cahier de textes",

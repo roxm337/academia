@@ -30,6 +30,9 @@ export type BulletinInput = {
   rank: number | null;
   classSize: number;
   stats: { average: number | null; min: number | null; max: number | null };
+  /** Conseil de classe, localized by the caller; omitted while a semester is open. */
+  councilDecision?: string | null;
+  directorAppreciation?: string | null;
   labels: {
     bulletin: string;
     subject: string;
@@ -44,6 +47,8 @@ export type BulletinInput = {
     max: string;
     notGraded: string;
     of: string; // "sur" / "من" — for rank "3 / 30"
+    councilDecision: string;
+    directorAppreciation: string;
   };
 };
 
@@ -66,6 +71,11 @@ const styles = StyleSheet.create({
   summary: { marginTop: 12, flexDirection: "row", justifyContent: "space-between" },
   bigAvg: { fontSize: 12, fontWeight: "bold" },
   muted: { color: "#666" },
+  council: {
+    marginTop: 14, paddingTop: 8,
+    borderTopWidth: 0.5, borderTopColor: "#888",
+  },
+  councilLine: { marginBottom: 3 },
 });
 
 export async function renderBulletinPdf(input: BulletinInput): Promise<Uint8Array> {
@@ -128,6 +138,22 @@ export async function renderBulletinPdf(input: BulletinInput): Promise<Uint8Arra
             <Text>{tx(L.min)}: {fmt(input.stats.min)}</Text>
           </View>
         </View>
+
+        {/* Conseil de classe — only present once the semester is archived. */}
+        {input.councilDecision || input.directorAppreciation ? (
+          <View style={styles.council}>
+            {input.councilDecision ? (
+              <Text style={styles.councilLine}>
+                {tx(L.councilDecision)}: {tx(input.councilDecision)}
+              </Text>
+            ) : null}
+            {input.directorAppreciation ? (
+              <Text style={styles.councilLine}>
+                {tx(L.directorAppreciation)}: {tx(input.directorAppreciation)}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
       </Page>
     </Document>,
   );

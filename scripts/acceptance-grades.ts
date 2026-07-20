@@ -142,7 +142,7 @@ async function main() {
       rank: r1,
       classSize: picked.students.length,
       stats: { average: round2(((g1 ?? 0) + (g2 ?? 0)) / 2), min: g2, max: g1 },
-      labels: { bulletin: "كشف النقط", subject: "المادة", coefficient: "المعامل", average: "المعدل", appreciation: "ملاحظة", generalAverage: "المعدل العام", rank: "الرتبة", mention: "الميزة", classAverage: "معدل القسم", min: "الأدنى", max: "الأعلى", notGraded: "—", of: "من" },
+      labels: { bulletin: "كشف النقط", subject: "المادة", coefficient: "المعامل", average: "المعدل", appreciation: "ملاحظة", generalAverage: "المعدل العام", rank: "الرتبة", mention: "الميزة", classAverage: "معدل القسم", min: "الأدنى", max: "الأعلى", notGraded: "—", of: "من", councilDecision: "قرار المجلس", directorAppreciation: "ملاحظة المدير" },
     });
     const magic = Buffer.from(pdf.slice(0, 5)).toString("latin1");
     check("Arabic bulletin PDF renders", magic === "%PDF-" && pdf.length > 1000, `${magic}, ${pdf.length} bytes`);

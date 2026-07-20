@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/dal";
 import { audit } from "@/lib/audit";
+import { finalizeSemester, unfinalizeSemester } from "@/lib/council-archive";
 import type { ActionState } from "@/lib/actions/structure";
 
 const toggleSchema = z.object({
@@ -16,6 +17,11 @@ const toggleSchema = z.object({
  * Lock or unlock a semester. A locked semester freezes its gradebook — no item,
  * score or appreciation can change — so a bulletin can't shift under a family
  * after it's been handed out.
+ *
+ * Locking also **archives** every class's results (SemesterResult, isFinal).
+ * The two go together deliberately: a semester that is closed but whose
+ * bulletins are still recomputed from live data would still drift when a
+ * student changes class or a coefficient is corrected next year.
  */
 export async function lockSemester(
   _prev: ActionState,
@@ -26,6 +32,13 @@ export async function lockSemester(
   if (!parsed.success) return { error: "invalid" };
 
   const lock = parsed.data.value === "true";
+
+  // Archive BEFORE flipping the flag: snapshotting refuses to run against a
+  // locked semester, and a failure here must leave the semester open rather
+  // than closed with nothing archived.
+  const archived = lock ? await finalizeSemester(parsed.data.id) : 0;
+  if (!lock) await unfinalizeSemester(parsed.data.id);
+
   const updated = await prisma.semester.update({
     where: { id: parsed.data.id },
     data: { isLocked: lock, lockedAt: lock ? new Date() : null },
@@ -36,9 +49,11 @@ export async function lockSemester(
     action: lock ? "SEMESTER_LOCK" : "SEMESTER_UNLOCK",
     entity: "Semester",
     entityId: updated.id,
+    after: lock ? { archivedResults: archived } : undefined,
   });
 
   revalidatePath("/[locale]/(dashboard)/director/grades", "page");
+  revalidatePath("/[locale]/(dashboard)/director/council", "page");
   return { ok: true };
 }
 

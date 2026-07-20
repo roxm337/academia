@@ -169,7 +169,8 @@
     "auditLog": "سجل العمليات",
     "myAttendance": "غياباتي",
     "lessons": "الدروس التعليمية",
-    "notifications": "الإشعارات"
+    "notifications": "الإشعارات",
+    "council": "مجلس القسم"
   },
   "lessons": {
     "teacherTitle": "الدروس التعليمية",
@@ -734,10 +735,34 @@
       "invalid": "بيانات غير صالحة.",
       "notAllowed": "لا تملك صلاحية تعديل دفتر النقط هذا.",
       "notFound": "غير موجود.",
-      "semesterLocked": "هذا الأسدس مُقفل.",
+      "semesterLocked": "الدورة مقفلة.",
       "duplicateItem": "يوجد تقييم بنفس النوع والرقم.",
       "badScore": "النقطة خارج السلم."
-    }
+    },
+    "council": {
+      "title": "مجلس القسم",
+      "subtitle": "قرارات المجلس وأرشفة نتائج الدورة.",
+      "decision": "قرار المجلس",
+      "directorAppreciation": "ملاحظة المدير",
+      "suggestion": "اقتراح",
+      "refresh": "تحديث النتائج",
+      "refreshed": "تم تحديث النتائج",
+      "noDecision": "بدون قرار",
+      "archived": "مؤرشف",
+      "notArchived": "غير مؤرشف",
+      "finalNotice": "الدورة مقفلة: النتائج مؤرشفة ولن تتغير.",
+      "openNotice": "الدورة مفتوحة: تُحتسب الأرقام مباشرة إلى حين الإقفال.",
+      "archivedCount": "{count} نتيجة مؤرشفة",
+      "decisions": {
+        "FELICITATIONS": "تهانئ",
+        "ENCOURAGEMENTS": "تشجيعات",
+        "TABLEAU_HONNEUR": "لوحة الشرف",
+        "AVERTISSEMENT_TRAVAIL": "إنذار — العمل",
+        "AVERTISSEMENT_CONDUITE": "إنذار — السلوك",
+        "BLAME_TRAVAIL": "توبيخ — العمل"
+      }
+    },
+    "noStudentsInClass": "لا يوجد تلاميذ في هذا القسم."
   },
   "cahier": {
     "title": "دفتر النصوص",

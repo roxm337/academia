@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/dal";
 import { getSchoolSettings, schoolName as localizedSchool } from "@/lib/school";
 import { currentYear } from "@/lib/data/structure";
 import { studentResult, semesterById } from "@/lib/data/grades";
+import { frozenResult } from "@/lib/data/council";
 import { renderBulletinPdf, type BulletinSubject } from "@/lib/pdf/bulletin";
 
 /**
@@ -70,8 +71,12 @@ export async function GET(req: NextRequest) {
   if (!allowed) return new Response(null, { status: 403 });
 
   // --- assemble ----------------------------------------------------------
-  const [{ result, stats, classSize }, appreciations, settings, year, t] =
+  // A finalised semester is served from its archive. Reprinting a February
+  // bulletin in July must give February's numbers, even though the student may
+  // have changed class and the class roster — and so every rank — has moved.
+  const [frozen, { result, stats, classSize }, appreciations, settings, year, t] =
     await Promise.all([
+      frozenResult(studentId, semesterId),
       studentResult(classId, studentId, semesterId),
       prisma.subjectAppreciation.findMany({
         where: { studentId, semesterId },
@@ -81,15 +86,46 @@ export async function GET(req: NextRequest) {
       currentYear(),
       getTranslations({ locale, namespace: "grades" }),
     ]);
-  if (!result) return new Response(null, { status: 404 });
+  if (!frozen && !result) return new Response(null, { status: 404 });
 
   const apprMap = new Map(appreciations.map((a) => [a.subjectId, a.text]));
-  const subjects: BulletinSubject[] = result.subjects.map((s) => ({
-    name: locale === "ar" ? s.nameAr : s.nameFr,
-    coefficient: s.coefficient,
-    average: s.average,
-    appreciation: apprMap.get(s.subjectId) ?? null,
-  }));
+
+  const subjects: BulletinSubject[] = frozen
+    ? frozen.snapshot.subjectBreakdown.subjects.map((s) => ({
+        name: locale === "ar" ? s.nameAr : s.nameFr,
+        coefficient: s.coefficient,
+        average: s.average,
+        // The comment as it stood at archival, not as edited since.
+        appreciation: s.appreciation ?? null,
+      }))
+    : (result?.subjects ?? []).map((s) => ({
+        name: locale === "ar" ? s.nameAr : s.nameFr,
+        coefficient: s.coefficient,
+        average: s.average,
+        appreciation: apprMap.get(s.subjectId) ?? null,
+      }));
+
+  const figures = frozen
+    ? {
+        general: frozen.snapshot.generalAverage,
+        mention: frozen.snapshot.mention,
+        rank: frozen.snapshot.rank,
+        classSize: frozen.snapshot.classSize,
+        stats: {
+          average: frozen.snapshot.classAverage,
+          min: frozen.snapshot.classMin,
+          max: frozen.snapshot.classMax,
+        },
+      }
+    : {
+        general: result!.general,
+        mention: result!.mention as string | null,
+        rank: result!.rank,
+        classSize,
+        stats,
+      };
+
+  const codeMassar = result?.codeMassar ?? "";
 
   const student = await prisma.studentProfile.findUnique({
     where: { id: studentId },
@@ -105,16 +141,22 @@ export async function GET(req: NextRequest) {
   const pdf = await renderBulletinPdf({
     locale,
     schoolName: localizedSchool(settings, locale),
-    student: { name, codeMassar: result.codeMassar },
+    student: { name, codeMassar },
     className: enrollment.class.name,
     yearLabel: year?.label ?? "",
     semesterLabel: t("semesterN", { n: semester.index }),
     subjects,
-    general: result.general,
-    mention: result.mention ? t(`mentions.${result.mention}`) : "",
-    rank: result.rank,
-    classSize,
-    stats: { average: stats.average, min: stats.min, max: stats.max },
+    general: figures.general,
+    mention: figures.mention ? t(`mentions.${figures.mention}`) : "",
+    rank: figures.rank,
+    classSize: figures.classSize,
+    stats: figures.stats,
+    // The decision is stored as a key, so it prints in the reader's language
+    // rather than whichever one the director happened to be using.
+    councilDecision: frozen?.councilDecision
+      ? t(`council.decisions.${frozen.councilDecision}`)
+      : null,
+    directorAppreciation: frozen?.directorAppreciation ?? null,
     labels: {
       bulletin: t("bulletin"),
       subject: t("selectSubject"),
@@ -129,13 +171,15 @@ export async function GET(req: NextRequest) {
       max: t("max"),
       notGraded: t("notGraded"),
       of: t("of"),
+      councilDecision: t("council.decision"),
+      directorAppreciation: t("council.directorAppreciation"),
     },
   });
 
   return new Response(pdf as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="bulletin-${result.codeMassar}-s${semester.index}.pdf"`,
+      "Content-Disposition": `inline; filename="bulletin-${codeMassar}-s${semester.index}.pdf"`,
       "Cache-Control": "private, no-store",
     },
   });

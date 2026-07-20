@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Bell, BookOpen, Briefcase, CalendarDays, ClipboardList, FileCheck, FileText,
-  GraduationCap, LayoutDashboard, LogOut, Megaphone, MessageSquare, Menu,
+  Gavel, GraduationCap, LayoutDashboard, LogOut, Megaphone, MessageSquare, Menu,
   NotebookPen, School, ScrollText, Settings, ShieldAlert, UserCheck, Users,
   Wallet, X,
 } from "lucide-react";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Briefcase, CalendarDays, ClipboardList, FileCheck, FileText,
-  GraduationCap, LayoutDashboard, Megaphone, MessageSquare, NotebookPen, School,
+  Gavel, GraduationCap, LayoutDashboard, Megaphone, MessageSquare, NotebookPen, School,
   ScrollText, Settings, ShieldAlert, UserCheck, Users, Wallet,
 };
 
