@@ -27,6 +27,10 @@ type StudentDashboardData = {
 export function StudentDashboard({ data }: { data: StudentDashboardData }) {
   const t = useTranslations("dashboard");
   const s = useTranslations("dashboard.studentPanel");
+  const tc = useTranslations("common");
+  // "—", "/20" and "%" are locale-visible text: Arabic uses ٪, French puts a
+  // space before %. They belong in the message files like any other string.
+  const na = tc("notAvailable");
   const actions = [
     { href: "/student/timetable", label: s("viewSchedule"), icon: CalendarDays },
     { href: "/student/grades", label: s("viewGrades"), icon: BookOpen },
@@ -51,16 +55,16 @@ export function StudentDashboard({ data }: { data: StudentDashboardData }) {
       </Card>
       <Card className="flex flex-col justify-between p-6">
         <div className="flex items-start justify-between gap-3">
-          <div><p className="text-sm text-[var(--muted)]">{s("average")}</p><p className="mt-2 text-4xl font-semibold tracking-tight text-[var(--ink)]">{data.result?.general != null ? `${data.result.general.toFixed(2)}/20` : "--"}</p></div>
+          <div><p className="text-sm text-[var(--muted)]">{s("average")}</p><p className="mt-2 text-4xl font-semibold tracking-tight text-[var(--ink)]">{data.result?.general != null ? s("outOf20", { value: data.result.general.toFixed(2) }) : na}</p></div>
           {data.result?.mention ? <Badge tone="success">{data.result.mention}</Badge> : null}
         </div>
-        <div className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm"><span className="text-[var(--muted)]">{s("rank")}</span><span className="font-semibold text-[var(--ink)]">{data.result?.rank != null ? `${data.result.rank} ${s("of")} ${data.result.classSize}` : "--"}</span></div>
+        <div className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm"><span className="text-[var(--muted)]">{s("rank")}</span><span className="font-semibold text-[var(--ink)]">{data.result?.rank != null ? `${data.result.rank} ${s("of")} ${data.result.classSize}` : na}</span></div>
       </Card>
     </section>
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Metric label={s("lessonsToday")} value={data.lessonsToday} icon={CalendarDays} />
       <Metric label={s("homeworkToDo")} value={data.homeworkToSubmit} icon={FileText} />
-      <Metric label={s("attendanceRate")} value={data.attendanceRate == null ? "--" : `${data.attendanceRate}%`} icon={UserCheck} />
+      <Metric label={s("attendanceRate")} value={data.attendanceRate == null ? na : s("percent", { value: data.attendanceRate })} icon={UserCheck} />
       <Metric label={t("kpis.unreadAnnouncements")} value={data.unreadAnnouncements} icon={Megaphone} />
     </section>
     <section>

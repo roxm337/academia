@@ -121,7 +121,8 @@
     "saved": "تم حفظ التعديلات",
     "required": "هذا الحقل إجباري",
     "comingSoon": "قريبا",
-    "emptyState": "لا توجد بيانات حاليا"
+    "emptyState": "لا توجد بيانات حاليا",
+    "notAvailable": "—"
   },
   "auth": {
     "loginTitle": "تسجيل الدخول",
@@ -299,7 +300,9 @@
       "viewHomework": "واجباتي",
       "viewAttendance": "غياباتي",
       "viewAnnouncements": "الإعلانات",
-      "viewLessons": "دروسي"
+      "viewLessons": "دروسي",
+      "outOf20": "{value}/20",
+      "percent": "{value}٪"
     }
   },
   "settings": {
@@ -579,7 +582,9 @@
     "teacherNoProfile": "لا يوجد ملف أستاذ مرتبط بهذا الحساب.",
     "childTimetable": "جدول حصص {name}",
     "noChildren": "لا يوجد أبناء مرتبطون بهذا الحساب.",
-    "generatedOn": "أُنشئ بتاريخ {date}"
+    "generatedOn": "أُنشئ بتاريخ {date}",
+    "moving": "جارٍ النقل...",
+    "dragHint": "اسحب الحصة إلى خانة فارغة لنقلها."
   },
   "vie": {
     "errors": {

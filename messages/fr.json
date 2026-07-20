@@ -121,7 +121,8 @@
     "saved": "Modifications enregistrées",
     "required": "Ce champ est obligatoire",
     "comingSoon": "Bientôt disponible",
-    "emptyState": "Aucune donnée pour le moment"
+    "emptyState": "Aucune donnée pour le moment",
+    "notAvailable": "—"
   },
   "auth": {
     "loginTitle": "Connexion",
@@ -299,7 +300,9 @@
       "viewHomework": "Mes devoirs",
       "viewAttendance": "Mes absences",
       "viewAnnouncements": "Les annonces",
-      "viewLessons": "Mes cours"
+      "viewLessons": "Mes cours",
+      "outOf20": "{value}/20",
+      "percent": "{value} %"
     }
   },
   "settings": {
@@ -579,7 +582,9 @@
     "teacherNoProfile": "Aucun profil enseignant associé à ce compte.",
     "childTimetable": "Emploi du temps de {name}",
     "noChildren": "Aucun enfant rattaché à ce compte.",
-    "generatedOn": "Généré le {date}"
+    "generatedOn": "Généré le {date}",
+    "moving": "Déplacement...",
+    "dragHint": "Glissez une séance vers une case libre pour la déplacer."
   },
   "vie": {
     "errors": {

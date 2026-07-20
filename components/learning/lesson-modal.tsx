@@ -51,6 +51,11 @@ export function LessonCreateModal({
     options.filter((o) => o.streamId).map((o) => [o.streamId!, o.streamLabel!] as const),
   );
   const subjects = dedupe(options.map((o) => [o.subjectId, o.subjectLabel] as const));
+  // "All streams" means a unit with no stream, which the server only accepts
+  // from a teacher who actually teaches a stream-less class (collège has no
+  // streams). Offering it to a lycée-only teacher would just earn them a
+  // refusal after they filled the whole form in.
+  const canTargetAllStreams = options.some((o) => o.streamId === null);
 
   return (
     <Modal
@@ -95,8 +100,10 @@ export function LessonCreateModal({
                 </div>
                 <div>
                   <Label htmlFor="streamId">{t("stream")}</Label>
-                  <Select id="streamId" name="streamId">
-                    <option value="">{t("allStreams")}</option>
+                  <Select id="streamId" name="streamId" required={!canTargetAllStreams}>
+                    {canTargetAllStreams ? (
+                      <option value="">{t("allStreams")}</option>
+                    ) : null}
                     {streams.map(([id, label]) => (
                       <option key={id} value={id}>
                         {label}

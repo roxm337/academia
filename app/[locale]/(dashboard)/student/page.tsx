@@ -15,6 +15,7 @@ export default async function Page({ params }: PageProps<"/[locale]/student">) {
   setRequestLocale(locale);
   const user = await requireRole("STUDENT");
   const t = await getTranslations("dashboard");
+  const tc = await getTranslations("common");
   const [profile, klass, year, kpis, semesters] = await Promise.all([
     prisma.studentProfile.findUnique({
       where: { userId: user.id },
@@ -42,8 +43,8 @@ export default async function Page({ params }: PageProps<"/[locale]/student">) {
     <StudentDashboard data={{
       studentName: locale === "ar" ? `${profile?.user.firstNameAr ?? user.nameAr} ${profile?.user.lastNameAr ?? ""}` : `${profile?.user.firstNameFr ?? user.name} ${profile?.user.lastNameFr ?? ""}`,
       className: klass?.name ?? null,
-      codeMassar: profile?.codeMassar ?? "--",
-      schoolYear: year?.label ?? "--",
+      codeMassar: profile?.codeMassar ?? tc("notAvailable"),
+      schoolYear: year?.label ?? tc("notAvailable"),
       lessonsToday,
       unreadAnnouncements,
       homeworkToSubmit: homework.filter((item) => !item.mySubmission).length,

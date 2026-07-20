@@ -10,6 +10,11 @@ import {
   SlotForm,
 } from "@/components/director/timetable-forms";
 import { DeleteForm } from "@/components/director/delete-form";
+import {
+  DraggableSlot,
+  DropCell,
+  TimetableDndProvider,
+} from "@/components/director/timetable-dnd";
 import { requireRole } from "@/lib/dal";
 import { deleteSlot } from "@/lib/actions/timetable";
 import {
@@ -107,10 +112,14 @@ export default async function TimetablePage({
         <Card className="mb-4 text-sm text-amber-800">{t("noAssignments")}</Card>
       ) : null}
 
+      <p className="mb-2 text-xs text-[var(--muted)]">{t("dragHint")}</p>
+
+      <TimetableDndProvider>
       <TimetableGrid
         variant={variant}
         slots={slots}
         renderEmpty={(weekday, period) => (
+          <DropCell weekday={weekday} startMin={period.startMin} endMin={period.endMin}>
           <AddSlotButton
             classId={classId}
             variant={variant}
@@ -120,8 +129,10 @@ export default async function TimetablePage({
             startMin={period.startMin}
             endMin={period.endMin}
           />
+          </DropCell>
         )}
         renderSlot={(s) => (
+          <DraggableSlot slotId={s.id}>
           <div className="group relative">
             <SlotForm
               classId={classId}
@@ -159,8 +170,10 @@ export default async function TimetablePage({
               <DeleteForm action={deleteSlot} id={s.id} />
             </div>
           </div>
+          </DraggableSlot>
         )}
       />
+      </TimetableDndProvider>
     </>
   );
 }

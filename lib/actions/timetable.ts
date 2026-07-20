@@ -247,3 +247,77 @@ export async function copyNormalToRamadan(
   revalidatePath(REVALIDATE, "page");
   return { ok: true, copied, skipped };
 }
+
+const moveSchema = z.object({
+  id: z.string().min(1),
+  weekday: z.enum([
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
+  ]),
+  startMin: z.coerce.number().int().min(0).max(24 * 60),
+  endMin: z.coerce.number().int().min(0).max(24 * 60),
+});
+
+/**
+ * Drop a lesson into a different cell.
+ *
+ * Only the destination comes from the client. Class, subject, teacher, room
+ * and variant are re-read from the stored slot — a drag says "put this here",
+ * never "and also change who teaches it". The same conflict engine as the form
+ * runs, so dragging cannot create a clash the form would have refused.
+ */
+export async function moveSlot(
+  _prev: SlotState,
+  formData: FormData,
+): Promise<SlotState> {
+  const actor = await requireRole("DIRECTOR");
+  const parsed = moveSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "invalid" };
+  const d = parsed.data;
+  if (d.endMin <= d.startMin) return { error: "invalid" };
+
+  const slot = await prisma.timetableSlot.findUnique({ where: { id: d.id } });
+  if (!slot) return { error: "notFound" };
+
+  // Same cell — nothing to do, and no point writing an audit entry for it.
+  if (slot.weekday === d.weekday && slot.startMin === d.startMin) return { ok: true };
+
+  const candidate: SlotShape = {
+    id: slot.id,
+    weekday: d.weekday,
+    variant: slot.variant,
+    startMin: d.startMin,
+    endMin: d.endMin,
+    classId: slot.classId,
+    teacherId: slot.teacherId,
+    roomId: slot.roomId,
+  };
+
+  const existing = await getYearSlotsForConflict(slot.variant);
+  const conflicts = detectConflicts(candidate, existing);
+  if (conflicts.length) {
+    return { error: "conflict", conflicts: [...new Set(conflicts.map((c) => c.kind))] };
+  }
+
+  const moved = await prisma.timetableSlot.update({
+    where: { id: slot.id },
+    data: { weekday: d.weekday, startMin: d.startMin, endMin: d.endMin },
+  });
+
+  await audit({
+    actorId: actor.id,
+    action: "SLOT_MOVE",
+    entity: "TimetableSlot",
+    entityId: moved.id,
+    before: { weekday: slot.weekday, startMin: slot.startMin, endMin: slot.endMin },
+    after: { weekday: moved.weekday, startMin: moved.startMin, endMin: moved.endMin },
+  });
+
+  revalidatePath(REVALIDATE, "page");
+  return { ok: true };
+}

@@ -89,24 +89,47 @@ async function activeScope(userId: string) {
       enrollments: {
         where: { isActive: true },
         take: 1,
-        select: { class: { select: { levelId: true, streamId: true } } },
+        select: {
+          class: {
+            select: {
+              levelId: true,
+              streamId: true,
+              assignments: { select: { subjectId: true } },
+            },
+          },
+        },
       },
     },
   });
   const enrollment = student?.enrollments[0];
   if (!student || !enrollment) return null;
-  return { studentId: student.id, klass: enrollment.class };
+
+  // Subjects the class is actually taught. A class with no assignments
+  // recorded yet falls back to no subject filter — hiding every lesson from a
+  // class whose timetable simply hasn't been entered would be worse than
+  // showing one subject too many.
+  const subjectIds = [...new Set(enrollment.class.assignments.map((a) => a.subjectId))];
+  return {
+    studentId: student.id,
+    klass: enrollment.class,
+    subjectIds: subjectIds.length > 0 ? subjectIds : null,
+  };
 }
 
 /**
  * Prisma `where` for "units this class may see" — the query form of
  * `unitVisibleTo` in lib/lessons.ts, which is where the rule is tested.
  */
-function visibleUnitWhere(klass: { levelId: string; streamId: string | null }) {
+function visibleUnitWhere(
+  klass: { levelId: string; streamId: string | null },
+  subjectIds: string[] | null,
+) {
   return {
     levelId: klass.levelId,
     // A unit with no stream is level-wide; otherwise it must match exactly.
     OR: [{ streamId: null }, { streamId: klass.streamId }],
+    // null = the class has no assignments recorded, so do not filter at all.
+    ...(subjectIds ? { subjectId: { in: subjectIds } } : {}),
   };
 }
 
@@ -116,7 +139,7 @@ export const studentLessons = cache(async (userId: string) => {
 
   const units = await prisma.unit.findMany({
     where: {
-      ...visibleUnitWhere(scope.klass),
+      ...visibleUnitWhere(scope.klass, scope.subjectIds),
       lessons: { some: { isPublished: true } },
     },
     include: {
@@ -147,7 +170,7 @@ export const studentLesson = cache(async (userId: string, lessonId: string) => {
     where: {
       id: lessonId,
       isPublished: true,
-      unit: visibleUnitWhere(scope.klass),
+      unit: visibleUnitWhere(scope.klass, scope.subjectIds),
     },
     include: {
       unit: { include: { subject: true, level: true, stream: true } },
