@@ -50,7 +50,7 @@ const status = async (path: string, cookie: string) =>
   (await fetch(`${BASE}${path}`, { headers: { cookie }, redirect: "manual" })).status;
 
 async function main() {
-  const email = "eleve1@academia.ma";
+  const email = "eleve1@planetemontessori.demo";
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error(`seed missing: ${email}`);
 

@@ -14,40 +14,40 @@
 
 :root {
   /* --- paper and ink ------------------------------------------------ */
-  --background: #f4f6f5; /* the page */
+  --background: #f5f8fb; /* the page */
   --surface: #ffffff; /* a sheet laid on it */
-  --surface-sunken: #eef1f0; /* table headers, wells */
+  --surface-sunken: #edf3f7; /* table headers, wells */
 
-  --foreground: #10201b;
-  --ink: #10201b; /* same as foreground; both names are in use */
-  --ink-2: #3c4b46; /* secondary text */
-  --muted: #66756f; /* labels, captions */
+  --foreground: #172c46;
+  --ink: #172c46; /* same as foreground; both names are in use */
+  --ink-2: #42576d; /* secondary text */
+  --muted: #687b8e; /* labels, captions */
 
   /* Two rule weights: hairline for rows, strong for section breaks.
      `--line` and `--border` are aliases — both spellings exist in the
      components and were previously undefined, which silently fell back to
      currentColor and drew ink-dark borders. */
-  --border: #dde3e1;
-  --line: #dde3e1;
-  --rule-strong: #c2ccc8;
+  --border: #dbe5ec;
+  --line: #dbe5ec;
+  --rule-strong: #bdccd8;
 
   /* --- brand (overridden at runtime from SchoolSettings) ------------ */
-  --brand: #1e6f5c;
+  --brand: #133562;
   --brand-contrast: #ffffff;
   --brand-soft: color-mix(in oklab, var(--brand) 12%, white);
-  --accent: #c8a35a;
+  --accent: #ef5b4e;
 
   /* --- the mark scale ------------------------------------------------
      The Moroccan mention bands as colour, used only by the mark bar, so a
      column of averages can be read without reading the numbers. */
   --mark-excellent: var(--brand); /* >= 16  très bien   */
-  --mark-good: #3f8f6f; /* >= 14  bien        */
+  --mark-good: #12b878; /* >= 14  bien        */
   --mark-fair: var(--accent); /* >= 12  assez bien  */
-  --mark-pass: #b08a3e; /* >= 10  passable    */
+  --mark-pass: #c58b16; /* >= 10  passable    */
   --mark-fail: #b4453a; /* <  10  insuffisant */
 
   /* --- status ------------------------------------------------------- */
-  --ok: #1e6f5c;
+  --ok: #0e9663;
   --warn: #9a6b12;
   --danger: #b4453a;
 }

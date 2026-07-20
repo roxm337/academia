@@ -26,7 +26,7 @@ export function LoginForm({ locale }: { locale: string }) {
           autoComplete="email"
           required
           dir="ltr"
-          placeholder="directeur@academia.ma"
+          placeholder="directeur@planetemontessori.demo"
         />
       </div>
 

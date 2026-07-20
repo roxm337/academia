@@ -106,14 +106,15 @@ async function main() {
   await prisma.schoolSettings.create({
     data: {
       id: 1,
-      nameAr: "مدرسة أكاديميا الخاصة",
-      nameFr: "École Academia Privée",
-      addressAr: "شارع محمد الخامس، مراكش",
-      addressFr: "Avenue Mohammed V, Marrakech",
-      phone: "+212 524 00 00 00",
-      email: "contact@academia.ma",
-      primaryColor: "#1e6f5c",
-      secondaryColor: "#c8a35a",
+      nameAr: "مدرسة بلانيت مونتيسوري الدولية",
+      nameFr: "Planète Montessori International School",
+      addressAr: "تجزئة أمين رقم 8، تاركة، مراكش",
+      addressFr: "Lotissement Amine, n°8, Targa, Marrakech",
+      phone: "+212 6 62 63 24 03",
+      email: "planetemontessori@gmail.com",
+      logoPath: "/brand/planete-montessori-logo.png",
+      primaryColor: "#133562",
+      secondaryColor: "#ef5b4e",
       currentSchoolYearId: year.id,
     },
   });
@@ -268,7 +269,7 @@ async function main() {
   console.log("· staff (director, surveillant, teachers)");
   await prisma.user.create({
     data: {
-      email: "directeur@academia.ma", passwordHash, role: Role.DIRECTOR, locale: "fr",
+      email: "directeur@planetemontessori.demo", passwordHash, role: Role.DIRECTOR, locale: "fr",
       firstNameAr: "عبد الرحيم", lastNameAr: "بنجلون",
       firstNameFr: "Abderrahim", lastNameFr: "Benjelloun",
       phone: "+212 661 00 00 01",
@@ -276,7 +277,7 @@ async function main() {
   });
   await prisma.user.create({
     data: {
-      email: "surveillant@academia.ma", passwordHash, role: Role.SURVEILLANT, locale: "fr",
+      email: "surveillant@planetemontessori.demo", passwordHash, role: Role.SURVEILLANT, locale: "fr",
       firstNameAr: "خالد", lastNameAr: "الطاهري",
       firstNameFr: "Khalid", lastNameFr: "Tahiri",
       phone: "+212 661 00 00 02",
@@ -284,11 +285,11 @@ async function main() {
   });
 
   const teacherDefs = [
-    { email: "prof.maths@academia.ma", ar: ["سعيد", "العلوي"], fr: ["Said", "Alaoui"], subjects: ["MATH"], specialty: "Mathématiques" },
-    { email: "prof.pc@academia.ma", ar: ["نادية", "الفاسي"], fr: ["Nadia", "Fassi"], subjects: ["PC"], specialty: "Physique-Chimie" },
-    { email: "prof.arabe@academia.ma", ar: ["مصطفى", "الإدريسي"], fr: ["Mustapha", "Idrissi"], subjects: ["ARA", "EI"], specialty: "Langue Arabe" },
-    { email: "prof.francais@academia.ma", ar: ["ليلى", "برادة"], fr: ["Leila", "Berrada"], subjects: ["FRA"], specialty: "Langue Française" },
-    { email: "prof.svt@academia.ma", ar: ["يونس", "الحسني"], fr: ["Younes", "Hassani"], subjects: ["SVT"], specialty: "SVT" },
+    { email: "prof.maths@planetemontessori.demo", ar: ["سعيد", "العلوي"], fr: ["Said", "Alaoui"], subjects: ["MATH"], specialty: "Mathématiques" },
+    { email: "prof.pc@planetemontessori.demo", ar: ["نادية", "الفاسي"], fr: ["Nadia", "Fassi"], subjects: ["PC"], specialty: "Physique-Chimie" },
+    { email: "prof.arabe@planetemontessori.demo", ar: ["مصطفى", "الإدريسي"], fr: ["Mustapha", "Idrissi"], subjects: ["ARA", "EI"], specialty: "Langue Arabe" },
+    { email: "prof.francais@planetemontessori.demo", ar: ["ليلى", "برادة"], fr: ["Leila", "Berrada"], subjects: ["FRA"], specialty: "Langue Française" },
+    { email: "prof.svt@planetemontessori.demo", ar: ["يونس", "الحسني"], fr: ["Younes", "Hassani"], subjects: ["SVT"], specialty: "SVT" },
   ];
 
   const teacherProfiles: Record<string, string> = {};
@@ -387,7 +388,7 @@ async function main() {
 
       const student = await prisma.user.create({
         data: {
-          email: `eleve${n + 1}@academia.ma`, passwordHash, role: Role.STUDENT, locale: "ar",
+          email: `eleve${n + 1}@planetemontessori.demo`, passwordHash, role: Role.STUDENT, locale: "ar",
           firstNameAr: firstAr, lastNameAr: lastAr,
           firstNameFr: firstFr, lastNameFr: lastFr,
           studentProfile: {
@@ -408,7 +409,7 @@ async function main() {
       if (!shareParent) {
         const parentUser = await prisma.user.create({
           data: {
-            email: `parent${Math.floor(n / 2) + 1}@academia.ma`, passwordHash,
+            email: `parent${Math.floor(n / 2) + 1}@planetemontessori.demo`, passwordHash,
             role: Role.PARENT, locale: "fr",
             firstNameAr: MALE_NAMES[(n + 3) % MALE_NAMES.length][0], lastNameAr: lastAr,
             firstNameFr: MALE_NAMES[(n + 3) % MALE_NAMES.length][1], lastNameFr: lastFr,
@@ -418,7 +419,7 @@ async function main() {
                 firstNameAr: MALE_NAMES[(n + 3) % MALE_NAMES.length][0], lastNameAr: lastAr,
                 firstNameFr: MALE_NAMES[(n + 3) % MALE_NAMES.length][1], lastNameFr: lastFr,
                 phone: `+212 662 00 ${String(n).padStart(2, "0")} 00`,
-                email: `parent${Math.floor(n / 2) + 1}@academia.ma`,
+                email: `parent${Math.floor(n / 2) + 1}@planetemontessori.demo`,
                 professionAr: "أستاذ", professionFr: "Enseignant",
                 addressAr: "حي المسيرة، مراكش", addressFr: "Quartier Massira, Marrakech",
               },
@@ -459,10 +460,10 @@ async function main() {
   console.log("· demo grades, attendance, pedagogy, finance and communication");
 
   const director = await prisma.user.findUniqueOrThrow({
-    where: { email: "directeur@academia.ma" },
+    where: { email: "directeur@planetemontessori.demo" },
   });
   const surveillant = await prisma.user.findUniqueOrThrow({
-    where: { email: "surveillant@academia.ma" },
+    where: { email: "surveillant@planetemontessori.demo" },
   });
   const demoTeachers = await prisma.teacherProfile.findMany({
     include: { user: true },
@@ -703,7 +704,7 @@ async function main() {
         schoolYearId: year.id,
         siblingDiscount: student.guardians.length > 0 && demoStudents.indexOf(student) % 4 === 0 ? 150 : 0,
         customDiscount: demoStudents.indexOf(student) % 7 === 0 ? 100 : 0,
-        discountNote: demoStudents.indexOf(student) % 7 === 0 ? "Bourse Academia" : null,
+        discountNote: demoStudents.indexOf(student) % 7 === 0 ? "Bourse Planète Montessori" : null,
         installments: {
           create: feeItems.flatMap((item, itemIndex) => item.isMonthly
             ? ["2025-10-05", "2025-11-05", "2025-12-05"].map((date, monthIndex) => ({
@@ -812,7 +813,7 @@ async function main() {
   // Announcements, parent/teacher conversations, notifications, and audit trail.
   const announcements = await prisma.announcement.createMany({
     data: [
-      { authorId: director.id, titleAr: "اجتماع أولياء الأمور", titleFr: "Réunion de parents", bodyAr: "يسر إدارة أكاديميا دعوتكم إلى لقاء أولياء الأمور يوم السبت.", bodyFr: "La direction d'Academia vous invite à la réunion de parents samedi matin.", audience: AnnouncementAudience.PARENTS, isPublished: true, publishAt: day("2026-01-08") },
+      { authorId: director.id, titleAr: "اجتماع أولياء الأمور", titleFr: "Réunion de parents", bodyAr: "يسر إدارة بلانيت مونتيسوري دعوتكم إلى لقاء أولياء الأمور يوم السبت.", bodyFr: "La direction de Planète Montessori vous invite à la réunion de parents samedi matin.", audience: AnnouncementAudience.PARENTS, isPublished: true, publishAt: day("2026-01-08") },
       { authorId: director.id, titleAr: "توقيت رمضان", titleFr: "Horaires de Ramadan", bodyAr: "سيبدأ العمل بتوقيت رمضان يوم 17 فبراير.", bodyFr: "Les horaires de Ramadan entreront en vigueur le 17 février.", audience: AnnouncementAudience.WHOLE_SCHOOL, isPublished: true, publishAt: day("2026-01-18") },
       { authorId: surveillant.id, titleAr: "تذكير بالانضباط", titleFr: "Rappel de vie scolaire", bodyAr: "يرجى احترام أوقات الدخول والخروج.", bodyFr: "Merci de respecter les horaires d'entrée et de sortie.", audience: AnnouncementAudience.CLASS, classId: class2BacPC.id, isPublished: true, publishAt: day("2026-01-14") },
       { authorId: director.id, titleAr: "برنامج المجلس", titleFr: "Ordre du jour du conseil", bodyAr: "الاجتماع مخصص لتتبع نتائج الدورة الأولى.", bodyFr: "Le conseil de classe portera sur le bilan du premier semestre.", audience: AnnouncementAudience.TEACHERS, isPublished: false, publishAt: day("2026-01-19") },
@@ -847,7 +848,7 @@ async function main() {
   });
   await prisma.auditLog.createMany({
     data: [
-      { actorId: director.id, action: "SCHOOL_SETTINGS_UPDATE", entity: "SchoolSettings", entityId: "1", after: { primaryColor: "#1e6f5c", secondaryColor: "#c8a35a" }, createdAt: day("2026-01-05") },
+      { actorId: director.id, action: "SCHOOL_SETTINGS_UPDATE", entity: "SchoolSettings", entityId: "1", after: { primaryColor: "#133562", secondaryColor: "#ef5b4e" }, createdAt: day("2026-01-05") },
       { actorId: director.id, action: "SCHEDULE_GENERATE_CLASS", entity: "Class", entityId: class2BacPC.id, after: { created: demoStudents.length }, createdAt: day("2026-01-06") },
       { actorId: surveillant.id, action: "ATTENDANCE_MARK", entity: "Session", entityId: attendanceSessions[0]?.id, after: { marked: studentsIn(class2BacPC.id).length }, createdAt: day("2026-01-12") },
       { actorId: firstTeacher.id, action: "GRADE_ENTER", entity: "GradeItem", after: { count: studentsIn(class2BacPC.id).length }, createdAt: day("2026-01-18") },
@@ -865,8 +866,8 @@ async function main() {
   };
   console.log("\n✔ seed complete", counts);
   console.log(`\n  demo password for every account: ${DEMO_PASSWORD}`);
-  console.log("  directeur@academia.ma · surveillant@academia.ma · prof.maths@academia.ma");
-  console.log("  eleve1@academia.ma · parent1@academia.ma\n");
+  console.log("  directeur@planetemontessori.demo · surveillant@planetemontessori.demo · prof.maths@planetemontessori.demo");
+  console.log("  eleve1@planetemontessori.demo · parent1@planetemontessori.demo\n");
 }
 
 main()

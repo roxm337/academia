@@ -1,4 +1,4 @@
-// Academia LMS — Phase 1 data model (single Moroccan school, not multi-tenant).
+// Planète Montessori LMS data model (single school, not multi-tenant).
 // Bilingual convention: every user-facing label carries *Ar / *Fr fields.
 // Grades are /20 with decimals -> Decimal(5,2). Money is MAD -> Decimal(10,2).
 
@@ -155,8 +155,8 @@ model SchoolSettings {
   nameAr    String
   nameFr    String
   logoPath  String?
-  primaryColor   String @default("#1e6f5c")
-  secondaryColor String @default("#c8a35a")
+  primaryColor   String @default("#133562")
+  secondaryColor String @default("#ef5b4e")
   addressAr String?
   addressFr String?
   phone     String?

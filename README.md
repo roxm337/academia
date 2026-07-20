@@ -1,6 +1,6 @@
-# Academia LMS
+# Planète Montessori LMS
 
-Academia is a bilingual school management platform for Moroccan schools. It brings academic records, attendance, homework, timetables, fees, communication, and school settings into one role-based workspace.
+Planète Montessori LMS is the bilingual digital workspace for Planète Montessori International School in Marrakech. It connects academic records, attendance, learning resources, homework, timetables, fees, and school communication in one role-based portal.
 
 The public experience and dashboards are available in French and Arabic, with automatic left-to-right and right-to-left layout support.
 
@@ -46,7 +46,7 @@ pnpm install
 Create a `.env` file in the project root:
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/academia"
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/planete_montessori_lms"
 ```
 
 The database must exist before running Prisma commands.
@@ -80,11 +80,11 @@ All seeded accounts use the password `Passw0rd!`.
 
 | Role | Email |
 | --- | --- |
-| Director | `directeur@academia.ma` |
-| Supervisor | `surveillant@academia.ma` |
-| Teacher | `prof.maths@academia.ma` |
-| Student | `eleve1@academia.ma` |
-| Parent | `parent1@academia.ma` |
+| Director | `directeur@planetemontessori.demo` |
+| Supervisor | `surveillant@planetemontessori.demo` |
+| Teacher | `prof.maths@planetemontessori.demo` |
+| Student | `eleve1@planetemontessori.demo` |
+| Parent | `parent1@planetemontessori.demo` |
 
 Do not use seeded credentials in a production environment.
 

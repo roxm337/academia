@@ -96,8 +96,8 @@ function decode(raw: string): string {
 }
 
 async function main() {
-  const user = await prisma.user.findFirst({ where: { email: "parent1@academia.ma" } });
-  if (!user) throw new Error("seed missing: parent1@academia.ma");
+  const user = await prisma.user.findFirst({ where: { email: "parent1@planetemontessori.demo" } });
+  if (!user) throw new Error("seed missing: parent1@planetemontessori.demo");
   const originalLocale = user.locale;
   const created: string[] = [];
 

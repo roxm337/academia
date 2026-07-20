@@ -29,7 +29,7 @@ export async function importStudents(input: {
   studentEmailDomain?: string;
 }): Promise<ImportOutcome> {
   const { sheet, mapping, classId } = input;
-  const domain = input.studentEmailDomain ?? "eleve.academia.ma";
+  const domain = input.studentEmailDomain ?? "eleve.planetemontessori.demo";
 
   const parsed = validateRows(sheet, mapping);
   const candidates = parsed.filter((r) => r.errors.length === 0);

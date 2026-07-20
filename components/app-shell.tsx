@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   Bell, BookOpen, Briefcase, CalendarDays, ClipboardList, FileCheck, FileText,
@@ -69,9 +70,16 @@ export function AppShell({
     <div className="flex min-h-dvh">
       {/* Sidebar — flows to the right automatically under dir="rtl". */}
       <aside className="hidden w-64 shrink-0 border-e border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
-        <div className="mb-6 px-2">
-          <p className="truncate text-sm font-semibold">{schoolName}</p>
-          <p className="mt-0.5 truncate text-xs text-[var(--muted)]">
+        <div className="mb-6 px-2 pt-1">
+          <Image
+            src="/brand/planete-montessori-logo.png"
+            alt={schoolName}
+            width={254}
+            height={74}
+            className="h-10 w-auto max-w-full object-contain object-left rtl:object-right"
+            priority
+          />
+          <p className="mt-3 truncate text-xs font-medium text-[var(--muted)]">
             {roleLabel}
           </p>
         </div>
@@ -96,8 +104,15 @@ export function AppShell({
             onClick={() => setOpen(false)}
           />
           <aside className="absolute inset-y-0 start-0 flex w-72 flex-col bg-[var(--surface)] p-4">
-            <div className="mb-6 flex items-center justify-between px-2">
-              <p className="truncate text-sm font-semibold">{schoolName}</p>
+            <div className="mb-6 flex items-center justify-between gap-4 px-2 pt-1">
+              <Image
+                src="/brand/planete-montessori-logo.png"
+                alt={schoolName}
+                width={254}
+                height={74}
+                className="h-10 w-auto min-w-0 object-contain object-left rtl:object-right"
+                priority
+              />
               <button onClick={() => setOpen(false)} aria-label={tc("cancel")}>
                 <X className="size-5" />
               </button>

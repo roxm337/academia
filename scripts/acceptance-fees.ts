@@ -96,7 +96,7 @@ async function main() {
 
     // --- Receipt PDF ---------------------------------------------------------
     const pdf = await renderReceiptPdf({
-      locale: "ar", schoolName: "أكاديميا", number: receiptNumber, issuedAt: now.toISOString().slice(0, 10),
+      locale: "ar", schoolName: "Planète Montessori", number: receiptNumber, issuedAt: now.toISOString().slice(0, 10),
       student: { name: "تلميذ", codeMassar: "A000000000" }, amount: payAmount, method: "نقداً", reference: null,
       allocations: allocations.map((a, i) => ({ label: i === 0 ? "تسجيل" : "شهري", amount: a.amount })),
       labels: { receipt: "وصل", number: "رقم", date: "التاريخ", student: "التلميذ", amount: "المبلغ", method: "الطريقة", reference: "المرجع", covers: "الأقساط", total: "المجموع" },

@@ -16,12 +16,12 @@ export const getBrand = cache(async () => {
   try {
     const s = await getSchoolSettings();
     return {
-      primaryColor: s?.primaryColor ?? "#1e6f5c",
-      secondaryColor: s?.secondaryColor ?? "#c8a35a",
+      primaryColor: s?.primaryColor ?? "#133562",
+      secondaryColor: s?.secondaryColor ?? "#ef5b4e",
     };
   } catch {
     // Don't let a cold/unmigrated DB take the whole app down.
-    return { primaryColor: "#1e6f5c", secondaryColor: "#c8a35a" };
+    return { primaryColor: "#133562", secondaryColor: "#ef5b4e" };
   }
 });
 
@@ -30,7 +30,11 @@ export function schoolName(
   settings: { nameAr: string; nameFr: string } | null,
   locale: string,
 ): string {
-  if (!settings) return "";
+  if (!settings) {
+    return locale === "ar"
+      ? "مدرسة بلانيت مونتيسوري الدولية"
+      : "Planète Montessori International School";
+  }
   return locale === "ar" ? settings.nameAr : settings.nameFr;
 }
 

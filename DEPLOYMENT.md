@@ -15,7 +15,7 @@ scheduled work runs from system cron rather than inside the app process.
 ## 2. First install
 
 ```bash
-git clone <repo> /srv/oddysee && cd /srv/oddysee
+git clone <repo> /srv/planete-montessori && cd /srv/planete-montessori
 npm ci
 npm approve-scripts prisma @prisma/engines esbuild   # npm 11 gates install scripts
 cp .env.example .env && $EDITOR .env                 # see section 3
@@ -35,7 +35,7 @@ loss rather than an error:
 **`STORAGE_LOCAL_DIR` must be an absolute path outside the deploy directory.**
 
 ```bash
-STORAGE_LOCAL_DIR="/var/lib/oddysee/storage"
+STORAGE_LOCAL_DIR="/var/lib/planete-montessori/storage"
 ```
 
 The default `./storage` sits *inside* the app. A deploy that replaces the directory — a fresh
@@ -51,7 +51,7 @@ links inside notification e-mails point at localhost.
 ```bash
 # nightly
 pg_dump "$DATABASE_URL" | gzip > /backups/db-$(date +%F).sql.gz
-tar czf /backups/uploads-$(date +%F).tar.gz -C /var/lib/oddysee storage
+tar czf /backups/uploads-$(date +%F).tar.gz -C /var/lib/planete-montessori storage
 ```
 
 A `StoredFile` row and the bytes on disk are two halves of one record. Backing up only the
@@ -64,8 +64,8 @@ can find. **Test a restore** before you need one.
 without it, and the job dies before it starts.
 
 ```cron
-0 7 * * * cd /srv/oddysee && /usr/bin/npx tsx --conditions=react-server \
-  scripts/jobs.ts daily >> /var/log/oddysee-jobs.log 2>&1
+0 7 * * * cd /srv/planete-montessori && /usr/bin/npx tsx --conditions=react-server \
+  scripts/jobs.ts daily >> /var/log/planete-montessori-jobs.log 2>&1
 ```
 
 Jobs: `overdue` (flip past-due unpaid installments), `payment-reminders`, `absence-alerts`.
@@ -89,22 +89,22 @@ SMS and WhatsApp remain deliberate stubs; they need a provider account and are n
 Use a process manager so the app restarts on boot and on crash — systemd unit or pm2:
 
 ```ini
-# /etc/systemd/system/oddysee.service
+# /etc/systemd/system/planete-montessori.service
 [Service]
-WorkingDirectory=/srv/oddysee
+WorkingDirectory=/srv/planete-montessori
 ExecStart=/usr/bin/npm run start
 Restart=always
-EnvironmentFile=/srv/oddysee/.env
+EnvironmentFile=/srv/planete-montessori/.env
 ```
 
 ## 8. Updating
 
 ```bash
-cd /srv/oddysee && git pull
+cd /srv/planete-montessori && git pull
 npm ci
 npx prisma migrate deploy      # additive migrations only; review the SQL first
 npm run build
-systemctl restart oddysee
+systemctl restart planete-montessori
 ```
 
 Check `npx prisma migrate status` after deploying. It compares *migrations to the database* — it

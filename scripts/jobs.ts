@@ -15,8 +15,8 @@ import { JOBS, runDaily, type JobName, type JobResult } from "../lib/jobs";
  *
  * Suggested crontab (07:00 every day, logging where you can find it):
  *
- *   0 7 * * * cd /srv/oddysee && /usr/bin/npx tsx --conditions=react-server \
- *     scripts/jobs.ts daily >> /var/log/oddysee-jobs.log 2>&1
+ *   0 7 * * * cd /srv/planete-montessori && /usr/bin/npx tsx --conditions=react-server \
+ *     scripts/jobs.ts daily >> /var/log/planete-montessori-jobs.log 2>&1
  *
  * Exits non-zero if any job reported an error, so cron's own mail — or your
  * monitoring — surfaces a silent failure instead of it going unnoticed.

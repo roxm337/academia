@@ -94,7 +94,7 @@ export async function saveStudent(
     // A student login is created alongside the record. The email is derived from
     // the Code Massar, which is unique by definition — schools rarely have a real
     // address for every pupil.
-    const email = `${codeMassar.toLowerCase()}@eleve.academia.ma`;
+    const email = `${codeMassar.toLowerCase()}@eleve.planetemontessori.demo`;
     const passwordHash = await bcrypt.hash(randomBytes(9).toString("base64url"), 10);
 
     const created = await prisma.studentProfile.create({

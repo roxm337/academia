@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import Image from "next/image";
 import { LoginForm } from "./login-form";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { getSchoolSettings, schoolName } from "@/lib/school";
@@ -11,32 +12,53 @@ export default async function LoginPage({ params }: PageProps<"/[locale]/login">
   const settings = await getSchoolSettings();
 
   return (
-    <main className="flex min-h-dvh items-center justify-center p-6">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex justify-center">
-          <LocaleSwitcher />
+    <main className="grid min-h-dvh bg-[var(--surface)] lg:grid-cols-[1.08fr_0.92fr]">
+      <section className="relative hidden min-h-dvh overflow-hidden lg:block">
+        <Image
+          src="/brand/campus-life.jpg"
+          alt={locale === "ar" ? "تلاميذ بلانيت مونتيسوري" : "Élèves de Planète Montessori"}
+          fill
+          sizes="54vw"
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-[#133562]/85 via-[#133562]/10 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-10 text-white xl:p-14">
+          <p className="max-w-lg text-3xl font-semibold leading-tight">
+            {schoolName(settings, locale)}
+          </p>
+          <p className="mt-3 text-sm text-white/80">Targa · Agdal · MYSK — Marrakech</p>
         </div>
+      </section>
 
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-7 shadow-sm">
-          <div className="mb-6 text-center">
-            <div
-              className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl text-lg font-bold text-white"
-              style={{ background: "var(--brand)" }}
-              aria-hidden
-            >
-              {schoolName(settings, locale).charAt(0)}
-            </div>
-            <h1 className="text-xl font-semibold">
-              {schoolName(settings, locale)}
-            </h1>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              {t("loginSubtitle")}
-            </p>
+      <section className="flex min-h-dvh items-center justify-center bg-[#f7fbfe] p-6 md:p-10">
+        <div className="w-full max-w-sm">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <Image
+              src="/brand/planete-montessori-logo.png"
+              alt={schoolName(settings, locale)}
+              width={254}
+              height={74}
+              className="h-12 w-auto min-w-0 object-contain"
+              priority
+            />
+            <LocaleSwitcher />
           </div>
 
-          <LoginForm locale={locale} />
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-7 shadow-sm">
+            <div className="mb-6 text-center">
+              <h1 className="text-xl font-semibold">
+                {schoolName(settings, locale)}
+              </h1>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                {t("loginSubtitle")}
+              </p>
+            </div>
+
+            <LoginForm locale={locale} />
+          </div>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

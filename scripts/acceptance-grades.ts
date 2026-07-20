@@ -131,7 +131,7 @@ async function main() {
     // Render S1's bulletin.
     const pdf = await renderBulletinPdf({
       locale: "ar",
-      schoolName: "أكاديميا",
+      schoolName: "Planète Montessori",
       student: { name: `${S1.firstNameFr} ${S1.lastNameFr}`, codeMassar: S1.codeMassar },
       className: picked.className,
       yearLabel: year.label,

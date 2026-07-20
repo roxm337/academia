@@ -22,7 +22,7 @@ t() { # label url jar
   echo "  code=$1 time=${2}s size=$(( $3 / 1024 ))KB"
 }
 
-login directeur@academia.ma /tmp/sd.jar
+login directeur@planetemontessori.demo /tmp/sd.jar
 
 CLASS=$(curl -s -b /tmp/sd.jar "$BASE/fr/director/bulletins" | grep -oE 'class=[a-z0-9]{20,}' | head -1 | cut -d= -f2)
 SEM=$(curl -s -b /tmp/sd.jar "$BASE/fr/director/bulletins" | grep -oE 'semester=[a-z0-9]{20,}' | head -1 | cut -d= -f2)

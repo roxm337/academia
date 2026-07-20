@@ -45,7 +45,13 @@ export async function generateMetadata({
 }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "common" });
-  return { title: t("appName") };
+  return {
+    title: t("appName"),
+    icons: {
+      icon: "/brand/favicon.png",
+      apple: "/brand/favicon.png",
+    },
+  };
 }
 
 export default async function RootLayout({

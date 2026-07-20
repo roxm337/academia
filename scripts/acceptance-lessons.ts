@@ -28,7 +28,7 @@ const check = (name: string, ok: boolean, detail = "") => {
 
 async function main() {
   const student = await prisma.studentProfile.findFirst({
-    where: { user: { email: "eleve1@academia.ma" } },
+    where: { user: { email: "eleve1@planetemontessori.demo" } },
     select: {
       id: true,
       userId: true,
@@ -39,7 +39,7 @@ async function main() {
       },
     },
   });
-  if (!student) throw new Error("seed missing: eleve1@academia.ma");
+  if (!student) throw new Error("seed missing: eleve1@planetemontessori.demo");
   const klass = student.enrollments[0]!.class;
 
   const unit = await prisma.unit.findFirst({

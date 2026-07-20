@@ -2,17 +2,17 @@
   "landing": {
     "nav": {
       "platform": "La plateforme",
-      "roles": "Les rôles",
-      "school": "L'école marocaine",
+      "roles": "Les espaces",
+      "school": "Notre approche",
       "faq": "Questions",
       "login": "Se connecter"
     },
     "hero": {
-      "eyebrow": "École Academia · Marrakech",
-      "title": "Toute la vie de l'école, dans un seul espace.",
-      "lead": "Notes, absences, devoirs et frais de scolarité — en arabe et en français, sur le téléphone des parents.",
+      "eyebrow": "International School · Marrakech",
+      "title": "Planète Montessori",
+      "lead": "Un espace numérique qui relie l'école, les familles et chaque parcours d'apprentissage, sur nos trois campus.",
       "ctaPrimary": "Se connecter",
-      "ctaSecondary": "Voir ce que ça change",
+      "ctaSecondary": "Découvrir notre approche",
       "artifactLabel": "Bulletin · 1er semestre"
     },
     "bulletin": {
@@ -36,40 +36,40 @@
       }
     },
     "stats": {
-      "students": "Élèves",
-      "teachers": "Enseignants",
-      "classes": "Classes",
-      "languages": "Langues",
-      "languagesValue": "AR · FR"
+      "students": "Campus",
+      "teachers": "Accréditation",
+      "classes": "Depuis",
+      "languages": "Langues d'apprentissage",
+      "languagesValue": "AR · FR · EN"
     },
     "roles": {
-      "eyebrow": "Les rôles",
-      "title": "Un espace pour chacun.",
-      "lead": "Cinq rôles, cinq vues. Chacun voit ce qui le concerne, et rien d'autre.",
+      "eyebrow": "Les espaces",
+      "title": "Chaque membre de la communauté, au bon endroit.",
+      "lead": "Des outils clairs pour accompagner le quotidien de l'école, de la classe à la maison.",
       "director": "Directeur",
-      "directorText": "Pilotez les inscriptions, les notes, la trésorerie et le conseil de classe.",
+      "directorText": "Pilotez les campus, les inscriptions, le suivi académique et la vie scolaire.",
       "surveillant": "Surveillant général",
-      "surveillantText": "Faites l'appel, traitez les justificatifs, suivez la discipline.",
+      "surveillantText": "Coordonnez les présences, les justificatifs et le suivi quotidien des élèves.",
       "teacher": "Enseignant",
-      "teacherText": "Saisissez les notes, remplissez le cahier de textes, corrigez les devoirs rendus.",
+      "teacherText": "Partagez les apprentissages, accompagnez les progrès et organisez les ressources.",
       "student": "Élève",
-      "studentText": "Consultez l'emploi du temps, rendez vos devoirs, suivez vos notes.",
+      "studentText": "Retrouvez votre emploi du temps, vos activités, vos ressources et vos progrès.",
       "parent": "Parent",
-      "parentText": "Suivez chaque enfant : notes, absences, devoirs et paiements — d'un seul compte."
+      "parentText": "Restez proche du parcours de chaque enfant, des activités aux communications de l'école."
     },
     "school": {
-      "eyebrow": "L'école marocaine",
-      "title": "Pensé pour le système marocain.",
-      "lead": "Pas un logiciel traduit. Un outil construit sur les règles réelles de l'école.",
-      "gradesTitle": "Notes sur 20, coefficients, mentions",
-      "gradesText": "La moyenne suit la pondération officielle : Σ(moyenne × coefficient) ÷ Σ(coefficients). Rang, moyenne de classe et mention se recalculent à chaque saisie.",
-      "massarTitle": "Code Massar et Excel",
-      "massarText": "Importez vos listes d'élèves, corrigez les erreurs à l'écran, exportez les notes au format attendu par Massar.",
-      "bilingualTitle": "Bulletins en arabe et en français",
-      "bilingualText": "Le même bulletin en PDF dans les deux langues — écriture arabe correctement liée, lue de droite à gauche.",
-      "ramadanTitle": "Horaire de Ramadan",
-      "ramadanText": "Activez l'emploi du temps de Ramadan sur une période : l'école entière bascule, puis revient.",
-      "formula": "Σ(moyenne × coef) ÷ Σ(coef) = {value} / 20"
+      "eyebrow": "L'expérience Planète Montessori",
+      "title": "L'autonomie, jusque dans l'espace numérique.",
+      "lead": "Le portail prolonge une approche attentive à chaque enfant, tout en donnant aux équipes une vision claire du quotidien.",
+      "gradesTitle": "Un suivi individuel et continu",
+      "gradesText": "Les observations, activités, résultats et progrès restent réunis pour offrir un accompagnement cohérent dans le temps.",
+      "massarTitle": "Une communauté internationale",
+      "massarText": "Trois campus partagent les mêmes outils, les mêmes repères et une vision commune de l'apprentissage.",
+      "bilingualTitle": "Trois langues, un même parcours",
+      "bilingualText": "L'arabe, le français et l'anglais font partie de l'expérience scolaire et restent accessibles aux familles.",
+      "ramadanTitle": "Les familles restent proches",
+      "ramadanText": "Messages, calendrier, devoirs et informations importantes sont réunis dans un espace simple à consulter.",
+      "formula": "Observer · comprendre · progresser"
     },
     "flow": {
       "eyebrow": "Le circuit d'une absence",
@@ -97,19 +97,19 @@
       "a4": "Non. Le directeur fixe la date de publication. Avant cette date, seules les équipes pédagogiques les voient."
     },
     "cta": {
-      "title": "Ouvrez l'espace de votre école.",
-      "lead": "Connectez-vous avec le compte remis par l'administration.",
+      "title": "Bienvenue dans votre espace Planète Montessori.",
+      "lead": "Connectez-vous avec le compte remis par l'administration de votre campus.",
       "button": "Se connecter",
       "secondary": "Demander une démonstration"
     },
     "footer": {
-      "tagline": "La plateforme de gestion et d'apprentissage de l'École Academia.",
-      "address": "Avenue Mohammed V, Marrakech",
+      "tagline": "Le portail de la communauté Planète Montessori International School.",
+      "address": "Targa · Agdal · MYSK — Marrakech",
       "rights": "Tous droits réservés."
     }
   },
   "common": {
-    "appName": "Academia",
+    "appName": "Planète Montessori",
     "loading": "Chargement…",
     "save": "Enregistrer",
     "cancel": "Annuler",

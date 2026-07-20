@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Bricolage_Grotesque, Cairo, Reem_Kufi } from "next/font/google";
 import {
   BadgeCheck, CalendarClock, FileSpreadsheet, GraduationCap, Languages,
@@ -6,7 +7,6 @@ import {
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { GradeStar, ZelligePattern } from "./zellige";
 import "@/app/[locale]/landing.css";
 
 // Loaded here, not in the root layout, so the dashboard never pays for them.
@@ -26,34 +26,14 @@ const body = Cairo({
   variable: "--font-body",
 });
 
-/**
- * The bulletin shown in the hero is a real weighted average, not a prop:
- * Σ(note × coef) ÷ Σ(coef) = 353.00 / 21 = 16.81 → mention Très Bien.
- * The 9.75 in a coefficient-2 subject is deliberate — it shows, at a glance,
- * exactly what coefficients do to an average.
- */
-const MARKS = [
-  { key: "math", coef: 7, mark: 18.0 },
-  { key: "pc", coef: 7, mark: 17.5 },
-  { key: "svt", coef: 5, mark: 17.0 },
-  { key: "arabic", coef: 2, mark: 9.75 },
-] as const;
-
-const AVERAGE =
-  MARKS.reduce((sum, r) => sum + r.mark * r.coef, 0) /
-  MARKS.reduce((sum, r) => sum + r.coef, 0);
-
 const STATS = [
-  { key: "students", value: "412" },
-  { key: "teachers", value: "38" },
-  { key: "classes", value: "21" },
+  { key: "students", value: "3" },
+  { key: "teachers", value: "BSO" },
+  { key: "classes", value: "2014" },
 ] as const;
 
 export async function Landing({ locale }: { locale: string }) {
   const t = await getTranslations("landing");
-  const nf = new Intl.NumberFormat(locale === "ar" ? "ar-MA" : "fr-MA", {
-    minimumFractionDigits: 2,
-  });
 
   return (
     <div
@@ -62,21 +42,7 @@ export async function Landing({ locale }: { locale: string }) {
       {/* ------------------------------------------------------------ nav */}
       <header className="hero-nav absolute inset-x-0 top-0 z-10">
         <div className="shell flex h-20 items-center gap-3 md:gap-6">
-          <span className="display flex min-w-0 items-center gap-2.5 text-base text-white md:text-lg">
-            <svg
-              viewBox="0 0 24 24"
-              className="size-6 shrink-0 text-[var(--brass)]"
-              aria-hidden
-            >
-              <polygon
-                points="12,1 14.1,7.6 20.5,5.5 18.4,11.9 24,12 18.4,12.1 20.5,18.5 14.1,16.4 12,23 9.9,16.4 3.5,18.5 5.6,12.1 0,12 5.6,11.9 3.5,5.5 9.9,7.6"
-                fill="currentColor"
-              />
-            </svg>
-            <span className="truncate">
-              {t("hero.eyebrow").split("·")[0].trim()}
-            </span>
-          </span>
+          <Image src="/brand/planete-montessori-logo.png" alt="Planète Montessori" width={254} height={74} className="h-12 w-auto" priority />
 
           <nav className="ms-auto hidden items-center gap-7 text-sm text-[#b8cbd0] md:flex">
             <a href="#roles" className="hover:text-white">{t("nav.roles")}</a>
@@ -117,8 +83,6 @@ export async function Landing({ locale }: { locale: string }) {
 
       {/* ----------------------------------------------------------- hero */}
       <section className="hero pt-32!">
-        <ZelligePattern className="hero-zellige size-full" />
-
         <div className="shell hero-grid">
           <div className="hero-enter">
             <p className="eyebrow !text-[var(--brass)]">{t("hero.eyebrow")}</p>
@@ -131,58 +95,6 @@ export async function Landing({ locale }: { locale: string }) {
               <a href="#school" className="btn btn-quiet">
                 {t("hero.ctaSecondary")}
               </a>
-            </div>
-          </div>
-
-          {/* The artifact the whole product exists to produce. */}
-          <div className="grid gap-6">
-            <GradeStar
-              average={Number(AVERAGE.toFixed(2))}
-              mention={t("bulletin.mention")}
-              mentionLabel={t("bulletin.mentionLabel")}
-              averageLabel={t("bulletin.averageLabel")}
-            />
-
-            <div className="bulletin">
-              <div className="bulletin-head">
-                <div>
-                  <p className="display text-base">{t("bulletin.student")}</p>
-                  <p className="mt-0.5 text-xs text-[var(--muted-ink)]">
-                    {t("bulletin.class")}
-                  </p>
-                </div>
-                <div className="text-end">
-                  <p className="text-[0.62rem] uppercase tracking-widest text-[var(--muted-ink)]">
-                    {t("bulletin.massarLabel")}
-                  </p>
-                  {/* A Code Massar is Latin: force LTR so it reads correctly
-                      inside an Arabic, right-to-left card. */}
-                  <p className="figures mt-0.5 text-sm font-semibold" dir="ltr">
-                    {t("bulletin.massar")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-1">
-                {MARKS.map((row) => (
-                  <div key={row.key} className="bulletin-row">
-                    <span>{t(`bulletin.rows.${row.key}`)}</span>
-                    <span className="coef figures">×{row.coef}</span>
-                    <span
-                      className={`mark figures ${row.mark < 10 ? "mark-low" : ""}`}
-                    >
-                      {nf.format(row.mark)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="text-[var(--muted-ink)]">
-                  {t("bulletin.rankLabel")}
-                </span>
-                <span className="figures font-semibold">{t("bulletin.rank")}</span>
-              </div>
             </div>
           </div>
         </div>
@@ -277,11 +189,8 @@ export async function Landing({ locale }: { locale: string }) {
               <p className="mt-3 text-sm leading-relaxed text-[#4d6269]">
                 {t("school.gradesText")}
               </p>
-              {/* The formula, set as the formula — and in the reader's language. */}
               <p className="figures mt-5 rounded-lg bg-white/70 px-4 py-3 text-center text-sm text-[var(--ink)]">
-                {t("school.formula", {
-                  value: nf.format(Number(AVERAGE.toFixed(2))),
-                })}
+                {t("school.formula")}
               </p>
             </article>
 
@@ -377,9 +286,7 @@ export async function Landing({ locale }: { locale: string }) {
       <footer className="band-dark py-14!">
         <div className="shell flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="display text-lg text-white">
-              {t("hero.eyebrow").split("·")[0].trim()}
-            </p>
+            <Image src="/brand/planete-montessori-logo.png" alt="Planète Montessori" width={254} height={74} className="h-12 w-auto" />
             <p className="mt-2 max-w-xs text-sm text-[#8ea6b0]">
               {t("footer.tagline")}
             </p>

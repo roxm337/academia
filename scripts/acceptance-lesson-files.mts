@@ -74,9 +74,9 @@ async function main() {
   const draftFile = await attach(draft.id, "draft");
   const publishedFile = await attach(published.id, "published");
 
-  const studentCookie = await login("eleve1@academia.ma");
-  const teacherCookie = await login("prof.maths@academia.ma");
-  const parentCookie = await login("parent1@academia.ma");
+  const studentCookie = await login("eleve1@planetemontessori.demo");
+  const teacherCookie = await login("prof.maths@planetemontessori.demo");
+  const parentCookie = await login("parent1@planetemontessori.demo");
 
   console.log("\n== lesson attachments respect the publish gate ==");
   check(
