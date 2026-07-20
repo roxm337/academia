@@ -762,7 +762,8 @@
         "BLAME_TRAVAIL": "توبيخ — العمل"
       }
     },
-    "noStudentsInClass": "لا يوجد تلاميذ في هذا القسم."
+    "noStudentsInClass": "لا يوجد تلاميذ في هذا القسم.",
+    "downloadBooklet": "تحميل {count} كشف نقط (PDF)"
   },
   "cahier": {
     "title": "دفتر النصوص",

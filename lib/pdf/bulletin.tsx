@@ -78,16 +78,20 @@ const styles = StyleSheet.create({
   councilLine: { marginBottom: 3 },
 });
 
-export async function renderBulletinPdf(input: BulletinInput): Promise<Uint8Array> {
-  registerAmiri();
+/**
+ * One student's bulletin as a single page.
+ *
+ * Shared by the single-bulletin route and the whole-class booklet so the two
+ * can never drift into printing different layouts for the same school.
+ */
+function BulletinPage({ input }: { input: BulletinInput }) {
   const isAr = input.locale === "ar";
   const tx = (s: string) => (isAr && s ? rtl(s) : s);
   const L = input.labels;
   const fmt = (n: number | null) => (n === null ? L.notGraded : n.toFixed(2));
   const align = isAr ? ("right" as const) : ("left" as const);
 
-  return renderToBuffer(
-    <Document>
+  return (
       <Page
         size="A4"
         style={[styles.page, { fontFamily: isAr ? "Amiri" : "Helvetica", textAlign: align }]}
@@ -155,6 +159,34 @@ export async function renderBulletinPdf(input: BulletinInput): Promise<Uint8Arra
           </View>
         ) : null}
       </Page>
+  );
+}
+
+/** A single student's bulletin. */
+export async function renderBulletinPdf(input: BulletinInput): Promise<Uint8Array> {
+  registerAmiri();
+  return renderToBuffer(
+    <Document>
+      <BulletinPage input={input} />
+    </Document>,
+  );
+}
+
+/**
+ * Every bulletin for a class in one document, one page each.
+ *
+ * A school prints a whole class at a time; downloading thirty PDFs and
+ * collating them by hand is the actual end-of-semester job this replaces.
+ * Order is the caller's — normally by rank — because that is the order the
+ * printed stack gets handed out in.
+ */
+export async function renderBulletinBooklet(inputs: BulletinInput[]): Promise<Uint8Array> {
+  registerAmiri();
+  return renderToBuffer(
+    <Document>
+      {inputs.map((input, i) => (
+        <BulletinPage key={i} input={input} />
+      ))}
     </Document>,
   );
 }

@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { FileText } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/page-header";
 import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
 import { ClassSemesterPicker } from "@/components/grades/class-semester-picker";
@@ -39,6 +39,7 @@ export default async function Page({
 
   const bulletinHref = (studentId: string) =>
     `/api/bulletin/pdf?student=${studentId}&semester=${semesterId}&locale=${locale}`;
+  const bookletHref = `/api/bulletin/booklet?class=${classId}&semester=${semesterId}&locale=${locale}`;
 
   return (
     <>
@@ -49,6 +50,18 @@ export default async function Page({
         classId={classId}
         semesterId={semesterId}
       />
+
+      {students.length > 0 ? (
+        <div className="mb-4 flex justify-end">
+          <a
+            href={bookletHref}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm hover:bg-black/[0.03]"
+          >
+            <Download className="size-4" aria-hidden="true" />
+            {t("downloadBooklet", { count: students.length })}
+          </a>
+        </div>
+      ) : null}
 
       {students.length === 0 ? (
         <Card className="text-sm text-[var(--muted)]">{t("noItems")}</Card>
@@ -79,7 +92,7 @@ export default async function Page({
                         rel="noopener"
                         className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm hover:bg-black/[0.03]"
                       >
-                        <FileText className="size-4" />
+                        <FileText className="size-4" aria-hidden="true" />
                         {t("viewBulletin")}
                       </a>
                     </div>

@@ -762,7 +762,8 @@
         "BLAME_TRAVAIL": "Blâme — travail"
       }
     },
-    "noStudentsInClass": "Aucun élève dans cette classe."
+    "noStudentsInClass": "Aucun élève dans cette classe.",
+    "downloadBooklet": "Télécharger les {count} bulletins (PDF)"
   },
   "cahier": {
     "title": "Cahier de textes",
