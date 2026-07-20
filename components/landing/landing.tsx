@@ -42,9 +42,18 @@ export async function Landing({ locale }: { locale: string }) {
       {/* ------------------------------------------------------------ nav */}
       <header className="hero-nav absolute inset-x-0 top-0 z-10">
         <div className="shell flex h-20 items-center gap-3 md:gap-6">
-          <Image src="/brand/planete-montessori-logo.png" alt="Planète Montessori" width={254} height={74} className="h-12 w-auto" priority />
+          <Link href="/" className="brand-lockup" aria-label="Planète Montessori">
+            <Image
+              src="/planete-montessori-private-school-marrakech-Frame-11.png"
+              alt="Planète Montessori"
+              width={270}
+              height={79}
+              className="h-10 w-auto"
+              priority
+            />
+          </Link>
 
-          <nav className="ms-auto hidden items-center gap-7 text-sm text-[#b8cbd0] md:flex">
+          <nav className="hero-nav-links ms-auto hidden items-center gap-7 text-sm md:flex">
             <a href="#roles" className="hover:text-white">{t("nav.roles")}</a>
             <a href="#school" className="hover:text-white">{t("nav.school")}</a>
             <a href="#faq" className="hover:text-white">{t("nav.faq")}</a>
@@ -52,10 +61,10 @@ export async function Landing({ locale }: { locale: string }) {
 
           <div className="ms-auto flex shrink-0 items-center gap-2 md:ms-0 md:gap-3">
             {/* Server-rendered locale swap — no JS on the marketing page. */}
-            <div className="flex items-center text-sm">
+            <div className="locale-links flex items-center text-sm">
               {routing.locales.map((l, i) => (
                 <span key={l} className="flex items-center">
-                  {i > 0 && <span className="mx-1.5 text-[#3a5665]">/</span>}
+                  {i > 0 && <span className="locale-separator mx-1.5">/</span>}
                   <Link
                     href="/"
                     locale={l}
@@ -63,7 +72,7 @@ export async function Landing({ locale }: { locale: string }) {
                     className={
                       l === locale
                         ? "font-semibold text-[var(--brass)]"
-                        : "text-[#7f97a3] hover:text-white"
+                        : "locale-inactive hover:text-white"
                     }
                   >
                     {l === "ar" ? "العربية" : "FR"}
@@ -82,7 +91,7 @@ export async function Landing({ locale }: { locale: string }) {
       </header>
 
       {/* ----------------------------------------------------------- hero */}
-      <section className="hero pt-32!">
+      <section className="hero">
         <div className="shell hero-grid">
           <div className="hero-enter">
             <p className="eyebrow !text-[var(--brass)]">{t("hero.eyebrow")}</p>
@@ -101,17 +110,17 @@ export async function Landing({ locale }: { locale: string }) {
       </section>
 
       {/* ---------------------------------------------------------- stats */}
-      <section className="band-chaux !py-0">
+      <section className="stats-band band-chaux !py-0">
         <div className="shell grid grid-cols-2 divide-x divide-[#dde4e0] md:grid-cols-4 rtl:divide-x-reverse">
           {STATS.map((s) => (
-            <div key={s.key} className="px-4 py-9 text-center">
+            <div key={s.key} className="stat-item px-4 py-9 text-center">
               <p className="figures display text-3xl">{s.value}</p>
               <p className="mt-1 text-xs uppercase tracking-widest text-[var(--muted-ink)]">
                 {t(`stats.${s.key}`)}
               </p>
             </div>
           ))}
-          <div className="px-4 py-9 text-center">
+          <div className="stat-item px-4 py-9 text-center">
             <p className="display text-3xl text-[var(--brand-blue)]">
               {t("stats.languagesValue")}
             </p>
@@ -286,7 +295,7 @@ export async function Landing({ locale }: { locale: string }) {
       <footer className="band-dark py-14!">
         <div className="shell flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <Image src="/brand/planete-montessori-logo.png" alt="Planète Montessori" width={254} height={74} className="h-12 w-auto" />
+            <Image src="/planete-montessori-private-school-marrakech-Frame-11.png" alt="Planète Montessori" width={270} height={79} className="h-12 w-auto" />
             <p className="mt-2 max-w-xs text-sm text-[#8ea6b0]">
               {t("footer.tagline")}
             </p>

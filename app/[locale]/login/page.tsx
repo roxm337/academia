@@ -34,14 +34,16 @@ export default async function LoginPage({ params }: PageProps<"/[locale]/login">
       <section className="flex min-h-dvh items-center justify-center bg-[#f7fbfe] p-6 md:p-10">
         <div className="w-full max-w-sm">
           <div className="mb-6 flex items-center justify-between gap-4">
-            <Image
-              src="/brand/planete-montessori-logo.png"
-              alt={schoolName(settings, locale)}
-              width={254}
-              height={74}
-              className="h-12 w-auto min-w-0 object-contain"
-              priority
-            />
+            <div className="inline-flex min-w-0 rounded-lg bg-[#133562] px-3 py-2">
+              <Image
+                src="/planete-montessori-private-school-marrakech-Frame-11.png"
+                alt={schoolName(settings, locale)}
+                width={270}
+                height={79}
+                className="h-9 w-auto min-w-0 object-contain"
+                priority
+              />
+            </div>
             <LocaleSwitcher />
           </div>
 

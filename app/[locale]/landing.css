@@ -61,33 +61,52 @@
 .landing .band-dark { background: var(--ink); color: var(--mist); }
 .landing .band-chaux { background: var(--mist); }
 
+/* A stable glass header keeps navigation legible across every image crop. */
+.landing .hero-nav {
+  background: rgba(19, 53, 98, 0.72);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 35px rgba(7, 27, 52, 0.12);
+  backdrop-filter: blur(16px) saturate(120%);
+}
+.landing .brand-lockup {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0;
+}
+.landing .hero-nav-links a { color: rgba(255, 255, 255, 0.78); }
+.landing .hero-nav-links a:hover { color: #fff; }
+.landing .locale-inactive { color: rgba(255, 255, 255, 0.66); }
+.landing .locale-separator { color: rgba(255, 255, 255, 0.3); }
+
 /* Hero: the school and its students are the first brand signal. */
 .landing .hero {
   position: relative;
   overflow: hidden;
-  min-height: min(82svh, 760px);
+  min-height: clamp(680px, 84svh, 820px);
   display: flex;
-  align-items: flex-end;
-  background-image: linear-gradient(90deg, rgba(19,53,98,.9) 0%, rgba(19,53,98,.67) 42%, rgba(19,53,98,.1) 76%), url("/brand/campus-life.jpg");
+  align-items: center;
+  background-image: linear-gradient(90deg, rgba(19,53,98,.94) 0%, rgba(19,53,98,.79) 34%, rgba(19,53,98,.2) 64%, rgba(19,53,98,.03) 82%), url("/brand/hero-campus-v2.webp");
   background-size: cover;
-  background-position: center 38%;
+  background-position: center center;
   color: var(--mist);
-  padding-block: clamp(4rem, 3rem + 6vw, 7rem) clamp(4rem, 3rem + 5vw, 6rem);
+  padding-block: clamp(9rem, 7rem + 5vw, 12rem) clamp(5rem, 4rem + 3vw, 7rem);
 }
 .landing .hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.06;
+  opacity: 0.035;
   pointer-events: none;
   background-image: linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: linear-gradient(90deg, #000, transparent 58%);
 }
-.landing .hero-grid { position: relative; z-index: 1; width: 100%; }
-.landing .hero-enter { max-width: 44rem; }
-.landing .hero h1 { color: #fff; max-width: 14ch; text-shadow: 0 2px 22px rgba(8,27,50,.2); }
-.landing .hero .lead { color: #eef7fb; max-width: 42ch; margin-top: 1.35rem; }
+.landing .hero-grid { position: relative; z-index: 1; }
+.landing .hero-enter { max-width: 36rem; }
+.landing .hero h1 { color: #fff; max-width: 12ch; text-shadow: 0 3px 24px rgba(8,27,50,.22); }
+.landing .hero .lead { color: #eef7fb; max-width: 38ch; margin-top: 1.35rem; text-shadow: 0 2px 14px rgba(8,27,50,.18); }
 
 .landing .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
@@ -99,17 +118,25 @@
 .landing .btn:active { transform: translateY(0); }
 .landing .btn-brass { background: var(--coral); color: #fff; box-shadow: 0 10px 24px rgba(239,91,78,.22); }
 .landing .btn-brass:hover { background: #ff7164; box-shadow: 0 14px 30px rgba(239,91,78,.3); }
-.landing .btn-quiet { border-color: #3a5665; color: #d9e5e7; }
+.landing .btn-quiet { border-color: rgba(255,255,255,.42); color: #fff; background:rgba(19,53,98,.16); backdrop-filter:blur(8px); }
 .landing .btn-quiet:hover { border-color: var(--brand-cyan); color: var(--brand-cyan); }
 .landing .btn-ink { background: var(--ink); color: #fff; }
 .landing .btn-ink:hover { background: var(--coral); }
 .landing :is(a, button):focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 4px; }
 
 /* Stats are a clean signal rail instead of a separate decorative band. */
+.landing .stats-band { border-bottom:1px solid #e2ebf0; }
 .landing .band-chaux .shell.grid { position: relative; }
 .landing .band-chaux .shell.grid > div { border-color: #dbe7e5; }
 .landing .band-chaux .shell.grid > div:first-child { border-inline-start: 0; }
 .landing .band-chaux .figures { color: var(--ink); }
+.landing .stat-item { position:relative; transition:background-color .25s ease; }
+.landing .stat-item:hover { background:rgba(255,255,255,.58); }
+.landing .stat-item::before { content:""; position:absolute; inset-inline:20%; top:0; height:3px; background:var(--brand-blue); transform:scaleX(.34); transition:transform .25s ease; }
+.landing .stat-item:hover::before { transform:scaleX(1); }
+.landing .stat-item:nth-child(2)::before { background:var(--brand-cyan); }
+.landing .stat-item:nth-child(3)::before { background:var(--brass); }
+.landing .stat-item:nth-child(4)::before { background:var(--coral); }
 
 .landing .tiles { display:grid; gap:1px; background:#dbe6e4; border:1px solid #dbe6e4; border-radius:8px; overflow:hidden; box-shadow: 0 18px 50px -40px rgba(11,23,35,.7); }
 @media (min-width:48rem) { .landing .tiles { grid-template-columns:repeat(6,1fr); } .landing .tile-wide { grid-column:span 3; } .landing .tile { grid-column:span 2; } }
@@ -131,9 +158,16 @@
 .landing .plate-accent { border-color:transparent; background:#fff9f7; box-shadow:inset 3px 0 0 var(--coral); }
 
 @media (max-width: 48rem) {
-  .landing .hero { min-height: 76svh; background-position: 58% center; background-image: linear-gradient(0deg, rgba(19,53,98,.94) 0%, rgba(19,53,98,.45) 64%, rgba(19,53,98,.06) 100%), url("/brand/campus-life.jpg"); }
-  .landing .hero-nav { background: rgba(255,255,255,.94); border-bottom: 1px solid rgba(19,53,98,.08); backdrop-filter: blur(12px); }
-  .landing .hero-nav .text-white { color: var(--ink); }
+  .landing { --shell: min(100% - 1.5rem, 1180px); }
+  .landing .hero { min-height: 720px; align-items:flex-end; background-position: 60% center; background-image: linear-gradient(0deg, rgba(19,53,98,.97) 0%, rgba(19,53,98,.7) 42%, rgba(19,53,98,.08) 78%), url("/brand/hero-campus-v2.webp"); padding-block:8.5rem 4.5rem; }
+  .landing .hero-nav { background:rgba(19,53,98,.92); border-bottom-color:rgba(255,255,255,.12); box-shadow:0 8px 24px rgba(19,53,98,.16); }
+  .landing .brand-lockup { min-height:2.65rem; }
+  .landing .brand-lockup img { height:2rem; }
+  .landing .locale-links { font-size:.75rem; }
+  .landing .locale-inactive { color:rgba(255,255,255,.7); }
+  .landing .locale-separator { color:rgba(255,255,255,.3); }
+  .landing .hero-nav .btn { min-height:2.5rem; }
+  .landing .hero-enter { max-width:32rem; }
 }
 
 .landing .qa { border-top:1px solid #dbe5e3; padding-block:1.4rem; }

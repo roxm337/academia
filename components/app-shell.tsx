@@ -71,14 +71,16 @@ export function AppShell({
       {/* Sidebar — flows to the right automatically under dir="rtl". */}
       <aside className="hidden w-64 shrink-0 border-e border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
         <div className="mb-6 px-2 pt-1">
-          <Image
-            src="/brand/planete-montessori-logo.png"
-            alt={schoolName}
-            width={254}
-            height={74}
-            className="h-10 w-auto max-w-full object-contain object-left rtl:object-right"
-            priority
-          />
+          <div className="inline-flex rounded-lg bg-[#133562] px-3 py-2">
+            <Image
+              src="/planete-montessori-private-school-marrakech-Frame-11.png"
+              alt={schoolName}
+              width={270}
+              height={79}
+              className="h-8 w-auto max-w-full object-contain object-left rtl:object-right"
+              priority
+            />
+          </div>
           <p className="mt-3 truncate text-xs font-medium text-[var(--muted)]">
             {roleLabel}
           </p>
@@ -105,14 +107,16 @@ export function AppShell({
           />
           <aside className="absolute inset-y-0 start-0 flex w-72 flex-col bg-[var(--surface)] p-4">
             <div className="mb-6 flex items-center justify-between gap-4 px-2 pt-1">
-              <Image
-                src="/brand/planete-montessori-logo.png"
-                alt={schoolName}
-                width={254}
-                height={74}
-                className="h-10 w-auto min-w-0 object-contain object-left rtl:object-right"
-                priority
-              />
+              <div className="inline-flex min-w-0 rounded-lg bg-[#133562] px-3 py-2">
+                <Image
+                  src="/planete-montessori-private-school-marrakech-Frame-11.png"
+                  alt={schoolName}
+                  width={270}
+                  height={79}
+                  className="h-8 w-auto min-w-0 object-contain object-left rtl:object-right"
+                  priority
+                />
+              </div>
               <button onClick={() => setOpen(false)} aria-label={tc("cancel")}>
                 <X className="size-5" />
               </button>

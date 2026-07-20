@@ -112,7 +112,7 @@ async function main() {
       addressFr: "Lotissement Amine, n°8, Targa, Marrakech",
       phone: "+212 6 62 63 24 03",
       email: "planetemontessori@gmail.com",
-      logoPath: "/brand/planete-montessori-logo.png",
+      logoPath: "/planete-montessori-private-school-marrakech-Frame-11.png",
       primaryColor: "#133562",
       secondaryColor: "#ef5b4e",
       currentSchoolYearId: year.id,
