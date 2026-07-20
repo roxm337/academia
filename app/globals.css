@@ -1,16 +1,55 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f7f8f7;
-  --foreground: #14201c;
-  --surface: #ffffff;
-  --border: #e3e7e5;
-  --muted: #6b7a75;
+/**
+ * The register.
+ *
+ * This app's centre of gravity is a ruled page of marks out of 20 — the
+ * bulletin, the gradebook, the conseil de classe. So the surface reads as
+ * paper: horizontal rules carry the structure, vertical borders go wherever a
+ * rule will do instead, and the mark itself is the one loud element.
+ *
+ * Colour is spent almost nowhere else. `--brand` is overridden per school at
+ * runtime from SchoolSettings, so nothing here may assume a particular hue.
+ */
 
-  /* Overridden at runtime from SchoolSettings (brand is configurable). */
+:root {
+  /* --- paper and ink ------------------------------------------------ */
+  --background: #f4f6f5; /* the page */
+  --surface: #ffffff; /* a sheet laid on it */
+  --surface-sunken: #eef1f0; /* table headers, wells */
+
+  --foreground: #10201b;
+  --ink: #10201b; /* same as foreground; both names are in use */
+  --ink-2: #3c4b46; /* secondary text */
+  --muted: #66756f; /* labels, captions */
+
+  /* Two rule weights: hairline for rows, strong for section breaks.
+     `--line` and `--border` are aliases — both spellings exist in the
+     components and were previously undefined, which silently fell back to
+     currentColor and drew ink-dark borders. */
+  --border: #dde3e1;
+  --line: #dde3e1;
+  --rule-strong: #c2ccc8;
+
+  /* --- brand (overridden at runtime from SchoolSettings) ------------ */
   --brand: #1e6f5c;
   --brand-contrast: #ffffff;
+  --brand-soft: color-mix(in oklab, var(--brand) 12%, white);
   --accent: #c8a35a;
+
+  /* --- the mark scale ------------------------------------------------
+     The Moroccan mention bands as colour, used only by the mark bar, so a
+     column of averages can be read without reading the numbers. */
+  --mark-excellent: var(--brand); /* >= 16  très bien   */
+  --mark-good: #3f8f6f; /* >= 14  bien        */
+  --mark-fair: var(--accent); /* >= 12  assez bien  */
+  --mark-pass: #b08a3e; /* >= 10  passable    */
+  --mark-fail: #b4453a; /* <  10  insuffisant */
+
+  /* --- status ------------------------------------------------------- */
+  --ok: #1e6f5c;
+  --warn: #9a6b12;
+  --danger: #b4453a;
 }
 
 @theme inline {
@@ -24,6 +63,7 @@
 
   --font-sans: var(--font-latin);
   --font-arabic: var(--font-arabic);
+  --font-mono: var(--font-mono);
 }
 
 body {
@@ -40,5 +80,58 @@ html[dir="rtl"] body {
 
 /* Arabic script needs a touch more line height to stay legible. */
 html[lang="ar"] {
-  line-height: 1.75;
+  line-height: 1.7;
+}
+
+/**
+ * Figures must line up in a column or a page of marks cannot be scanned.
+ * Plex ships true tabular figures; this turns them on where it matters rather
+ * than repeating a utility on every cell.
+ */
+table,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/** Read character by character: Code Massar, receipt numbers, times. */
+.code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/**
+ * The filing label above a section. Defined once so the register's voice is
+ * consistent instead of respelled as a pile of utilities on every page.
+ */
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Arabic has no letter case, and tracking out an Arabic string breaks the
+   joins between letters. Neither belongs on an Arabic eyebrow. */
+html[lang="ar"] .eyebrow {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.75rem;
+}
+
+/** One visible focus treatment everywhere, keyboard-only. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

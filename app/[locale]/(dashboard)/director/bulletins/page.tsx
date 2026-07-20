@@ -1,7 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Download, FileText } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/page-header";
-import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
+import { Badge, Table, TableWrap, Td, Th } from "@/components/ui/field";
+import { Mark } from "@/components/ui/mark";
 import { ClassSemesterPicker } from "@/components/grades/class-semester-picker";
 import { requireRole } from "@/lib/dal";
 import { listClassesLite } from "@/lib/data/timetable";
@@ -29,6 +30,7 @@ export default async function Page({
   }
 
   const classId = classes.some((c) => c.id === sp.class) ? String(sp.class) : classes[0].id;
+  const klassName = classes.find((c) => c.id === classId)?.name ?? "";
   const semesterId = semesters.some((s) => s.id === sp.semester) ? String(sp.semester) : semesters[0].id;
   const semesterIndex = semesters.find((s) => s.id === semesterId)!.index;
 
@@ -43,7 +45,21 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={t("bulletin")} subtitle={t("semesterN", { n: semesterIndex })} />
+      <PageHeader
+        title={t("bulletin")}
+        eyebrow={`${klassName} \u00b7 ${t("semesterN", { n: semesterIndex })}`}
+        actions={
+          students.length > 0 ? (
+            <a
+              href={bookletHref}
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm hover:bg-[var(--surface-sunken)]"
+            >
+              <Download className="size-4" aria-hidden="true" />
+              {t("downloadBooklet", { count: students.length })}
+            </a>
+          ) : null
+        }
+      />
       <ClassSemesterPicker
         classes={classes.map((c) => ({ id: c.id, label: c.name }))}
         semesters={semesters.map((s) => ({ id: s.id, label: t("semesterN", { n: s.index }) }))}
@@ -51,20 +67,8 @@ export default async function Page({
         semesterId={semesterId}
       />
 
-      {students.length > 0 ? (
-        <div className="mb-4 flex justify-end">
-          <a
-            href={bookletHref}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm hover:bg-black/[0.03]"
-          >
-            <Download className="size-4" aria-hidden="true" />
-            {t("downloadBooklet", { count: students.length })}
-          </a>
-        </div>
-      ) : null}
-
       {students.length === 0 ? (
-        <Card className="text-sm text-[var(--muted)]">{t("noItems")}</Card>
+        <EmptyState message={t("noItems")} />
       ) : (
         <TableWrap>
           <Table>
@@ -72,7 +76,7 @@ export default async function Page({
               <tr>
                 <Th>{t("rank")}</Th>
                 <Th>{t("student")}</Th>
-                <Th className="text-center">{t("general")}</Th>
+                <Th>{t("general")}</Th>
                 <Th>{t("mention")}</Th>
                 <Th className="text-end">{t("bulletin")}</Th>
               </tr>
@@ -80,9 +84,13 @@ export default async function Page({
             <tbody>
               {students.map((s) => (
                 <tr key={s.studentId}>
-                  <Td className="text-center font-mono">{s.rank ?? "—"}</Td>
+                  <Td className="tabular w-12 text-center text-[var(--muted)]">
+                    {s.rank ?? "\u2014"}
+                  </Td>
                   <Td className="whitespace-nowrap font-medium">{name(s)}</Td>
-                  <Td className="text-center font-mono font-semibold">{s.general?.toFixed(2) ?? "—"}</Td>
+                  <Td>
+                    <Mark value={s.general} emptyLabel={t("notGraded")} showBar />
+                  </Td>
                   <Td>{s.mention ? <Badge tone="neutral">{t(`mentions.${s.mention}`)}</Badge> : "—"}</Td>
                   <Td>
                     <div className="flex justify-end">
@@ -90,7 +98,7 @@ export default async function Page({
                         href={bulletinHref(s.studentId)}
                         target="_blank"
                         rel="noopener"
-                        className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm hover:bg-black/[0.03]"
+                        className="inline-flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-sm hover:bg-[var(--surface-sunken)]"
                       >
                         <FileText className="size-4" aria-hidden="true" />
                         {t("viewBulletin")}

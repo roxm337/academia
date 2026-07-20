@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageHeader, EmptyState } from "@/components/page-header";
-import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
+import { Badge, Table, TableWrap, Td, Th } from "@/components/ui/field";
+import { Mark } from "@/components/ui/mark";
 import { ClassSemesterPicker } from "@/components/grades/class-semester-picker";
 import { SemesterControls } from "@/components/grades/semester-controls";
 import { requireRole } from "@/lib/dal";
@@ -61,14 +62,23 @@ export default async function Page({
         semesterId={semesterId}
       />
 
-      <div className="mb-3 flex flex-wrap gap-3 text-sm text-[var(--muted)]">
-        <span>{t("classAverage")}: <b>{stats.average?.toFixed(2) ?? "—"}</b></span>
-        <span>{t("min")}: {stats.min?.toFixed(2) ?? "—"}</span>
-        <span>{t("max")}: {stats.max?.toFixed(2) ?? "—"}</span>
-      </div>
+      <dl className="mb-4 flex flex-wrap gap-x-10 gap-y-3 border-y border-[var(--line)] py-3">
+        {[
+          { k: t("classAverage"), v: stats.average },
+          { k: t("min"), v: stats.min },
+          { k: t("max"), v: stats.max },
+        ].map((stat) => (
+          <div key={stat.k}>
+            <dt className="eyebrow">{stat.k}</dt>
+            <dd className="mt-1">
+              <Mark value={stat.v} emptyLabel={t("notGraded")} size="sm" />
+            </dd>
+          </div>
+        ))}
+      </dl>
 
       {students.length === 0 ? (
-        <Card className="text-sm text-[var(--muted)]">{t("noItems")}</Card>
+        <EmptyState message={t("noItems")} />
       ) : (
         <TableWrap>
           <Table>
@@ -76,17 +86,19 @@ export default async function Page({
               <tr>
                 <Th>{t("rank")}</Th>
                 <Th>{t("student")}</Th>
-                <Th className="text-center">{t("general")}</Th>
+                <Th>{t("general")}</Th>
                 <Th>{t("mention")}</Th>
               </tr>
             </thead>
             <tbody>
               {students.map((s) => (
                 <tr key={s.studentId}>
-                  <Td className="text-center font-mono">{s.rank ?? "—"}</Td>
+                  <Td className="tabular w-12 text-center text-[var(--muted)]">
+                    {s.rank ?? "\u2014"}
+                  </Td>
                   <Td className="whitespace-nowrap font-medium">{name(s)}</Td>
-                  <Td className="text-center font-mono font-semibold">
-                    {s.general?.toFixed(2) ?? "—"}
+                  <Td>
+                    <Mark value={s.general} emptyLabel={t("notGraded")} showBar />
                   </Td>
                   <Td>
                     {s.mention ? <Badge tone="neutral">{t(`mentions.${s.mention}`)}</Badge> : "—"}

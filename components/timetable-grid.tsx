@@ -44,19 +44,19 @@ export async function TimetableGrid<T extends GridSlot>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+    <div className="overflow-x-auto rounded-[10px] border border-[var(--line)] bg-[var(--surface)]">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
-            <th className="w-20 border-b border-e border-[var(--border)] px-2 py-2 text-xs font-semibold text-[var(--muted)]">
-              {t("time")}
+            <th className="w-20 border-b border-e border-[var(--rule-strong)] bg-[var(--surface-sunken)] px-2 py-2">
+              <span className="eyebrow">{t("time")}</span>
             </th>
             {WEEKDAYS.map((d) => (
               <th
                 key={d}
-                className="border-b border-e border-[var(--border)] px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide text-[var(--muted)]"
+                className="border-b border-e border-[var(--rule-strong)] bg-[var(--surface-sunken)] px-2 py-2 text-center"
               >
-                {t(`weekdays.${d}`)}
+                <span className="eyebrow">{t(`weekdays.${d}`)}</span>
               </th>
             ))}
           </tr>
@@ -64,7 +64,7 @@ export async function TimetableGrid<T extends GridSlot>({
         <tbody>
           {periods.map((p, pi) => (
             <tr key={pi}>
-              <th className="whitespace-nowrap border-b border-e border-[var(--border)] px-2 py-2 text-start align-top font-mono text-[11px] font-normal text-[var(--muted)]">
+              <th className="code whitespace-nowrap border-b border-e border-[var(--line)] bg-[var(--surface-sunken)]/60 px-2 py-2 text-start align-top text-[11px] font-normal text-[var(--muted)]">
                 {minToLabel(p.startMin)}
                 <br />
                 {minToLabel(p.endMin)}
@@ -74,7 +74,7 @@ export async function TimetableGrid<T extends GridSlot>({
                 return (
                   <td
                     key={d}
-                    className="h-16 border-b border-e border-[var(--border)] p-1 align-top"
+                    className="h-16 border-b border-e border-[var(--line)] p-1 align-top"
                   >
                     {slot
                       ? renderSlot(slot)

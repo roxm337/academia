@@ -11,6 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Badge, Card } from "@/components/ui/field";
+import { Mark } from "@/components/ui/mark";
 
 type StudentDashboardData = {
   studentName: string;
@@ -42,23 +43,36 @@ export function StudentDashboard({ data }: { data: StudentDashboardData }) {
 
   return <div className="space-y-6">
     <section className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
-      <Card className="overflow-hidden border-0 bg-[var(--brand)] p-0 text-white shadow-[0_18px_45px_rgba(15,118,110,0.18)]">
-        <div className="relative p-6 sm:p-8">
-          <div className="absolute -end-12 -top-16 h-48 w-48 rounded-full border-[24px] border-white/10" />
-          <p className="relative text-sm font-medium text-white/70">{s("schoolYear", { year: data.schoolYear })}</p>
-          <h2 className="relative mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{t("welcome", { name: data.studentName })}</h2>
-          <div className="relative mt-7 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/80">
-            <span><strong className="font-semibold text-white">{s("class")}</strong> {data.className ?? s("noClass")}</span>
-            <span><strong className="font-semibold text-white">{s("massar")}</strong> {data.codeMassar}</span>
+      <Card className="border-0 bg-[var(--brand)] p-6 text-white sm:p-8">
+        <p className="eyebrow text-white/60">
+          {s("schoolYear", { year: data.schoolYear })}
+        </p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+          {t("welcome", { name: data.studentName })}
+        </h2>
+        {/* The two facts that identify this record. */}
+        <dl className="mt-7 flex flex-wrap gap-x-10 gap-y-3 text-sm">
+          <div>
+            <dt className="eyebrow text-white/60">{s("class")}</dt>
+            <dd className="mt-0.5 font-medium">{data.className ?? s("noClass")}</dd>
           </div>
-        </div>
+          <div>
+            <dt className="eyebrow text-white/60">{s("massar")}</dt>
+            <dd className="code mt-0.5" dir="ltr">{data.codeMassar}</dd>
+          </div>
+        </dl>
       </Card>
       <Card className="flex flex-col justify-between p-6">
         <div className="flex items-start justify-between gap-3">
-          <div><p className="text-sm text-[var(--muted)]">{s("average")}</p><p className="mt-2 text-4xl font-semibold tracking-tight text-[var(--ink)]">{data.result?.general != null ? s("outOf20", { value: data.result.general.toFixed(2) }) : na}</p></div>
+          <div>
+            <p className="eyebrow">{s("average")}</p>
+            <div className="mt-2">
+              <Mark value={data.result?.general ?? null} emptyLabel={na} size="lg" showBar />
+            </div>
+          </div>
           {data.result?.mention ? <Badge tone="success">{data.result.mention}</Badge> : null}
         </div>
-        <div className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm"><span className="text-[var(--muted)]">{s("rank")}</span><span className="font-semibold text-[var(--ink)]">{data.result?.rank != null ? `${data.result.rank} ${s("of")} ${data.result.classSize}` : na}</span></div>
+        <div className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm"><span className="eyebrow">{s("rank")}</span><span className="tabular font-semibold text-[var(--ink)]">{data.result?.rank != null ? `${data.result.rank} ${s("of")} ${data.result.classSize}` : na}</span></div>
       </Card>
     </section>
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -68,8 +82,8 @@ export function StudentDashboard({ data }: { data: StudentDashboardData }) {
       <Metric label={t("kpis.unreadAnnouncements")} value={data.unreadAnnouncements} icon={Megaphone} />
     </section>
     <section>
-      <div className="mb-3 flex items-center justify-between"><h2 className="text-lg font-semibold text-[var(--ink)]">{s("nextActions")}</h2><ArrowUpRight className="h-5 w-5 text-[var(--muted)]" aria-hidden="true" /></div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{actions.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className="group rounded-xl border border-[var(--line)] bg-white p-4 transition hover:-translate-y-0.5 hover:border-[var(--brand)] hover:shadow-[0_10px_25px_rgba(15,23,42,0.07)]"><Icon className="h-5 w-5 text-[var(--brand)]" aria-hidden="true" /><span className="mt-4 block text-sm font-semibold text-[var(--ink)]">{label}</span><ArrowUpRight className="mt-3 h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" /></Link>)}</div>
+      <h2 className="mb-3 border-b border-[var(--line)] pb-2 text-lg font-semibold text-[var(--ink)]">{s("nextActions")}</h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{actions.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className="group rounded-[10px] border border-[var(--line)] bg-[var(--surface)] p-4 transition-colors hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]"><Icon className="h-5 w-5 text-[var(--brand)]" aria-hidden="true" /><span className="mt-4 block text-sm font-semibold text-[var(--ink)]">{label}</span><ArrowUpRight className="mt-3 h-4 w-4 text-[var(--muted)] transition-colors group-hover:text-[var(--brand)] rtl:-scale-x-100" aria-hidden="true" /></Link>)}</div>
     </section>
   </div>;
 }

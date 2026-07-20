@@ -2,14 +2,39 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Geist } from "next/font/google";
-import { Cairo } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
 import { routing, dirOf } from "@/i18n/routing";
 import { getBrand } from "@/lib/school";
 import "../globals.css";
 
-const latin = Geist({ subsets: ["latin"], variable: "--font-latin" });
-const arabic = Cairo({ subsets: ["arabic"], variable: "--font-arabic" });
+/**
+ * One superfamily across both scripts.
+ *
+ * Latin and Arabic were drawn together for Plex, so a bilingual interface does
+ * not read as two applications stapled together — the weights, the x-height
+ * relationship and the rhythm carry across when a user switches locale. Plex
+ * also ships true tabular figures, which is what makes a column of /20 marks
+ * scannable.
+ */
+const latin = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-latin",
+  display: "swap",
+});
+const arabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-arabic",
+  display: "swap",
+});
+/** Codes, times and receipt numbers — things that are read character by character. */
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -37,7 +62,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dirOf(locale)}
-      className={`${latin.variable} ${arabic.variable} h-full`}
+      className={`${latin.variable} ${arabic.variable} ${mono.variable} h-full`}
       style={
         {
           "--brand": brand.primaryColor,

@@ -9,9 +9,13 @@ export async function KpiGrid({ items }: { items: Kpi[] }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {items.map((k) => (
-        <Card key={k.key}>
-          <div className="text-2xl font-semibold tracking-tight">{k.value}</div>
-          <div className="mt-1 text-xs text-[var(--muted)]">{t(k.key)}</div>
+        <Card key={k.key} className="p-4">
+          {/* Label first: on a register you read the column heading, then the
+              figure. It also stops five cards reading as five loose numbers. */}
+          <div className="eyebrow">{t(k.key)}</div>
+          <div className="tabular mt-2 text-[1.75rem] font-semibold leading-none tracking-tight text-[var(--ink)]">
+            {k.value}
+          </div>
         </Card>
       ))}
     </div>

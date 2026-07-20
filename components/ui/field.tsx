@@ -56,7 +56,7 @@ export function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5",
+        "rounded-[10px] border border-[var(--line)] bg-[var(--surface)] p-5",
         className,
       )}
       {...props}
@@ -82,7 +82,7 @@ export function TableWrap({ className, ...props }: React.ComponentProps<"div">) 
   return (
     <div
       className={cn(
-        "overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]",
+        "overflow-x-auto rounded-[10px] border border-[var(--line)] bg-[var(--surface)]",
         className,
       )}
       {...props}
@@ -103,7 +103,9 @@ export function Th({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "whitespace-nowrap border-b border-[var(--border)] px-3 py-2.5 text-start text-xs font-semibold uppercase tracking-wide text-[var(--muted)]",
+        // The header is the register's column label: sunken, quiet, and closed
+        // off by the one strong rule on the table.
+        "whitespace-nowrap border-b border-[var(--rule-strong)] bg-[var(--surface-sunken)] px-3 py-2 text-start eyebrow",
         className,
       )}
       {...props}
@@ -115,7 +117,7 @@ export function Td({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       className={cn(
-        "border-b border-[var(--border)] px-3 py-2.5 align-middle",
+        "border-b border-[var(--line)] px-3 py-2.5 align-middle",
         className,
       )}
       {...props}
@@ -131,10 +133,10 @@ export function Badge({
   tone?: "neutral" | "success" | "warn" | "danger";
 }) {
   const tones = {
-    neutral: "bg-black/[0.06] text-[var(--foreground)]",
-    success: "bg-emerald-50 text-emerald-800",
-    warn: "bg-amber-50 text-amber-800",
-    danger: "bg-red-50 text-red-800",
+    neutral: "bg-[var(--surface-sunken)] text-[var(--ink-2)]",
+    success: "bg-[var(--brand-soft)] text-[var(--brand)]",
+    warn: "bg-amber-50 text-[var(--warn)]",
+    danger: "bg-red-50 text-[var(--danger)]",
   } as const;
   return (
     <span
