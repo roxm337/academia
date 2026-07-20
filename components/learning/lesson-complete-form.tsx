@@ -53,7 +53,11 @@ export function LessonCompleteForm({
  */
 export function RecordLessonView({ lessonId }: { lessonId: string }) {
   useEffect(() => {
-    recordLessonView(lessonId);
+    // Fire-and-forget, and deliberately swallowed: a view counter must never
+    // be able to take the lesson page down with it.
+    void recordLessonView(lessonId).catch((e) => {
+      console.error("[lesson-view] failed", e);
+    });
   }, [lessonId]);
   return null;
 }

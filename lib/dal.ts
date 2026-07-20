@@ -25,18 +25,50 @@ export type SessionUser = {
   locale: string;
 };
 
-/** Returns the session user, or null. cache() dedupes it within one render. */
+/**
+ * Returns the session user, or null. cache() dedupes it within one render.
+ *
+ * The JWT is only a claim about who signed in — it is **not** proof they still
+ * exist or are still allowed in. Tokens live for 8 hours, so trusting one
+ * blindly means:
+ *
+ *   - a deleted account keeps working until the token expires (and every write
+ *     it attempts violates a foreign key, because the row is gone);
+ *   - a deactivated account keeps its access;
+ *   - a role change doesn't apply — demote a director and they stay a director
+ *     for the rest of the token's life.
+ *
+ * So the row is re-read here and **the database is the authority on role**, not
+ * the token. One query per request, deduped by cache().
+ */
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const session = await auth();
   if (!session?.user?.id) return null;
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      role: true,
+      email: true,
+      isActive: true,
+      locale: true,
+      firstNameAr: true,
+      lastNameAr: true,
+      firstNameFr: true,
+      lastNameFr: true,
+    },
+  });
+  // Gone or switched off: the session is void, whatever the cookie says.
+  if (!user || !user.isActive) return null;
+
   return {
-    id: session.user.id,
-    role: session.user.role,
-    email: session.user.email ?? "",
-    name: session.user.name ?? "",
-    nameAr: session.user.nameAr ?? "",
-    locale: session.user.locale ?? "fr",
+    id: user.id,
+    role: user.role,
+    email: user.email,
+    name: `${user.firstNameFr} ${user.lastNameFr}`.trim(),
+    nameAr: `${user.firstNameAr} ${user.lastNameAr}`.trim(),
+    locale: user.locale,
   };
 });
 
