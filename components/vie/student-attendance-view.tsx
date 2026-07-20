@@ -58,11 +58,15 @@ export async function StudentAttendanceView({
   ]);
 
   const dateStr = (d: Date) => d.toISOString().slice(0, 10);
+  const nonPresentRecords = records.filter((r) => r.status !== "PRESENT");
+  const attendanceRate = records.length
+    ? Math.round(((records.length - summary.absent) / records.length) * 100)
+    : null;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Card className="text-center">
             <div className="text-2xl font-semibold">{summary.absent}</div>
             <div className="text-xs text-[var(--muted)]">{t("absences")}</div>
@@ -75,6 +79,10 @@ export async function StudentAttendanceView({
             <div className="text-2xl font-semibold text-amber-700">{summary.late}</div>
             <div className="text-xs text-[var(--muted)]">{t("lates")}</div>
           </Card>
+          <Card className="text-center">
+            <div className="text-2xl font-semibold text-[var(--brand)]">{attendanceRate == null ? "—" : `${attendanceRate}%`}</div>
+            <div className="text-xs text-[var(--muted)]">{t("attendanceRate")}</div>
+          </Card>
         </div>
         {canSubmit ? (
           <div className="ms-auto">
@@ -84,7 +92,7 @@ export async function StudentAttendanceView({
       </div>
 
       {/* Recent attendance records */}
-      {records.length === 0 ? (
+      {nonPresentRecords.length === 0 ? (
         <Card className="text-sm text-[var(--muted)]">{t("noRecords")}</Card>
       ) : (
         <TableWrap>
@@ -97,9 +105,7 @@ export async function StudentAttendanceView({
               </tr>
             </thead>
             <tbody>
-              {records
-                .filter((r) => r.status !== "PRESENT")
-                .map((r) => (
+              {nonPresentRecords.map((r) => (
                   <tr key={r.id}>
                     <Td className="whitespace-nowrap font-mono text-xs">
                       {dateStr(r.session.date)} · {minToLabel(r.session.startMin)}

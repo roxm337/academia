@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/dal";
 import { activeClassOfStudent, getClassSlots } from "@/lib/data/timetable";
 import { currentYear } from "@/lib/data/structure";
 import { variantForDate, type TimetableVariant } from "@/lib/timetable";
+import { weekdayOf } from "@/lib/attendance";
 
 export default async function Page({
   params,
@@ -58,6 +59,8 @@ export default async function Page({
         slots={slots}
         locale={locale}
         mode="student"
+        todayWeekday={weekdayOf(new Date())}
+        nowMinutes={new Date().getUTCHours() * 60 + new Date().getUTCMinutes()}
       />
     </>
   );

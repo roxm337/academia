@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageHeader } from "@/components/page-header";
-import { KpiGrid } from "@/components/kpi";
+import { RoleDashboard } from "@/components/role-dashboard";
 import { requireRole } from "@/lib/dal";
 import { teacherKpis } from "@/lib/data/dashboard";
 
@@ -13,7 +13,7 @@ export default async function Page({ params }: PageProps<"/[locale]/teacher">) {
   return (
     <>
       <PageHeader title={t("teacher")} subtitle={t("welcome", { name: locale === "ar" ? user.nameAr : user.name })} />
-      <KpiGrid items={kpis} />
+      <RoleDashboard role="teacher" kpis={kpis} />
     </>
   );
 }

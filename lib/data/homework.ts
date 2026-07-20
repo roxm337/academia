@@ -61,7 +61,7 @@ export const homeworkForStudent = cache(
           include: { attachments: { include: { file: true } } },
         },
       },
-      orderBy: { dueAt: "desc" },
+      orderBy: { dueAt: "asc" },
     });
     return rows.map((h) => ({ ...h, mySubmission: h.submissions[0] ?? null }));
   },

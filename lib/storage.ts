@@ -4,6 +4,7 @@ import { mkdir, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
+import { DOC_MIME, IMAGE_MIME } from "@/lib/upload-accept";
 
 /**
  * File storage.
@@ -54,11 +55,10 @@ export const storage: StorageDriver =
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
-export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-export const DOC_TYPES = [
-  ...IMAGE_TYPES,
-  "application/pdf",
-];
+// Defined in a client-safe module so the file inputs' `accept` attribute and
+// this server-side validation stay one list.
+export const IMAGE_TYPES: readonly string[] = IMAGE_MIME;
+export const DOC_TYPES: readonly string[] = DOC_MIME;
 
 export type UploadError = "tooLarge" | "badType" | "empty";
 
@@ -69,7 +69,7 @@ export type UploadError = "tooLarge" | "badType" | "empty";
  */
 export async function storeUpload(
   file: File,
-  opts: { uploadedById: string; folder: string; allowed?: string[] },
+  opts: { uploadedById: string; folder: string; allowed?: readonly string[] },
 ): Promise<{ ok: true; fileId: string } | { ok: false; error: UploadError }> {
   if (!file || file.size === 0) return { ok: false, error: "empty" };
   if (file.size > MAX_UPLOAD_BYTES) return { ok: false, error: "tooLarge" };

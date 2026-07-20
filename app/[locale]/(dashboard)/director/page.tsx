@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageHeader } from "@/components/page-header";
-import { KpiGrid } from "@/components/kpi";
+import { RoleDashboard } from "@/components/role-dashboard";
 import { requireRole } from "@/lib/dal";
 import { getSchoolSettings } from "@/lib/school";
 import { directorKpis } from "@/lib/data/dashboard";
@@ -17,7 +17,7 @@ export default async function Page({ params }: PageProps<"/[locale]/director">) 
       {settings?.currentSchoolYear ? (
         <p className="mb-4 text-sm text-[var(--muted)]">{t("schoolYear", { year: settings.currentSchoolYear.label })}</p>
       ) : null}
-      <KpiGrid items={kpis} />
+      <RoleDashboard role="director" kpis={kpis} />
     </>
   );
 }

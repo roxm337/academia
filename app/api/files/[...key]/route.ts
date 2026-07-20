@@ -30,11 +30,18 @@ export async function GET(
       filename: true,
       mimeType: true,
       studentDocuments: { select: { studentId: true } },
+      lessonAttachments: { select: { lesson: { select: { isPublished: true } } } },
     },
   });
   if (!file) return new Response(null, { status: 404 });
 
-  if (!(await canRead(user, file.studentDocuments.map((d) => d.studentId)))) {
+  if (
+    !(await canRead(
+      user,
+      file.studentDocuments.map((d) => d.studentId),
+      file.lessonAttachments.map((a) => a.lesson.isPublished),
+    ))
+  ) {
     return new Response(null, { status: 403 });
   }
 
@@ -63,11 +70,22 @@ export async function GET(
 async function canRead(
   user: { id: string; role: string },
   studentIds: string[],
+  /** Publication state of every lesson this file is attached to, if any. */
+  lessonPublished: boolean[],
 ): Promise<boolean> {
   if (user.role === "DIRECTOR" || user.role === "SURVEILLANT") return true;
 
-  // Files not attached to a student record (e.g. homework attachments) are
-  // readable by any authenticated member of the school.
+  // A draft lesson's attachment must stay invisible to the people the draft is
+  // hidden from — otherwise the publish gate holds on the page but not on the
+  // file behind it. Teachers keep access so they can review their own drafts.
+  const isDraftResource =
+    lessonPublished.length > 0 && !lessonPublished.some(Boolean);
+  if (isDraftResource && (user.role === "STUDENT" || user.role === "PARENT")) {
+    return false;
+  }
+
+  // Files not attached to a student record (e.g. homework and published lesson
+  // attachments) are readable by any authenticated member of the school.
   if (studentIds.length === 0) return true;
 
   if (user.role === "PARENT") {

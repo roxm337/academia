@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Bell, BookOpen, Briefcase, CalendarDays, ClipboardList, FileCheck, FileText,
-  LayoutDashboard, LogOut, Megaphone, MessageSquare, Menu, NotebookPen,
-  School, ScrollText, Settings, ShieldAlert, UserCheck, Users, Wallet, X,
+  GraduationCap, LayoutDashboard, LogOut, Megaphone, MessageSquare, Menu,
+  NotebookPen, School, ScrollText, Settings, ShieldAlert, UserCheck, Users,
+  Wallet, X,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
@@ -14,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Briefcase, CalendarDays, ClipboardList, FileCheck, FileText,
-  LayoutDashboard, Megaphone, MessageSquare, NotebookPen, School, ScrollText,
-  Settings, ShieldAlert, UserCheck, Users, Wallet,
+  GraduationCap, LayoutDashboard, Megaphone, MessageSquare, NotebookPen, School,
+  ScrollText, Settings, ShieldAlert, UserCheck, Users, Wallet,
 };
 
 type Props = {
@@ -41,7 +42,8 @@ export function AppShell({
       {items.map((item) => {
         const Icon = ICONS[item.icon] ?? LayoutDashboard;
         const active =
-          pathname === item.href || pathname.startsWith(`${item.href}/`);
+          pathname === item.href ||
+          (item.key !== "dashboard" && pathname.startsWith(`${item.href}/`));
         return (
           <Link
             key={item.href}

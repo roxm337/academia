@@ -168,7 +168,55 @@
     "settings": "Paramètres",
     "auditLog": "Journal d'audit",
     "myAttendance": "Mes absences",
+    "lessons": "Cours et leçons",
     "notifications": "Notifications"
+  },
+  "lessons": {
+    "teacherTitle": "Cours et leçons",
+    "teacherSubtitle": "Créez et publiez des ressources bilingues pour vos classes.",
+    "studentTitle": "Mes cours",
+    "studentSubtitle": "Révisez les leçons publiées pour votre niveau et votre filière.",
+    "newLesson": "Nouvelle leçon",
+    "editLesson": "Modifier la leçon",
+    "level": "Niveau",
+    "stream": "Filière",
+    "allStreams": "Toutes les filières",
+    "subject": "Matière",
+    "unitTitleFr": "Unité (français)",
+    "unitTitleAr": "Unité (arabe)",
+    "lessonTitleFr": "Leçon (français)",
+    "lessonTitleAr": "Leçon (arabe)",
+    "contentFr": "Contenu (français)",
+    "contentAr": "Contenu (arabe)",
+    "publish": "Publier aux élèves",
+    "attachment": "Ressource jointe",
+    "published": "Publié",
+    "draft": "Brouillon",
+    "views": "consultations",
+    "lessonsCount": "leçons",
+    "noAssignments": "Aucune matière affectée.",
+    "noUnits": "Aucune unité créée.",
+    "noPublishedLessons": "Aucune leçon publiée pour le moment.",
+    "backToLessons": "Retour à mes cours",
+    "resources": "Ressources",
+    "completed": "Terminé",
+    "notCompleted": "Pas encore terminé",
+    "markComplete": "Marquer comme terminé",
+    "saving": "Enregistrement...",
+    "notFound": "Leçon introuvable.",
+    "errors": {
+      "invalid": "Vérifiez les champs de la leçon.",
+      "notAllowed": "Vous n'êtes pas autorisé à modifier cette leçon.",
+      "notFound": "Leçon introuvable.",
+      "tooLarge": "Fichier trop volumineux (5 Mo max).",
+      "badType": "Type de fichier non autorisé.",
+      "empty": "Fichier vide.",
+      "busy": "Enregistrement impossible, réessayez."
+    },
+    "newLessonInUnit": "Ajouter une leçon",
+    "editUnit": "Modifier l’unité",
+    "completions": "terminées",
+    "markIncomplete": "Marquer comme non terminé"
   },
   "dashboard": {
     "welcome": "Bonjour, {name}",
@@ -193,6 +241,64 @@
       "balance": "Solde",
       "children": "Enfants",
       "balanceTotal": "Solde total"
+    },
+    "openSection": "Ouvrir la section",
+    "quickActions": {
+      "students": "Élèves",
+      "classes": "Classes",
+      "timetable": "Emploi du temps",
+      "grades": "Notes et bulletins",
+      "reports": "Rapports",
+      "homework": "Devoirs",
+      "cahier": "Cahier de textes",
+      "attendance": "Présences",
+      "justifications": "Justificatifs",
+      "discipline": "Discipline",
+      "announcements": "Annonces",
+      "children": "Mes enfants",
+      "fees": "Frais de scolarité",
+      "lessons": "Cours et leçons"
+    },
+    "rolePanels": {
+      "director": {
+        "title": "Pilotage de l'établissement",
+        "subtitle": "Accédez directement aux opérations qui demandent votre attention.",
+        "footnote": "Les indicateurs sont calculés à partir de l'année scolaire active."
+      },
+      "teacher": {
+        "title": "Ma journée d'enseignement",
+        "subtitle": "Retrouvez rapidement vos classes, vos évaluations et vos devoirs.",
+        "footnote": "Les actions restent limitées à vos classes et matières affectées."
+      },
+      "surveillant": {
+        "title": "Suivi de la vie scolaire",
+        "subtitle": "Traitez les présences, les justificatifs et les incidents depuis un seul espace.",
+        "footnote": "Les compteurs reflètent les dossiers actuellement enregistrés."
+      },
+      "parent": {
+        "title": "Suivi de mes enfants",
+        "subtitle": "Consultez la scolarité, les devoirs et les frais de chaque enfant.",
+        "footnote": "Les informations affichées sont limitées aux enfants rattachés à votre compte."
+      }
+    },
+    "studentPanel": {
+      "schoolYear": "Année scolaire {year}",
+      "class": "Classe :",
+      "massar": "Massar :",
+      "noClass": "Aucune classe active",
+      "average": "Moyenne générale",
+      "rank": "Rang dans la classe",
+      "of": "sur",
+      "lessonsToday": "Cours aujourd'hui",
+      "homeworkToDo": "Devoirs à rendre",
+      "attendanceRate": "Taux de présence",
+      "nextActions": "Accès rapides",
+      "viewSchedule": "Mon emploi du temps",
+      "viewGrades": "Mes notes",
+      "viewHomework": "Mes devoirs",
+      "viewAttendance": "Mes absences",
+      "viewAnnouncements": "Les annonces",
+      "viewLessons": "Mes cours"
     }
   },
   "settings": {
@@ -378,16 +484,22 @@
       "noValidRows": "Aucune ligne valide à importer."
     },
     "rowErrors": {
-      "missing.codeMassar": "Code Massar manquant",
-      "missing.birthDate": "Date de naissance manquante",
-      "invalid.codeMassar": "Code Massar invalide (ex. A123456789)",
-      "invalid.birthDate": "Date de naissance illisible",
-      "invalid.gender": "Sexe non reconnu",
-      "invalid.guardianEmail": "E-mail invalide",
-      "duplicate.inFile": "Code Massar en double dans le fichier",
-      "duplicate.inDatabase": "Élève déjà enregistré",
-      "missing.lastName": "Nom manquant (arabe ou français)",
-      "missing.firstName": "Prénom manquant (arabe ou français)"
+      "missing": {
+        "codeMassar": "Code Massar manquant",
+        "birthDate": "Date de naissance manquante",
+        "lastName": "Nom manquant (arabe ou français)",
+        "firstName": "Prénom manquant (arabe ou français)"
+      },
+      "invalid": {
+        "codeMassar": "Code Massar invalide (ex. A123456789)",
+        "birthDate": "Date de naissance illisible",
+        "gender": "Sexe non reconnu",
+        "guardianEmail": "E-mail invalide"
+      },
+      "duplicate": {
+        "inFile": "Code Massar en double dans le fichier",
+        "inDatabase": "Élève déjà enregistré"
+      }
     },
     "errors": {
       "invalid": "Données invalides. Vérifiez les champs.",
@@ -453,6 +565,10 @@
     "copyConfirm": "Remplacer l'emploi du temps Ramadan de cette classe par une copie de l'emploi normal ?",
     "copyDone": "{copied} cours copiés, {skipped} ignorés pour cause de conflit.",
     "print": "Imprimer / PDF",
+    "today": "Aujourd'hui",
+    "currentLesson": "En cours",
+    "nextLesson": "Prochain cours",
+    "noTodayLessons": "Aucun cours prévu aujourd'hui.",
     "printClass": "PDF de la classe",
     "printTeacher": "PDF de l'enseignant",
     "forClass": "Classe : {name}",
@@ -496,6 +612,7 @@
       "unexcused": "Non justifiées",
       "lates": "Retards",
       "noRecords": "Aucune absence enregistrée.",
+      "attendanceRate": "Taux de présence",
       "subject": "Matière",
       "status": "État",
       "disabledForTeachers": "La saisie des absences est désactivée pour les enseignants."
@@ -604,6 +721,7 @@
     "bulletin": "Bulletin",
     "coefficient": "Coef.",
     "generalAverage": "Moyenne générale",
+    "subjectPerformance": "Performance par matière",
     "notGraded": "—",
     "mentions": {
       "TRES_BIEN": "Très bien",
@@ -673,6 +791,8 @@
     "late": "En retard",
     "onTime": "À l'heure",
     "notSubmitted": "Non rendu",
+    "total": "Total",
+    "submitted": "Rendus",
     "studentNote": "Note pour l'enseignant",
     "review": "Corriger",
     "grade": "Note",

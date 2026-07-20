@@ -33,8 +33,17 @@ export async function StudentHomeworkList({
     return <Card className="text-sm text-[var(--muted)]">{t("notPublished")}</Card>;
   }
 
+  const submittedCount = rows.filter((row) => row.mySubmission).length;
+  const overdueCount = rows.filter((row) => !row.mySubmission && dueStatus(row.dueAt, now) === "overdue").length;
+
   return (
-    <ul className="space-y-3">
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <HomeworkMetric label={t("total")} value={rows.length} />
+        <HomeworkMetric label={t("submitted")} value={submittedCount} />
+        <HomeworkMetric label={t("overdue")} value={overdueCount} danger={overdueCount > 0} />
+      </div>
+      <ul className="space-y-3">
       {rows.map((h) => {
         const sub = h.mySubmission;
         return (
@@ -93,6 +102,11 @@ export async function StudentHomeworkList({
           </Card>
         );
       })}
-    </ul>
+      </ul>
+    </div>
   );
+}
+
+function HomeworkMetric({ label, value, danger = false }: { label: string; value: number; danger?: boolean }) {
+  return <Card className="p-4"><p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">{label}</p><p className={`mt-1 text-2xl font-semibold ${danger ? "text-red-700" : "text-[var(--ink)]"}`}>{value}</p></Card>;
 }

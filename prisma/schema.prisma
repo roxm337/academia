@@ -254,6 +254,7 @@ model Level {
   streams       Stream[]
   classes       Class[]
   levelSubjects LevelSubject[]
+  units         Unit[]
   feeItems      FeeItem[]
   announcements Announcement[]
 }
@@ -268,6 +269,7 @@ model Stream {
 
   classes       Class[]
   levelSubjects LevelSubject[]
+  units         Unit[]
 
   @@unique([levelId, code])
 }
@@ -287,6 +289,7 @@ model Subject {
   cahierEntries CahierEntry[]
   homework      Homework[]
   teacherSubjects TeacherSubject[]
+  units           Unit[]
 }
 
 // Coefficient lives here — per level, optionally narrowed to a stream.
@@ -402,6 +405,7 @@ model TeacherProfile {
   appreciations SubjectAppreciation[]
   cahierEntries CahierEntry[]
   homework      Homework[]
+  authoredUnits Unit[] @relation("UnitAuthor")
 }
 
 model TeacherSubject {
@@ -440,6 +444,7 @@ model StudentProfile {
   submissions   HomeworkSubmission[]
   feeSchedules  FeeSchedule[]
   payments      Payment[]
+  lessonProgress LessonProgress[]
 
   @@index([status])
 }
@@ -730,6 +735,82 @@ model SemesterResult {
   @@index([classId, semesterId])
 }
 
+// ---------------------------------------------------------------- e-learning content
+
+model Unit {
+  id        String  @id @default(cuid())
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  levelId   String
+  level     Level   @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  streamId  String?
+  stream    Stream? @relation(fields: [streamId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   TeacherProfile @relation("UnitAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  titleAr       String
+  titleFr       String
+  descriptionAr String?
+  descriptionFr String?
+  order         Int     @default(0)
+
+  lessons  Lesson[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([levelId, streamId, subjectId, order])
+}
+
+model Lesson {
+  id     String @id @default(cuid())
+  unitId String
+  unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  titleAr   String
+  titleFr   String
+  contentAr String
+  contentFr String
+  order     Int      @default(0)
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+
+  attachments LessonAttachment[]
+  progress    LessonProgress[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([unitId, order])
+  @@index([isPublished, publishedAt])
+}
+
+model LessonAttachment {
+  id       String @id @default(cuid())
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  fileId   String
+  file     StoredFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([lessonId, fileId])
+}
+
+model LessonProgress {
+  id        String @id @default(cuid())
+  lessonId  String
+  lesson    Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  startedAt    DateTime @default(now())
+  lastViewedAt DateTime @default(now())
+  completedAt  DateTime?
+
+  @@unique([lessonId, studentId])
+  @@index([studentId, completedAt])
+}
+
 // ---------------------------------------------------------------- cahier de textes & homework
 
 model CahierEntry {
@@ -1014,6 +1095,7 @@ model StoredFile {
 
   attachments      Attachment[]
   studentDocuments StudentDocument[]
+  lessonAttachments LessonAttachment[]
 }
 
 // One attachment row per (file, owning entity). Exactly one FK is set.
@@ -1034,7 +1116,6 @@ model Attachment {
   announcement     Announcement?         @relation(fields: [announcementId], references: [id], onDelete: Cascade)
   messageId        String?
   message          Message?              @relation(fields: [messageId], references: [id], onDelete: Cascade)
-
   createdAt DateTime @default(now())
 }
 

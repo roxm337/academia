@@ -3,9 +3,17 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../lib/generated/prisma/client";
 import {
+  AnnouncementAudience,
   CycleKind,
   GuardianRelation,
+  InstallmentStatus,
+  JustificationStatus,
+  NotificationChannel,
+  NotificationStatus,
+  PaymentMethod,
   Role,
+  Sanction,
+  ThreadKind,
   Weekday,
 } from "../lib/generated/prisma/enums";
 
@@ -20,6 +28,10 @@ const DEMO_PASSWORD = "Passw0rd!";
 /** Code Massar: one letter + 9 digits, e.g. A123456789 */
 function codeMassar(n: number): string {
   return `${String.fromCharCode(65 + (n % 26))}${String(100000000 + n).slice(0, 9)}`;
+}
+
+function day(iso: string): Date {
+  return new Date(`${iso}T00:00:00.000Z`);
 }
 
 const MALE_NAMES = [
@@ -45,7 +57,7 @@ async function main() {
   // order matters: children first
   await prisma.$executeRawUnsafe(`
     TRUNCATE TABLE
-      "AuditLog","Attachment","StoredFile","Receipt","PaymentAllocation","Payment",
+      "AuditLog","LessonProgress","LessonAttachment","Lesson","Unit","Attachment","StoredFile","Receipt","PaymentAllocation","Payment",
       "Installment","FeeSchedule","FeeItem","Notification","Message","ThreadParticipant",
       "MessageThread","AnnouncementRead","Announcement","HomeworkSubmission","Homework",
       "CahierEntry","SemesterResult","SubjectAppreciation","Grade","GradeItem",
@@ -439,6 +451,408 @@ async function main() {
       n++;
     }
   }
+
+  // ---------------------------------------------------------------- demo operations
+  // The structure above is enough to log in. The records below make every
+  // workspace useful on first launch: grades, attendance, pedagogy, finance,
+  // communication, notifications, and audit history all have real relationships.
+  console.log("· demo grades, attendance, pedagogy, finance and communication");
+
+  const director = await prisma.user.findUniqueOrThrow({
+    where: { email: "directeur@academia.ma" },
+  });
+  const surveillant = await prisma.user.findUniqueOrThrow({
+    where: { email: "surveillant@academia.ma" },
+  });
+  const demoTeachers = await prisma.teacherProfile.findMany({
+    include: { user: true },
+  });
+  const demoStudents = await prisma.studentProfile.findMany({
+    include: { user: true, enrollments: true, guardians: { include: { guardian: { include: { user: true } } } } },
+    orderBy: { codeMassar: "asc" },
+  });
+  const studentsIn = (classId: string) => demoStudents.filter((s) =>
+    s.enrollments.some((e) => e.classId === classId && e.isActive),
+  );
+  const teacherFor = (subjectCode: string) => teacherProfiles[subjectCode] ?? teacherProfiles.MATH;
+  const teacherUserFor = (subjectCode: string) =>
+    demoTeachers.find((t) => t.id === teacherFor(subjectCode))!.user;
+  const parentUsers = demoStudents
+    .flatMap((s) => s.guardians.map((g) => g.guardian.user).filter((u): u is NonNullable<typeof u> => Boolean(u)))
+    .filter((u, i, all) => all.findIndex((x) => x.id === u.id) === i);
+
+  // Gradebook: two semesters, several assessment types, blank and graded cells.
+  const gradeSubjects: Array<[string, number]> = [
+    ["MATH", 7], ["PC", 7], ["SVT", 5], ["FRA", 4], ["ARA", 2],
+  ];
+  const classGradeConfigs = [
+    { klass: class2BacPC, subjects: gradeSubjects },
+    { klass: class3AC, subjects: [["MATH", 4], ["FRA", 4], ["ARA", 4]] as Array<[string, number]> },
+  ];
+  for (const config of classGradeConfigs) {
+    const roster = studentsIn(config.klass.id);
+    for (const [subjectCode] of config.subjects) {
+      for (const semester of year.semesters) {
+        for (const [kind, index] of [["CONTROLE", 1], ["CONTROLE", 2], ["ACTIVITE", 1]] as const) {
+          const item = await prisma.gradeItem.create({
+            data: {
+              classId: config.klass.id,
+              subjectId: subj(subjectCode).id,
+              semesterId: semester.id,
+              kind,
+              index,
+              label: kind === "ACTIVITE" ? "Travail continu" : `Contrôle ${index}`,
+              maxScore: 20,
+              weight: kind === "ACTIVITE" ? 1 : 2,
+              createdById: teacherFor(subjectCode),
+            },
+          });
+          await prisma.grade.createMany({
+            data: roster.map((student, studentIndex) => ({
+              gradeItemId: item.id,
+              studentId: student.id,
+              score: studentIndex % 11 === 0 && kind === "ACTIVITE"
+                ? null
+                : Math.min(20, 11 + ((studentIndex * 3 + index * 2 + semester.index) % 9)),
+              enteredById: teacherUserFor(subjectCode).id,
+            })),
+          });
+        }
+      }
+    }
+  }
+
+  const semester1 = year.semesters.find((s) => s.index === 1)!;
+  await prisma.semester.update({
+    where: { id: semester1.id },
+    data: { gradesPublishedAt: day("2026-01-20") },
+  });
+  const appreciations = [
+    ["Très bon trimestre, participation régulière et travail précis.", "Excellent engagement et bonne maîtrise des notions."],
+    ["Des progrès visibles. Continue à revoir les méthodes.", "مجهود واضح وتقدم مستمر، واصل المراجعة."],
+  ];
+  for (const [i, student] of demoStudents.slice(0, 8).entries()) {
+    await prisma.subjectAppreciation.create({
+      data: {
+        studentId: student.id,
+        subjectId: subj(i % 2 === 0 ? "MATH" : "PC").id,
+        classId: class2BacPC.id,
+        semesterId: semester1.id,
+        teacherId: teacherFor(i % 2 === 0 ? "MATH" : "PC"),
+        text: appreciations[i % appreciations.length][0],
+      },
+    });
+  }
+
+  // Attendance: recent sessions with a mixture of absences, lates, and excused records.
+  const normalSlots = await prisma.timetableSlot.findMany({
+    where: { classId: class2BacPC.id, variant: "NORMAL" },
+    orderBy: [{ weekday: "asc" }, { startMin: "asc" }],
+  });
+  const attendanceSlots = normalSlots.filter((slot, index, all) =>
+    all.findIndex((candidate) => candidate.startMin === slot.startMin) === index,
+  ).slice(0, 3);
+  const attendanceDates = ["2026-01-12", "2026-01-13", "2026-01-15", "2026-01-16"];
+  const attendanceSessions: { id: string; studentIds: string[] }[] = [];
+  for (const [dateIndex, iso] of attendanceDates.entries()) {
+    for (const slot of attendanceSlots) {
+      const session = await prisma.session.create({
+        data: {
+          slotId: slot.id,
+          classId: slot.classId,
+          subjectId: slot.subjectId,
+          teacherId: slot.teacherId,
+          roomId: slot.roomId,
+          date: day(iso),
+          startMin: slot.startMin,
+          endMin: slot.endMin,
+        },
+      });
+      const roster = studentsIn(class2BacPC.id);
+      await prisma.attendanceRecord.createMany({
+        data: roster.map((student, studentIndex) => ({
+          sessionId: session.id,
+          studentId: student.id,
+          status: studentIndex === dateIndex % roster.length
+            ? "ABSENT" as const
+            : studentIndex === (dateIndex + 2) % roster.length
+              ? "LATE" as const
+              : "PRESENT" as const,
+          lateMinutes: studentIndex === (dateIndex + 2) % roster.length ? 8 + dateIndex : null,
+          markedById: surveillant.id,
+          comment: studentIndex === (dateIndex + 2) % roster.length ? "Arrivée après la sonnerie" : null,
+        })),
+      });
+      attendanceSessions.push({ id: session.id, studentIds: roster.map((s) => s.id) });
+    }
+  }
+  await prisma.absenceJustification.create({
+    data: {
+      studentId: demoStudents[0].id,
+      reason: "Certificat médical transmis par la famille.",
+      fromDate: day("2026-01-15"),
+      toDate: day("2026-01-15"),
+      status: JustificationStatus.PENDING,
+    },
+  });
+  const approvedJustification = await prisma.absenceJustification.create({
+    data: {
+      studentId: demoStudents[2].id,
+      reason: "Déplacement familial exceptionnel.",
+      fromDate: day("2026-01-12"),
+      toDate: day("2026-01-12"),
+      status: JustificationStatus.APPROVED,
+      reviewedById: surveillant.id,
+      reviewedAt: day("2026-01-13"),
+      reviewNote: "Justificatif accepté par la vie scolaire.",
+    },
+  });
+  await prisma.attendanceRecord.updateMany({
+    where: {
+      studentId: approvedJustification.studentId,
+      status: "ABSENT",
+      session: { date: { gte: approvedJustification.fromDate, lte: approvedJustification.toDate } },
+    },
+    data: { isExcused: true, justificationId: approvedJustification.id },
+  });
+  await prisma.disciplineIncident.createMany({
+    data: [
+      {
+        studentId: demoStudents[4].id,
+        classId: class2BacPC.id,
+        type: "TARDINESS",
+        description: "Retards répétés observés cette semaine.",
+        sanction: Sanction.AVERTISSEMENT,
+        occurredAt: day("2026-01-14"),
+        reportedById: surveillant.id,
+      },
+      {
+        studentId: demoStudents[7].id,
+        classId: class3AC.id,
+        type: "BEHAVIOUR",
+        description: "Incident traité lors d'un échange avec la famille.",
+        sanction: Sanction.NONE,
+        occurredAt: day("2026-01-10"),
+        reportedById: surveillant.id,
+      },
+    ],
+  });
+
+  // Cahier de textes and homework: published, upcoming, submitted, and reviewed.
+  const homeworkSeeds = [
+    { subject: "MATH", title: "Fonctions dérivées", instructions: "Exercices 12 à 18 du polycopié.", due: "2026-01-22" },
+    { subject: "PC", title: "Compte rendu de TP", instructions: "Rédiger le compte rendu du TP sur les transformations chimiques.", due: "2026-01-28" },
+    { subject: "MATH", title: "Révisions bac blanc", instructions: "Préparer les exercices de synthèse pour la séance prochaine.", due: "2026-02-05" },
+  ];
+  for (const [index, h] of homeworkSeeds.entries()) {
+    const teacherId = teacherFor(h.subject);
+    const homework = await prisma.homework.create({
+      data: {
+        classId: class2BacPC.id,
+        subjectId: subj(h.subject).id,
+        teacherId,
+        title: h.title,
+        instructions: h.instructions,
+        assignedAt: day(`2026-01-${String(10 + index).padStart(2, "0")}`),
+        dueAt: new Date(`${h.due}T23:59:59.000Z`),
+        isPublished: index !== 2,
+      },
+    });
+    if (index < 2) {
+      const submitters = studentsIn(class2BacPC.id).slice(0, index === 0 ? 5 : 3);
+      await prisma.homeworkSubmission.createMany({
+        data: submitters.map((student, studentIndex) => ({
+          homeworkId: homework.id,
+          studentId: student.id,
+          submittedAt: day(`2026-01-${String(16 + studentIndex).padStart(2, "0")}`),
+          isLate: studentIndex === 3,
+          studentNote: studentIndex === 1 ? "J'ai ajouté les étapes du calcul." : null,
+          grade: index === 0 && studentIndex < 3 ? 13 + studentIndex : null,
+          teacherComment: index === 0 && studentIndex < 3 ? "Méthode claire, attention à la rédaction." : null,
+          reviewedAt: index === 0 && studentIndex < 3 ? day("2026-01-20") : null,
+        })),
+      });
+    }
+  }
+  for (const [index, session] of attendanceSessions.slice(0, 4).entries()) {
+    await prisma.cahierEntry.create({
+      data: {
+        sessionId: session.id,
+        classId: class2BacPC.id,
+        subjectId: subj(index % 2 === 0 ? "MATH" : "PC").id,
+        teacherId: teacherFor(index % 2 === 0 ? "MATH" : "PC"),
+        date: day(attendanceDates[index]),
+        title: index % 2 === 0 ? "Dérivation et variations" : "Réactions acido-basiques",
+        description: index % 2 === 0 ? "Cours, exemples guidés et exercices d'application." : "Expérience en laboratoire et conclusion collective.",
+      },
+    });
+  }
+
+  // Fees: yearly charges, monthly tuition, partial payments, and overdue balances.
+  const feeItems = await Promise.all([
+    prisma.feeItem.create({ data: { schoolYearId: year.id, levelId: null, kind: "INSCRIPTION", nameAr: "واجب التسجيل", nameFr: "Frais d'inscription", amount: 1200, isMonthly: false } }),
+    prisma.feeItem.create({ data: { schoolYearId: year.id, levelId: null, kind: "TUITION", nameAr: "واجبات التمدرس", nameFr: "Scolarité", amount: 1800, isMonthly: true } }),
+    prisma.feeItem.create({ data: { schoolYearId: year.id, levelId: null, kind: "CANTINE", nameAr: "المطعم المدرسي", nameFr: "Cantine", amount: 450, isMonthly: true } }),
+    prisma.feeItem.create({ data: { schoolYearId: year.id, levelId: null, kind: "TRANSPORT", nameAr: "النقل المدرسي", nameFr: "Transport scolaire", amount: 600, isMonthly: true } }),
+  ]);
+  const schedules: { studentId: string; scheduleId: string; installments: { id: string; amount: number }[] }[] = [];
+  for (const student of demoStudents) {
+    const schedule = await prisma.feeSchedule.create({
+      data: {
+        studentId: student.id,
+        schoolYearId: year.id,
+        siblingDiscount: student.guardians.length > 0 && demoStudents.indexOf(student) % 4 === 0 ? 150 : 0,
+        customDiscount: demoStudents.indexOf(student) % 7 === 0 ? 100 : 0,
+        discountNote: demoStudents.indexOf(student) % 7 === 0 ? "Bourse Academia" : null,
+        installments: {
+          create: feeItems.flatMap((item, itemIndex) => item.isMonthly
+            ? ["2025-10-05", "2025-11-05", "2025-12-05"].map((date, monthIndex) => ({
+                feeItemId: item.id,
+                label: `${itemIndex === 1 ? "Octobre" : itemIndex === 2 ? "Novembre" : "Décembre"} ${monthIndex + 1}`,
+                dueDate: day(date),
+                amount: Number(item.amount) / 3,
+                status: InstallmentStatus.PENDING,
+              }))
+            : [{ feeItemId: item.id, label: "Annuel", dueDate: day("2025-09-15"), amount: Number(item.amount), status: InstallmentStatus.PENDING }]),
+        },
+      },
+      include: { installments: true },
+    });
+    schedules.push({
+      studentId: student.id,
+      scheduleId: schedule.id,
+      installments: schedule.installments.map((i) => ({ id: i.id, amount: Number(i.amount) })),
+    });
+  }
+  let receiptNumber = 1;
+  for (const [studentIndex, schedule] of schedules.slice(0, 10).entries()) {
+    const installment = schedule.installments[studentIndex % schedule.installments.length];
+    const amount = studentIndex % 3 === 0 ? Number(installment.amount) : Math.min(900, Number(installment.amount));
+    const payment = await prisma.payment.create({
+      data: {
+        feeScheduleId: schedule.scheduleId,
+        studentId: schedule.studentId,
+        amount,
+        method: [PaymentMethod.CASH, PaymentMethod.CHECK, PaymentMethod.TRANSFER][studentIndex % 3],
+        paidAt: day(`2026-01-${String(5 + (studentIndex % 10)).padStart(2, "0")}`),
+        reference: studentIndex % 3 === 1 ? `CHQ-2026-${String(100 + studentIndex)}` : null,
+        note: studentIndex === 0 ? "Règlement du premier trimestre" : null,
+        recordedById: director.id,
+        allocations: { create: { installmentId: installment.id, amount } },
+        receipt: { create: { number: receiptNumber++ } },
+      },
+    });
+    await prisma.installment.update({
+      where: { id: installment.id },
+      data: { amountPaid: amount, status: amount >= Number(installment.amount) ? InstallmentStatus.PAID : InstallmentStatus.PARTIAL },
+    });
+    void payment;
+  }
+  await prisma.installment.updateMany({
+    where: { dueDate: { lt: day("2026-01-01") }, amountPaid: 0 },
+    data: { status: InstallmentStatus.OVERDUE },
+  });
+
+  // E-learning demo content: bilingual units and published lessons for the two demo classes.
+  const mathUnit = await prisma.unit.create({
+    data: {
+      authorId: teacherProfiles.MATH,
+      levelId: class2BacPC.levelId,
+      streamId: class2BacPC.streamId,
+      subjectId: subj("MATH").id,
+      titleAr: "الاشتقاق وتغيرات الدوال",
+      titleFr: "Dérivation et variations",
+      order: 1,
+      lessons: {
+        create: [
+          { order: 1, titleAr: "مفهوم المشتقة", titleFr: "Comprendre la dérivée", contentAr: "المشتقة تصف معدل تغير الدالة عند نقطة. ابدأ بحساب معدل التغير بين نقطتين ثم انتقل إلى النهاية.", contentFr: "La dérivée décrit le taux de variation d'une fonction en un point. Commencez par le taux de variation entre deux points, puis passez à la limite.", isPublished: true, publishedAt: day("2026-01-08") },
+          { order: 2, titleAr: "اتجاه التغير", titleFr: "Sens de variation", contentAr: "نستخدم إشارة المشتقة لتحديد فترات التزايد والتناقص، ثم نبني جدول التغيرات.", contentFr: "Le signe de la dérivée permet de déterminer les intervalles de croissance et de décroissance, puis de construire le tableau de variations.", isPublished: true, publishedAt: day("2026-01-10") },
+        ],
+      },
+    },
+  });
+  const physicsUnit = await prisma.unit.create({
+    data: {
+      authorId: teacherProfiles.PC,
+      levelId: class2BacPC.levelId,
+      streamId: class2BacPC.streamId,
+      subjectId: subj("PC").id,
+      titleAr: "التفاعلات الحمضية القاعدية",
+      titleFr: "Réactions acido-basiques",
+      order: 1,
+      lessons: {
+        create: { order: 1, titleAr: "مفهوم الحمض والقاعدة", titleFr: "Acides et bases", contentAr: "الحمض يمنح بروتوناً والقاعدة تستقبل بروتوناً. نحدد الزوجين المترافقين في كل تفاعل.", contentFr: "Un acide cède un proton et une base capte un proton. Identifiez les couples conjugués dans chaque réaction.", isPublished: true, publishedAt: day("2026-01-09") },
+      },
+    },
+  });
+  // A collège unit: no stream (3AC has none), so it is level-wide. Also carries
+  // a draft, which must stay invisible to students until it is published.
+  const collegeUnit = await prisma.unit.create({
+    data: {
+      authorId: teacherProfiles.MATH,
+      levelId: class3AC.levelId,
+      streamId: class3AC.streamId,
+      subjectId: subj("MATH").id,
+      titleAr: "الأعداد الجذرية",
+      titleFr: "Les nombres rationnels",
+      order: 1,
+      lessons: {
+        create: [
+          { order: 1, titleAr: "جمع الأعداد الجذرية", titleFr: "Additionner des rationnels", contentAr: "لجمع عددين جذريين نوحد المقامات ثم نجمع البسطين.", contentFr: "Pour additionner deux rationnels, on réduit au même dénominateur puis on additionne les numérateurs.", isPublished: true, publishedAt: day("2026-01-12") },
+          { order: 2, titleAr: "ضرب الأعداد الجذرية", titleFr: "Multiplier des rationnels", contentAr: "نضرب البسط في البسط والمقام في المقام ثم نبسط.", contentFr: "On multiplie les numérateurs entre eux et les dénominateurs entre eux, puis on simplifie.", isPublished: false },
+        ],
+      },
+    },
+  });
+
+  void mathUnit;
+  void physicsUnit;
+  void collegeUnit;
+
+  // Announcements, parent/teacher conversations, notifications, and audit trail.
+  const announcements = await prisma.announcement.createMany({
+    data: [
+      { authorId: director.id, titleAr: "اجتماع أولياء الأمور", titleFr: "Réunion de parents", bodyAr: "يسر إدارة أكاديميا دعوتكم إلى لقاء أولياء الأمور يوم السبت.", bodyFr: "La direction d'Academia vous invite à la réunion de parents samedi matin.", audience: AnnouncementAudience.PARENTS, isPublished: true, publishAt: day("2026-01-08") },
+      { authorId: director.id, titleAr: "توقيت رمضان", titleFr: "Horaires de Ramadan", bodyAr: "سيبدأ العمل بتوقيت رمضان يوم 17 فبراير.", bodyFr: "Les horaires de Ramadan entreront en vigueur le 17 février.", audience: AnnouncementAudience.WHOLE_SCHOOL, isPublished: true, publishAt: day("2026-01-18") },
+      { authorId: surveillant.id, titleAr: "تذكير بالانضباط", titleFr: "Rappel de vie scolaire", bodyAr: "يرجى احترام أوقات الدخول والخروج.", bodyFr: "Merci de respecter les horaires d'entrée et de sortie.", audience: AnnouncementAudience.CLASS, classId: class2BacPC.id, isPublished: true, publishAt: day("2026-01-14") },
+      { authorId: director.id, titleAr: "برنامج المجلس", titleFr: "Ordre du jour du conseil", bodyAr: "الاجتماع مخصص لتتبع نتائج الدورة الأولى.", bodyFr: "Le conseil de classe portera sur le bilan du premier semestre.", audience: AnnouncementAudience.TEACHERS, isPublished: false, publishAt: day("2026-01-19") },
+    ],
+  });
+  void announcements;
+  const firstParent = parentUsers[0];
+  const firstTeacher = teacherUserFor("MATH");
+  if (firstParent) {
+    const thread = await prisma.messageThread.create({
+      data: {
+        kind: ThreadKind.PARENT_TEACHER,
+        subject: "Suivi des progrès en mathématiques",
+        classId: class2BacPC.id,
+        participants: { create: [{ userId: firstParent.id }, { userId: firstTeacher.id }] },
+        messages: {
+          create: [
+            { senderId: firstParent.id, body: "Bonjour, pourriez-vous me dire comment Ahmed peut progresser en mathématiques ?", createdAt: day("2026-01-15") },
+            { senderId: firstTeacher.id, body: "Bonjour, ses efforts sont réguliers. Je recommande de reprendre les exercices 12 à 18.", createdAt: day("2026-01-16") },
+          ],
+        },
+      },
+    });
+    await prisma.threadParticipant.update({ where: { threadId_userId: { threadId: thread.id, userId: firstTeacher.id } }, data: { lastReadAt: day("2026-01-16") } });
+  }
+  await prisma.notification.createMany({
+    data: [
+      ...parentUsers.slice(0, 8).map((user) => ({ userId: user.id, type: "ABSENCE_ALERT", titleAr: "تنبيه غياب", titleFr: "Alerte d'absence", bodyAr: "تم تسجيل غياب جديد يخص ابنكم.", bodyFr: "Une nouvelle absence concerne votre enfant.", link: "/parent/attendance", channel: NotificationChannel.IN_APP, status: NotificationStatus.SENT, sentAt: day("2026-01-16"), readAt: null })),
+      { userId: director.id, type: "PAYMENT_DUE", titleAr: "أداءات مستحقة", titleFr: "Paiements à suivre", bodyAr: "توجد أرصدة مدرسية تحتاج إلى متابعة.", bodyFr: "Des soldes de scolarité nécessitent un suivi.", link: "/director/fees", channel: NotificationChannel.IN_APP, status: NotificationStatus.PENDING },
+      { userId: firstTeacher.id, type: "HOMEWORK_SUBMISSION", titleAr: "تسليم واجب", titleFr: "Devoir rendu", bodyAr: "قام تلميذ بتسليم واجب.", bodyFr: "Un élève a rendu un devoir.", link: "/teacher/homework", channel: NotificationChannel.IN_APP, status: NotificationStatus.PENDING },
+    ],
+  });
+  await prisma.auditLog.createMany({
+    data: [
+      { actorId: director.id, action: "SCHOOL_SETTINGS_UPDATE", entity: "SchoolSettings", entityId: "1", after: { primaryColor: "#1e6f5c", secondaryColor: "#c8a35a" }, createdAt: day("2026-01-05") },
+      { actorId: director.id, action: "SCHEDULE_GENERATE_CLASS", entity: "Class", entityId: class2BacPC.id, after: { created: demoStudents.length }, createdAt: day("2026-01-06") },
+      { actorId: surveillant.id, action: "ATTENDANCE_MARK", entity: "Session", entityId: attendanceSessions[0]?.id, after: { marked: studentsIn(class2BacPC.id).length }, createdAt: day("2026-01-12") },
+      { actorId: firstTeacher.id, action: "GRADE_ENTER", entity: "GradeItem", after: { count: studentsIn(class2BacPC.id).length }, createdAt: day("2026-01-18") },
+    ],
+  });
 
   const counts = {
     users: await prisma.user.count(),

@@ -168,7 +168,55 @@
     "settings": "الإعدادات",
     "auditLog": "سجل العمليات",
     "myAttendance": "غياباتي",
+    "lessons": "الدروس التعليمية",
     "notifications": "الإشعارات"
+  },
+  "lessons": {
+    "teacherTitle": "الدروس التعليمية",
+    "teacherSubtitle": "أنشئ وانشر موارد ثنائية اللغة لأقسامك.",
+    "studentTitle": "دروسي",
+    "studentSubtitle": "راجع الدروس المنشورة لمستواك ومسلكك.",
+    "newLesson": "درس جديد",
+    "editLesson": "تعديل الدرس",
+    "level": "المستوى",
+    "stream": "المسلك",
+    "allStreams": "كل المسالك",
+    "subject": "المادة",
+    "unitTitleFr": "الوحدة (بالفرنسية)",
+    "unitTitleAr": "الوحدة (بالعربية)",
+    "lessonTitleFr": "الدرس (بالفرنسية)",
+    "lessonTitleAr": "الدرس (بالعربية)",
+    "contentFr": "المحتوى (بالفرنسية)",
+    "contentAr": "المحتوى (بالعربية)",
+    "publish": "نشر للتلاميذ",
+    "attachment": "مورد مرفق",
+    "published": "منشور",
+    "draft": "مسودة",
+    "views": "مشاهدة",
+    "lessonsCount": "دروس",
+    "noAssignments": "لا توجد مادة مسندة.",
+    "noUnits": "لم يتم إنشاء أي وحدة.",
+    "noPublishedLessons": "لا توجد دروس منشورة حاليا.",
+    "backToLessons": "العودة إلى دروسي",
+    "resources": "الموارد",
+    "completed": "مكتمل",
+    "notCompleted": "لم يكتمل بعد",
+    "markComplete": "تحديد كمكتمل",
+    "saving": "جار الحفظ...",
+    "notFound": "الدرس غير موجود.",
+    "errors": {
+      "invalid": "تحقق من حقول الدرس.",
+      "notAllowed": "لا تملك صلاحية تعديل هذا الدرس.",
+      "notFound": "الدرس غير موجود.",
+      "tooLarge": "الملف كبير جدا (5 ميغا كحد أقصى).",
+      "badType": "نوع الملف غير مسموح.",
+      "empty": "الملف فارغ.",
+      "busy": "تعذر الحفظ، حاول مرة أخرى."
+    },
+    "newLessonInUnit": "إضافة درس",
+    "editUnit": "تعديل الوحدة",
+    "completions": "إتمام",
+    "markIncomplete": "إلغاء الإتمام"
   },
   "dashboard": {
     "welcome": "مرحبا، {name}",
@@ -193,6 +241,64 @@
       "balance": "الرصيد",
       "children": "الأبناء",
       "balanceTotal": "الرصيد الإجمالي"
+    },
+    "openSection": "فتح القسم",
+    "quickActions": {
+      "students": "التلاميذ",
+      "classes": "الأقسام",
+      "timetable": "جدول الحصص",
+      "grades": "النقط والبيانات",
+      "reports": "التقارير",
+      "homework": "الواجبات",
+      "cahier": "دفتر النصوص",
+      "attendance": "الحضور",
+      "justifications": "التبريرات",
+      "discipline": "الانضباط",
+      "announcements": "الإعلانات",
+      "children": "أبنائي",
+      "fees": "واجبات التمدرس",
+      "lessons": "الدروس التعليمية"
+    },
+    "rolePanels": {
+      "director": {
+        "title": "قيادة المؤسسة",
+        "subtitle": "الوصول مباشرة إلى العمليات التي تحتاج إلى انتباهكم.",
+        "footnote": "تُحتسب المؤشرات اعتماداً على الموسم الدراسي النشط."
+      },
+      "teacher": {
+        "title": "يومي الدراسي",
+        "subtitle": "اعثر بسرعة على أقسامك وتقويماتك وواجباتك.",
+        "footnote": "تبقى العمليات محصورة في الأقسام والمواد المسندة إليك."
+      },
+      "surveillant": {
+        "title": "تتبع الحياة المدرسية",
+        "subtitle": "عالج الحضور والتبريرات والحوادث من فضاء واحد.",
+        "footnote": "تعكس العدادات الملفات المسجلة حالياً."
+      },
+      "parent": {
+        "title": "تتبع أبنائي",
+        "subtitle": "اطلع على الدراسة والواجبات والرسوم الخاصة بكل ابن.",
+        "footnote": "تقتصر المعلومات المعروضة على الأبناء المرتبطين بحسابك."
+      }
+    },
+    "studentPanel": {
+      "schoolYear": "الموسم الدراسي {year}",
+      "class": "القسم:",
+      "massar": "مسار:",
+      "noClass": "لا يوجد قسم نشط",
+      "average": "المعدل العام",
+      "rank": "الترتيب في القسم",
+      "of": "من",
+      "lessonsToday": "حصص اليوم",
+      "homeworkToDo": "واجبات تنتظر التسليم",
+      "attendanceRate": "نسبة الحضور",
+      "nextActions": "وصول سريع",
+      "viewSchedule": "جدولي الدراسي",
+      "viewGrades": "نقطي",
+      "viewHomework": "واجباتي",
+      "viewAttendance": "غياباتي",
+      "viewAnnouncements": "الإعلانات",
+      "viewLessons": "دروسي"
     }
   },
   "settings": {
@@ -378,16 +484,22 @@
       "noValidRows": "لا يوجد أي سطر صالح للاستيراد."
     },
     "rowErrors": {
-      "missing.codeMassar": "رمز مسار ناقص",
-      "missing.birthDate": "تاريخ الازدياد ناقص",
-      "invalid.codeMassar": "رمز مسار غير صالح (مثال: A123456789)",
-      "invalid.birthDate": "تاريخ ازدياد غير مقروء",
-      "invalid.gender": "الجنس غير معروف",
-      "invalid.guardianEmail": "بريد إلكتروني غير صالح",
-      "duplicate.inFile": "رمز مسار مكرر داخل الملف",
-      "duplicate.inDatabase": "التلميذ مسجل من قبل",
-      "missing.lastName": "النسب ناقص (بالعربية أو بالفرنسية)",
-      "missing.firstName": "الاسم ناقص (بالعربية أو بالفرنسية)"
+      "missing": {
+        "codeMassar": "رمز مسار ناقص",
+        "birthDate": "تاريخ الازدياد ناقص",
+        "lastName": "النسب ناقص (بالعربية أو بالفرنسية)",
+        "firstName": "الاسم ناقص (بالعربية أو بالفرنسية)"
+      },
+      "invalid": {
+        "codeMassar": "رمز مسار غير صالح (مثال: A123456789)",
+        "birthDate": "تاريخ ازدياد غير مقروء",
+        "gender": "الجنس غير معروف",
+        "guardianEmail": "بريد إلكتروني غير صالح"
+      },
+      "duplicate": {
+        "inFile": "رمز مسار مكرر داخل الملف",
+        "inDatabase": "التلميذ مسجل من قبل"
+      }
     },
     "errors": {
       "invalid": "معطيات غير صالحة. تحقق من الحقول.",
@@ -453,6 +565,10 @@
     "copyConfirm": "هل تريد استبدال جدول رمضان لهذا القسم بنسخة من الجدول العادي؟",
     "copyDone": "تم نسخ {copied} حصة، وتجاهل {skipped} بسبب التعارض.",
     "print": "طباعة / PDF",
+    "today": "اليوم",
+    "currentLesson": "جارية الآن",
+    "nextLesson": "الحصة القادمة",
+    "noTodayLessons": "لا توجد حصص مبرمجة اليوم.",
     "printClass": "PDF القسم",
     "printTeacher": "PDF الأستاذ",
     "forClass": "القسم: {name}",
@@ -496,6 +612,7 @@
       "unexcused": "غير مبرَّرة",
       "lates": "التأخرات",
       "noRecords": "لا توجد غيابات مسجَّلة.",
+      "attendanceRate": "نسبة الحضور",
       "subject": "المادة",
       "status": "الحالة",
       "disabledForTeachers": "تسجيل الغياب معطَّل للأساتذة."
@@ -604,6 +721,7 @@
     "bulletin": "كشف النقط",
     "coefficient": "المعامل",
     "generalAverage": "المعدل العام",
+    "subjectPerformance": "الأداء حسب المادة",
     "notGraded": "—",
     "mentions": {
       "TRES_BIEN": "حسن جداً",
@@ -673,6 +791,8 @@
     "late": "متأخر",
     "onTime": "في الوقت",
     "notSubmitted": "لم يُسلَّم",
+    "total": "المجموع",
+    "submitted": "تم التسليم",
     "studentNote": "ملاحظة للأستاذ",
     "review": "تصحيح",
     "grade": "النقطة",
