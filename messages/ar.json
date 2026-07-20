@@ -190,7 +190,7 @@
     "contentFr": "المحتوى (بالفرنسية)",
     "contentAr": "المحتوى (بالعربية)",
     "publish": "نشر للتلاميذ",
-    "attachment": "مورد مرفق",
+    "attachment": "الموارد المرفقة",
     "published": "منشور",
     "draft": "مسودة",
     "views": "مشاهدة",
@@ -996,7 +996,15 @@
       "noSchedule": "لا يوجد جدول لهذا التلميذ.",
       "feeItemInUse": "نوع الرسوم مستعمَل.",
       "notAllowed": "إجراء غير مسموح."
-    }
+    },
+    "receiptBooklet": "الوصولات دفعة واحدة",
+    "receiptBookletHint": "تحميل جميع الوصولات الصادرة خلال الفترة في ملف PDF واحد.",
+    "from": "من",
+    "to": "إلى",
+    "classLabel": "القسم",
+    "allClasses": "جميع الأقسام",
+    "download": "تحميل (PDF)",
+    "invalidRange": "الفترة غير صالحة."
   },
   "reports": {
     "title": "التقارير",

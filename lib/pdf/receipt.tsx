@@ -31,15 +31,14 @@ const styles = StyleSheet.create({
   line: { flexDirection: "row", justifyContent: "space-between", marginBottom: 2 },
 });
 
-export async function renderReceiptPdf(input: ReceiptInput): Promise<Uint8Array> {
-  registerAmiri();
+/** One receipt as a single page, shared by the single PDF and the booklet. */
+function ReceiptPage({ input }: { input: ReceiptInput }) {
   const isAr = input.locale === "ar";
   const tx = (s: string) => (isAr && s ? rtl(s) : s);
   const L = input.labels;
   const align = isAr ? ("right" as const) : ("left" as const);
 
-  return renderToBuffer(
-    <Document>
+  return (
       <Page size="A5" style={[styles.page, { fontFamily: isAr ? "Amiri" : "Helvetica", textAlign: align }]}>
         <Text style={styles.school}>{tx(input.schoolName)}</Text>
         <Text style={styles.title}>{tx(L.receipt)} — {L.number} {input.number}</Text>
@@ -66,6 +65,32 @@ export async function renderReceiptPdf(input: ReceiptInput): Promise<Uint8Array>
           </View>
         ) : null}
       </Page>
+  );
+}
+
+/** A single receipt. */
+export async function renderReceiptPdf(input: ReceiptInput): Promise<Uint8Array> {
+  registerAmiri();
+  return renderToBuffer(
+    <Document>
+      <ReceiptPage input={input} />
+    </Document>,
+  );
+}
+
+/**
+ * Several receipts in one document, one page each.
+ *
+ * A school issuing a month of receipts prints them as a batch; the alternative
+ * is opening each payment and downloading it one at a time.
+ */
+export async function renderReceiptBooklet(inputs: ReceiptInput[]): Promise<Uint8Array> {
+  registerAmiri();
+  return renderToBuffer(
+    <Document>
+      {inputs.map((input, i) => (
+        <ReceiptPage key={i} input={input} />
+      ))}
     </Document>,
   );
 }

@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageHeader, EmptyState } from "@/components/page-header";
+import { ReceiptBookletForm } from "@/components/fees/receipt-booklet-form";
 import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
 import { Link } from "@/i18n/navigation";
 import { FeeItemModal, GenerateClassForm, GenerateScheduleForm, PaymentModal, RemindersForm } from "@/components/fees/fee-forms";
@@ -36,6 +37,8 @@ export default async function Page({
   return (
     <>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
+
+      <ReceiptBookletForm classes={classes.map((c) => ({ id: c.id, name: c.name }))} />
 
       {/* Fee items */}
       <section className="mb-8">

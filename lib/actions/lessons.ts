@@ -6,8 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/dal";
 import { audit } from "@/lib/audit";
 import { notifyMany } from "@/lib/notifications";
-import { storeUpload, DOC_TYPES } from "@/lib/storage";
 import { canAuthorAt, nextOrder, normalizeStream } from "@/lib/lessons";
+import { attachFiles } from "@/lib/lesson-attachments";
 import type { ActionState } from "@/lib/actions/structure";
 
 const TEACHER_PATH = "/[locale]/(dashboard)/teacher/lessons";
@@ -128,24 +128,6 @@ async function announcePublication(lessonId: string, unit: { levelId: string; st
   });
 }
 
-/** Optional single attachment posted alongside the lesson form. */
-async function attachIfPresent(
-  formData: FormData,
-  lessonId: string,
-  uploadedById: string,
-): Promise<{ error: "tooLarge" | "badType" | "empty" } | null> {
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) return null;
-  const up = await storeUpload(file, {
-    uploadedById,
-    folder: `lessons/${lessonId}`,
-    allowed: DOC_TYPES,
-  });
-  if (!up.ok) return { error: up.error };
-  await prisma.lessonAttachment.create({ data: { lessonId, fileId: up.fileId } });
-  return null;
-}
-
 export async function createLesson(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await verifySession();
   const parsed = createSchema.safeParse(Object.fromEntries(formData));
@@ -219,7 +201,7 @@ export async function createLesson(_prev: ActionState, formData: FormData): Prom
   }
   if (!lesson) return { error: "busy" };
 
-  const failed = await attachIfPresent(formData, lesson.id, actor.id);
+  const failed = await attachFiles(formData, lesson.id, actor.id);
 
   await audit({
     actorId: actor.id,
@@ -263,7 +245,7 @@ export async function updateLesson(_prev: ActionState, formData: FormData): Prom
     },
   });
 
-  const failed = await attachIfPresent(formData, lesson.id, actor.id);
+  const failed = await attachFiles(formData, lesson.id, actor.id);
 
   await audit({
     actorId: actor.id,

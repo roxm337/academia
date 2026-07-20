@@ -190,7 +190,7 @@
     "contentFr": "Contenu (français)",
     "contentAr": "Contenu (arabe)",
     "publish": "Publier aux élèves",
-    "attachment": "Ressource jointe",
+    "attachment": "Ressources jointes",
     "published": "Publié",
     "draft": "Brouillon",
     "views": "consultations",
@@ -996,7 +996,15 @@
       "noSchedule": "Aucun échéancier pour cet élève.",
       "feeItemInUse": "Ce type de frais est déjà utilisé.",
       "notAllowed": "Action non autorisée."
-    }
+    },
+    "receiptBooklet": "Reçus par lot",
+    "receiptBookletHint": "Télécharge en un seul PDF tous les reçus émis sur la période.",
+    "from": "Du",
+    "to": "Au",
+    "classLabel": "Classe",
+    "allClasses": "Toutes les classes",
+    "download": "Télécharger (PDF)",
+    "invalidRange": "Période invalide."
   },
   "reports": {
     "title": "Rapports",

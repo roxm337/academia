@@ -287,6 +287,7 @@ function PublishAndAttachment({ isPublished }: { isPublished?: boolean }) {
           type="file"
           name="file"
           accept={DOC_ACCEPT}
+          multiple
           className="block w-full text-sm"
         />
       </div>
