@@ -1,8 +1,8 @@
 # Planète Montessori LMS
 
-Planète Montessori LMS is the bilingual digital workspace for Planète Montessori International School in Marrakech. It connects academic records, attendance, learning resources, homework, timetables, fees, and school communication in one role-based portal.
+Planète Montessori LMS is the multilingual digital workspace for Planète Montessori International School in Marrakech. It connects academic records, attendance, learning resources, homework, timetables, fees, and school communication in one role-based portal.
 
-The public experience and dashboards are available in French and Arabic, with automatic left-to-right and right-to-left layout support.
+The public experience and dashboards are available in French, English, and Arabic, with automatic left-to-right and right-to-left layout support.
 
 ## Features
 
@@ -13,7 +13,7 @@ The public experience and dashboards are available in French and Arabic, with au
 - Homework, submissions, announcements, messages, and timetables
 - Fees, payments, installments, receipts, and financial tracking
 - Massar-compatible identifiers and spreadsheet-oriented workflows
-- French and Arabic localization with RTL support
+- French, English, and Arabic localization with RTL support
 - Configurable school identity, colors, rules, and Ramadan schedules
 - Credentials-based authentication with JWT sessions
 
@@ -23,7 +23,7 @@ The public experience and dashboards are available in French and Arabic, with au
 - React 19 and TypeScript
 - [Prisma 7](https://www.prisma.io/) with PostgreSQL
 - NextAuth credentials authentication
-- `next-intl` for French and Arabic localization
+- `next-intl` for French, English, and Arabic localization
 - Tailwind CSS 4 and `lucide-react`
 - Vitest for tests and ESLint for code quality
 
@@ -72,7 +72,7 @@ The seed creates a Moroccan school structure, academic data, staff, students, pa
 pnpm dev
 ```
 
-Open [http://localhost:3000/fr](http://localhost:3000/fr) for the French experience or [http://localhost:3000/ar](http://localhost:3000/ar) for the Arabic experience.
+Open [http://localhost:3000/fr](http://localhost:3000/fr), [http://localhost:3000/en](http://localhost:3000/en), or [http://localhost:3000/ar](http://localhost:3000/ar).
 
 ## Demo Accounts
 
@@ -96,7 +96,7 @@ components/            Shared UI, application shell, and landing page
 i18n/                  Locale routing and request configuration
 lib/actions/           Server actions for authentication and settings
 lib/dal.ts             Session and data-access helpers
-messages/              French and Arabic translation files
+messages/              French, English, and Arabic translation files
 prisma/                Schema, migrations, and seed script
 public/                Static assets
 ```
@@ -105,8 +105,8 @@ public/                Static assets
 
 | Route | Purpose |
 | --- | --- |
-| `/fr` or `/ar` | Public landing page |
-| `/fr/login` or `/ar/login` | Sign-in |
+| `/fr`, `/en`, or `/ar` | Public landing page |
+| `/fr/login`, `/en/login`, or `/ar/login` | Sign-in |
 | `/fr/director` | Director workspace |
 | `/fr/surveillant` | Supervisor workspace |
 | `/fr/teacher` | Teacher workspace |

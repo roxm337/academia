@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, FileText } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { localeTag } from "@/i18n/routing";
 import { PageHeader } from "@/components/page-header";
 import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
 import {
@@ -34,7 +35,7 @@ export default async function StudentDetailPage({
       ? `${student.user.lastNameAr} ${student.user.firstNameAr}`
       : `${student.user.lastNameFr} ${student.user.firstNameFr}`;
 
-  const dateFmt = new Intl.DateTimeFormat(locale === "ar" ? "ar-MA" : "fr-MA", {
+  const dateFmt = new Intl.DateTimeFormat(localeTag(locale), {
     day: "numeric",
     month: "long",
     year: "numeric",

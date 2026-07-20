@@ -5,9 +5,10 @@ import { semesterById } from "@/lib/data/grades";
 import { buildBulletinInputs } from "@/lib/data/bulletin";
 import { canReadBooklet } from "@/lib/bulletin-access";
 import { renderBulletinBooklet } from "@/lib/pdf/bulletin";
+import { resolveLocale } from "@/i18n/routing";
 
 /**
- * Every bulletin for a class, in one bilingual PDF — one page per student, in
+ * Every bulletin for a class, in one localized PDF, one page per student, in
  * rank order. This is what a school actually does at the end of a semester;
  * downloading thirty separate files and collating them is the job it replaces.
  *
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (!user) return new Response(null, { status: 401 });
 
   const url = new URL(req.url);
-  const locale = url.searchParams.get("locale") === "ar" ? "ar" : "fr";
+  const locale = resolveLocale(url.searchParams.get("locale"));
   const classId = url.searchParams.get("class") ?? "";
   const semesterId = url.searchParams.get("semester") ?? "";
   if (!classId || !semesterId) return new Response(null, { status: 400 });

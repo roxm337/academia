@@ -5,7 +5,7 @@ import { z } from "zod";
 import { signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { dashboardPathFor } from "@/lib/dal";
-import { routing } from "@/i18n/routing";
+import { resolveLocale } from "@/i18n/routing";
 
 export type LoginState = {
   error?: "invalidCredentials" | "accountDisabled" | "emailInvalid";
@@ -20,7 +20,7 @@ export async function login(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const locale = String(formData.get("locale") ?? routing.defaultLocale);
+  const locale = resolveLocale(String(formData.get("locale") ?? ""));
 
   const parsed = schema.safeParse({
     email: formData.get("email"),
@@ -57,5 +57,5 @@ export async function login(
 }
 
 export async function logout(locale: string) {
-  await signOut({ redirectTo: `/${locale}/login` });
+  await signOut({ redirectTo: `/${resolveLocale(locale)}/login` });
 }

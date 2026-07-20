@@ -16,7 +16,13 @@ export default async function LoginPage({ params }: PageProps<"/[locale]/login">
       <section className="relative hidden min-h-dvh overflow-hidden lg:block">
         <Image
           src="/brand/campus-life.jpg"
-          alt={locale === "ar" ? "تلاميذ بلانيت مونتيسوري" : "Élèves de Planète Montessori"}
+          alt={
+            locale === "ar"
+              ? "تلاميذ بلانيت مونتيسوري"
+              : locale === "en"
+                ? "Planète Montessori students"
+                : "Élèves de Planète Montessori"
+          }
           fill
           sizes="54vw"
           className="object-cover"

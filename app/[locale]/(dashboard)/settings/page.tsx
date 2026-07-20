@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/field";
 import { requireRole } from "@/lib/dal";
 import { getSchoolSettings } from "@/lib/school";
+import { localeTag } from "@/i18n/routing";
 import { SettingsForm } from "./settings-form";
 
 export default async function SettingsPage({
@@ -17,7 +18,7 @@ export default async function SettingsPage({
 
   if (!settings) return null;
 
-  const dateFmt = new Intl.DateTimeFormat(locale === "ar" ? "ar-MA" : "fr-MA", {
+  const dateFmt = new Intl.DateTimeFormat(localeTag(locale), {
     day: "numeric",
     month: "long",
     year: "numeric",

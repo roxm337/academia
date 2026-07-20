@@ -354,7 +354,7 @@ model User {
   passwordHash String
   role         Role
   isActive     Boolean @default(true)
-  locale       String  @default("fr") // "ar" | "fr"
+  locale       String  @default("fr") // "ar" | "en" | "fr"
 
   firstNameAr String
   lastNameAr  String

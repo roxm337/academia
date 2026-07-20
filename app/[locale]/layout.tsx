@@ -10,7 +10,7 @@ import "../globals.css";
 /**
  * One superfamily across both scripts.
  *
- * Latin and Arabic were drawn together for Plex, so a bilingual interface does
+ * Latin and Arabic were drawn together for Plex, so a multilingual interface does
  * not read as two applications stapled together — the weights, the x-height
  * relationship and the rhythm carry across when a user switches locale. Plex
  * also ships true tabular figures, which is what makes a column of /20 marks

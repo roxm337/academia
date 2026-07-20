@@ -75,7 +75,7 @@ export async function Landing({ locale }: { locale: string }) {
                         : "locale-inactive hover:text-white"
                     }
                   >
-                    {l === "ar" ? "العربية" : "FR"}
+                    {l === "ar" ? "العربية" : l.toUpperCase()}
                   </Link>
                 </span>
               ))}

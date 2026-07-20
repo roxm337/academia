@@ -7,6 +7,7 @@ import { formatMAD } from "@/lib/fees";
 import { computeClassResults } from "@/lib/data/grades";
 import { classFeeOverview } from "@/lib/data/fees";
 import { absenceSummary } from "@/lib/data/attendance";
+import { resolveLocale } from "@/i18n/routing";
 
 /**
  * Director CSV exports: class list, grade summary, fee ledger, attendance stats.
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
   const kind = url.searchParams.get("kind") ?? "";
   const classId = url.searchParams.get("class") ?? "";
   const semesterId = url.searchParams.get("semester") ?? "";
-  const locale = url.searchParams.get("locale") === "ar" ? "ar" : "fr";
+  const locale = resolveLocale(url.searchParams.get("locale"));
   if (!classId) return new Response(null, { status: 400 });
 
   const t = await getTranslations({ locale, namespace: "reports" });

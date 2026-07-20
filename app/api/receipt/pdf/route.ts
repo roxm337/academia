@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/dal";
 import { receiptById } from "@/lib/data/fees";
 import { buildReceiptInputs } from "@/lib/data/receipt";
 import { renderReceiptPdf } from "@/lib/pdf/receipt";
+import { resolveLocale } from "@/i18n/routing";
 
 /**
  * A payment receipt as PDF. Role-aware: the director sees any; a parent only a
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
   if (!user) return new Response(null, { status: 401 });
 
   const url = new URL(req.url);
-  const locale = url.searchParams.get("locale") === "ar" ? "ar" : "fr";
+  const locale = resolveLocale(url.searchParams.get("locale"));
   const id = url.searchParams.get("id") ?? "";
   if (!id) return new Response(null, { status: 400 });
 

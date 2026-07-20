@@ -5,6 +5,12 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
+const LABELS = {
+  fr: { short: "FR", full: "Français" },
+  en: { short: "EN", full: "English" },
+  ar: { short: "AR", full: "العربية" },
+} as const;
+
 /** Swaps locale while staying on the same route. */
 export function LocaleSwitcher() {
   const locale = useLocale();
@@ -26,7 +32,8 @@ export function LocaleSwitcher() {
               : "text-[var(--muted)] hover:bg-black/[0.04]",
           )}
         >
-          {l === "ar" ? "العربية" : "Français"}
+          <span className="sm:hidden">{LABELS[l].short}</span>
+          <span className="hidden sm:inline">{LABELS[l].full}</span>
         </button>
       ))}
     </div>

@@ -62,6 +62,7 @@ const emailDriver: ChannelDriver = {
     if (!user?.email) return { status: "FAILED", error: "no email address" };
 
     const arabic = user.locale === "ar";
+    const english = user.locale === "en";
     const settings = await prisma.schoolSettings.findFirst({
       select: { nameAr: true, nameFr: true },
     });
@@ -71,7 +72,7 @@ const emailDriver: ChannelDriver = {
       title: arabic ? n.titleAr : n.titleFr,
       body: arabic ? n.bodyAr : n.bodyFr,
       url: absoluteUrl(n.link, user.locale),
-      actionLabel: arabic ? "فتح المنصة" : "Ouvrir la plateforme",
+      actionLabel: arabic ? "فتح المنصة" : english ? "Open the platform" : "Ouvrir la plateforme",
       schoolName: (arabic ? settings?.nameAr : settings?.nameFr) ?? "",
     });
 

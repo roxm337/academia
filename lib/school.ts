@@ -38,7 +38,7 @@ export function schoolName(
   return locale === "ar" ? settings.nameAr : settings.nameFr;
 }
 
-/** Pick the right bilingual field for the active locale. */
+/** Pick a stored school-content field; English falls back to the French source. */
 export function localized<T extends { nameAr: string; nameFr: string }>(
   row: T,
   locale: string,

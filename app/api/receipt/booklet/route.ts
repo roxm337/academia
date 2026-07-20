@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/dal";
 import { buildReceiptInputs, receiptIdsFor } from "@/lib/data/receipt";
 import { renderReceiptBooklet } from "@/lib/pdf/receipt";
+import { resolveLocale } from "@/i18n/routing";
 
 /**
  * Receipts issued in a date range, as one PDF — optionally narrowed to a class.
@@ -9,7 +10,7 @@ import { renderReceiptBooklet } from "@/lib/pdf/receipt";
  * Director-only: a batch spans many families, so unlike a single receipt there
  * is no version of this a parent may fetch.
  *
- * `?from=YYYY-MM-DD&to=YYYY-MM-DD[&class=<id>][&locale=ar|fr]`
+ * `?from=YYYY-MM-DD&to=YYYY-MM-DD[&class=<id>][&locale=ar|en|fr]`
  */
 export async function GET(req: NextRequest) {
   // requireRole redirects a signed-in non-director and throws for anonymous;
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
   await requireRole("DIRECTOR");
 
   const url = new URL(req.url);
-  const locale = url.searchParams.get("locale") === "ar" ? "ar" : "fr";
+  const locale = resolveLocale(url.searchParams.get("locale"));
   const fromRaw = url.searchParams.get("from") ?? "";
   const toRaw = url.searchParams.get("to") ?? "";
 

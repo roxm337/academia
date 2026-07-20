@@ -5,9 +5,10 @@ import { semesterById } from "@/lib/data/grades";
 import { buildBulletinInputs } from "@/lib/data/bulletin";
 import { canReadBulletin } from "@/lib/bulletin-access";
 import { renderBulletinPdf } from "@/lib/pdf/bulletin";
+import { resolveLocale } from "@/i18n/routing";
 
 /**
- * A student's bulletin, per semester, as a bilingual (AR/FR) PDF.
+ * A student's bulletin, per semester, localized to the requested UI language.
  *
  * Route Handler = its own entry point, so authorization is re-derived here:
  * the director always; a teacher who teaches the student's class; the student
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (!user) return new Response(null, { status: 401 });
 
   const url = new URL(req.url);
-  const locale = url.searchParams.get("locale") === "ar" ? "ar" : "fr";
+  const locale = resolveLocale(url.searchParams.get("locale"));
   const studentId = url.searchParams.get("student") ?? "";
   const semesterId = url.searchParams.get("semester") ?? "";
   if (!studentId || !semesterId) return new Response(null, { status: 400 });

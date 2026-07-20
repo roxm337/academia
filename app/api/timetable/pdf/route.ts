@@ -10,6 +10,7 @@ import {
   activeClassOfStudent,
 } from "@/lib/data/timetable";
 import { renderTimetablePdf, type PdfSlot } from "@/lib/pdf/timetable";
+import { resolveLocale } from "@/i18n/routing";
 import {
   WEEKDAYS,
   variantForDate,
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
   if (!user) return new Response(null, { status: 401 });
 
   const url = new URL(req.url);
-  const locale = url.searchParams.get("locale") === "ar" ? "ar" : "fr";
+  const locale = resolveLocale(url.searchParams.get("locale"));
   const reqClass = url.searchParams.get("class");
   const reqTeacher = url.searchParams.get("teacher");
 
