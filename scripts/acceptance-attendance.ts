@@ -93,7 +93,7 @@ async function main() {
           bodyAr: "اختبار", bodyFr: "test",
           link: "/parent/attendance",
         });
-        createdNotifications.push(n.id);
+        createdNotifications.push(...n.map((row) => row.id));
         alertsFired++;
       }
     }
