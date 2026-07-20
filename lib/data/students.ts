@@ -12,7 +12,13 @@ export type StudentFilters = {
   status?: StudentStatus | "";
 };
 
-/** Director-facing student list: search by name or Code Massar. */
+/**
+ * Director-facing student list: search by name or Code Massar.
+ *
+ * Capped, and the cap is **reported** — a school of 600 must not be shown the
+ * first 100 rows labelled "100 students", which is what happened before. The
+ * caller gets the total so it can say "100 of 626" and prompt for a search.
+ */
 export async function searchStudents(filters: StudentFilters, take = 100) {
   const year = await currentYear();
   const q = filters.q?.trim();
@@ -40,7 +46,9 @@ export async function searchStudents(filters: StudentFilters, take = 100) {
       : {}),
   };
 
-  return prisma.studentProfile.findMany({
+  const [total, students] = await Promise.all([
+    prisma.studentProfile.count({ where }),
+    prisma.studentProfile.findMany({
     where,
     take,
     orderBy: { user: { lastNameFr: "asc" } },
@@ -51,7 +59,10 @@ export async function searchStudents(filters: StudentFilters, take = 100) {
         include: { class: true },
       },
     },
-  });
+    }),
+  ]);
+
+  return { students, total, truncated: total > students.length };
 }
 
 export const getStudent = cache(async (id: string) =>

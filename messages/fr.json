@@ -435,7 +435,8 @@
         "ID": "CIN",
         "MEDICAL": "Certificat médical",
         "OTHER": "Autre"
-      }
+      },
+      "truncated": "Affichage de {shown} élèves sur {total} — affinez la recherche ou filtrez par classe."
     },
     "staff": {
       "title": "Personnel",

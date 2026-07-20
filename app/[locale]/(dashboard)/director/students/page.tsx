@@ -28,10 +28,11 @@ export default async function StudentsPage({
   const classId = typeof sp.class === "string" ? sp.class : "";
   const status = (typeof sp.status === "string" ? sp.status : "") as StudentStatus | "";
 
-  const [classes, students] = await Promise.all([
+  const [classes, result] = await Promise.all([
     listClasses(),
     searchStudents({ q, classId, status }),
   ]);
+  const { students, total, truncated } = result;
 
   const classOptions = classes.map((c) => ({ id: c.id, label: c.name }));
 
@@ -76,9 +77,17 @@ export default async function StudentsPage({
             ))}
           </select>
           <Button type="submit" variant="outline" size="md">
-            {tc("count", { n: students.length })}
+            {tc("count", { n: total })}
           </Button>
         </form>
+
+        {/* The list is capped. Saying so beats showing the first 100 of 626
+            under a label that reads "626 students". */}
+        {truncated ? (
+          <p className="w-full text-xs text-amber-700">
+            {t("truncated", { shown: students.length, total })}
+          </p>
+        ) : null}
 
         <div className="ms-auto flex items-center gap-2">
           <Link href="/director/students/import">
