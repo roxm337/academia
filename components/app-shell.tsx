@@ -23,6 +23,8 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 type Props = {
   items: NavItem[];
   schoolName: string;
+  /** From SchoolSettings, so a school that uploads its own logo gets it here. */
+  logoPath: string;
   userName: string;
   roleLabel: string;
   unread: number;
@@ -31,7 +33,7 @@ type Props = {
 };
 
 export function AppShell({
-  items, schoolName, userName, roleLabel, unread, logout, children,
+  items, schoolName, logoPath, userName, roleLabel, unread, logout, children,
 }: Props) {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
@@ -71,9 +73,9 @@ export function AppShell({
       {/* Sidebar — flows to the right automatically under dir="rtl". */}
       <aside className="hidden w-64 shrink-0 border-e border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
         <div className="mb-6 px-2 pt-1">
-          <div className="inline-flex rounded-lg bg-[#133562] px-3 py-2">
+          <div className="inline-flex rounded-lg bg-[var(--brand)] px-3 py-2">
             <Image
-              src="/planete-montessori-private-school-marrakech-Frame-11.png"
+              src={logoPath}
               alt={schoolName}
               width={270}
               height={79}
@@ -107,9 +109,9 @@ export function AppShell({
           />
           <aside className="absolute inset-y-0 start-0 flex w-72 flex-col bg-[var(--surface)] p-4">
             <div className="mb-6 flex items-center justify-between gap-4 px-2 pt-1">
-              <div className="inline-flex min-w-0 rounded-lg bg-[#133562] px-3 py-2">
+              <div className="inline-flex min-w-0 rounded-lg bg-[var(--brand)] px-3 py-2">
                 <Image
-                  src="/planete-montessori-private-school-marrakech-Frame-11.png"
+                  src={logoPath}
                   alt={schoolName}
                   width={270}
                   height={79}

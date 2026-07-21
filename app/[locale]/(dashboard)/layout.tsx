@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AppShell } from "@/components/app-shell";
 import { verifySession } from "@/lib/dal";
 import { NAV } from "@/lib/nav";
-import { getSchoolSettings, schoolName } from "@/lib/school";
+import { getBrand, getSchoolSettings, schoolName } from "@/lib/school";
 import { unreadNotificationCount } from "@/lib/data/notifications";
 import { logout } from "@/lib/actions/auth";
 
@@ -16,8 +16,9 @@ export default async function DashboardLayout({
   // Authentication gate for every dashboard route. Actions re-check on their own.
   const user = await verifySession();
   const t = await getTranslations("roles");
-  const [settings, unread] = await Promise.all([
+  const [settings, brand, unread] = await Promise.all([
     getSchoolSettings(),
+    getBrand(),
     unreadNotificationCount(user.id),
   ]);
 
@@ -30,6 +31,7 @@ export default async function DashboardLayout({
     <AppShell
       items={NAV[user.role]}
       schoolName={schoolName(settings, locale)}
+      logoPath={brand.logoPath}
       userName={locale === "ar" ? user.nameAr : user.name}
       roleLabel={t(user.role)}
       unread={unread}

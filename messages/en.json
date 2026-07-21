@@ -316,6 +316,7 @@
     "phone": "Phone",
     "email": "Email",
     "logo": "Logo",
+    "logoHint": "PNG, JPEG or WebP — 5 MB maximum. Shown on the school's blue.",
     "branding": "Colors",
     "primaryColor": "Primary color",
     "secondaryColor": "Secondary color",

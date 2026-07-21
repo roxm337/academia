@@ -3,6 +3,7 @@ import path from "node:path";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { childrenOfParent, getSessionUser } from "@/lib/dal";
+import { isPublicBrandAsset } from "@/lib/school";
 
 /**
  * Serves an uploaded file.
@@ -16,11 +17,15 @@ export async function GET(
   _req: NextRequest,
   ctx: RouteContext<"/api/files/[...key]">,
 ) {
-  const user = await getSessionUser();
-  if (!user) return new Response(null, { status: 401 });
-
   const { key } = await ctx.params;
   const storageKey = key.join("/");
+
+  // One exception to "log in first": the school's own logo, which has to render
+  // on the login screen itself. Checked against the exact stored value.
+  const isLogo = await isPublicBrandAsset(storageKey);
+
+  const user = await getSessionUser();
+  if (!user && !isLogo) return new Response(null, { status: 401 });
 
   const file = await prisma.storedFile.findFirst({
     where: { path: storageKey },
@@ -36,8 +41,9 @@ export async function GET(
   if (!file) return new Response(null, { status: 404 });
 
   if (
+    !isLogo &&
     !(await canRead(
-      user,
+      user!,
       file.studentDocuments.map((d) => d.studentId),
       file.lessonAttachments.map((a) => a.lesson.isPublished),
     ))
@@ -59,7 +65,11 @@ export async function GET(
       headers: {
         "Content-Type": file.mimeType,
         "Content-Disposition": `inline; filename="${encodeURIComponent(file.filename)}"`,
-        "Cache-Control": "private, no-store",
+        // Everything here is somebody's private record — except the logo, which
+        // is on the public login page and reloaded on every single request.
+        "Cache-Control": isLogo
+          ? "public, max-age=3600"
+          : "private, no-store",
       },
     });
   } catch {

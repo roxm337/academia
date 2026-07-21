@@ -6,7 +6,7 @@ UPDATE "SchoolSettings"
 SET
   "nameAr" = 'مدرسة بلانيت مونتيسوري الدولية',
   "nameFr" = 'Planète Montessori International School',
-  "logoPath" = '/planete-montessori-private-school-marrakech-Frame-11.png',
+  "logoPath" = '/brand/planete-montessori-logo.png',
   "primaryColor" = '#133562',
   "secondaryColor" = '#ef5b4e',
   "addressAr" = 'تجزئة أمين رقم 8، تاركة، مراكش',

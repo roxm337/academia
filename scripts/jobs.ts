@@ -9,13 +9,13 @@ import { JOBS, runDaily, type JobName, type JobResult } from "../lib/jobs";
  * `--conditions=react-server` is required: the data layer imports `server-only`,
  * which throws outside that condition. Without it the job dies before it starts.
  *
- *   npx tsx --conditions=react-server scripts/jobs.ts daily              # daily set
- *   npx tsx --conditions=react-server scripts/jobs.ts payment-reminders  # one job
- *   npx tsx --conditions=react-server scripts/jobs.ts daily --dry-run    # no e-mail
+ *   pnpm exec tsx --conditions=react-server scripts/jobs.ts daily              # daily set
+ *   pnpm exec tsx --conditions=react-server scripts/jobs.ts payment-reminders  # one job
+ *   pnpm exec tsx --conditions=react-server scripts/jobs.ts daily --dry-run    # no e-mail
  *
  * Suggested crontab (07:00 every day, logging where you can find it):
  *
- *   0 7 * * * cd /srv/planete-montessori && /usr/bin/npx tsx --conditions=react-server \
+ *   0 7 * * * cd /srv/planete-montessori && /usr/bin/pnpm exec tsx --conditions=react-server \
  *     scripts/jobs.ts daily >> /var/log/planete-montessori-jobs.log 2>&1
  *
  * Exits non-zero if any job reported an error, so cron's own mail — or your

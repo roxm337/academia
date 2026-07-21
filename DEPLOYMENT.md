@@ -8,7 +8,8 @@ scheduled work runs from system cron rather than inside the app process.
 
 ## 1. Prerequisites
 
-- Node 22+ and npm (the repo uses **npm** — `package-lock.json`)
+- Node 22+ and **pnpm** — the repo's lockfile is `pnpm-lock.yaml`, and `package.json` pins the
+  version via `packageManager`, so `corepack enable` is enough to get the right one
 - PostgreSQL 15+
 - A reverse proxy terminating TLS (nginx/Caddy) in front of port 3000
 
@@ -16,15 +17,16 @@ scheduled work runs from system cron rather than inside the app process.
 
 ```bash
 git clone <repo> /srv/planete-montessori && cd /srv/planete-montessori
-npm ci
-npm approve-scripts prisma @prisma/engines esbuild   # npm 11 gates install scripts
+corepack enable && corepack prepare --activate       # pnpm version comes from package.json
+pnpm install --frozen-lockfile                       # fails loudly if the lockfile is stale
+pnpm approve-builds                                  # pnpm gates postinstall scripts (prisma, esbuild)
 cp .env.example .env && $EDITOR .env                 # see section 3
-npx prisma migrate deploy                            # NEVER `migrate reset` on a live DB
-npm run build
+pnpm exec prisma migrate deploy                      # NEVER `migrate reset` on a live DB
+pnpm build
 ```
 
 Create the first director account by running the seed **once on an empty database**
-(`npm run db:seed`) and then changing that password — the seed truncates every table, so it must
+(`pnpm db:seed`) and then changing that password — the seed truncates every table, so it must
 never be run against a database with real school data in it.
 
 ## 3. Environment
@@ -64,7 +66,7 @@ can find. **Test a restore** before you need one.
 without it, and the job dies before it starts.
 
 ```cron
-0 7 * * * cd /srv/planete-montessori && /usr/bin/npx tsx --conditions=react-server \
+0 7 * * * cd /srv/planete-montessori && /usr/bin/pnpm exec tsx --conditions=react-server \
   scripts/jobs.ts daily >> /var/log/planete-montessori-jobs.log 2>&1
 ```
 
@@ -92,7 +94,7 @@ Use a process manager so the app restarts on boot and on crash — systemd unit 
 # /etc/systemd/system/planete-montessori.service
 [Service]
 WorkingDirectory=/srv/planete-montessori
-ExecStart=/usr/bin/npm run start
+ExecStart=/usr/bin/pnpm start
 Restart=always
 EnvironmentFile=/srv/planete-montessori/.env
 ```
@@ -101,13 +103,13 @@ EnvironmentFile=/srv/planete-montessori/.env
 
 ```bash
 cd /srv/planete-montessori && git pull
-npm ci
-npx prisma migrate deploy      # additive migrations only; review the SQL first
-npm run build
+pnpm install --frozen-lockfile
+pnpm exec prisma migrate deploy      # additive migrations only; review the SQL first
+pnpm build
 systemctl restart planete-montessori
 ```
 
-Check `npx prisma migrate status` after deploying. It compares *migrations to the database* — it
+Check `pnpm exec prisma migrate status` after deploying. It compares *migrations to the database* — it
 does **not** notice when `schema.prisma` has models that were never migrated, which has bitten this
 project before (the whole e-learning feature typechecked with none of its tables existing).
 
@@ -115,7 +117,7 @@ project before (the whole e-learning feature typechecked with none of its tables
 
 ```bash
 curl -sf https://your-domain/fr/login  > /dev/null && echo "app up"
-npx tsx --conditions=react-server scripts/jobs.ts overdue   # exercises DB write access
+pnpm exec tsx --conditions=react-server scripts/jobs.ts overdue   # exercises DB write access
 ```
 
 Log in as each of the five roles once. RBAC is enforced server-side per route and per action, so a

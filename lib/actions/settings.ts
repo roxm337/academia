@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/dal";
+import { IMAGE_TYPES, storeUpload } from "@/lib/storage";
 
 const schema = z.object({
   nameAr: z.string().min(1),
@@ -20,7 +21,12 @@ const schema = z.object({
   absenceAlertThreshold: z.coerce.number().int().min(1).max(50),
 });
 
-export type SettingsState = { ok?: boolean; error?: string } | null;
+export type SettingsState = {
+  ok?: boolean;
+  error?: string;
+  /** Set when the settings saved but the new logo did not. */
+  logoError?: "tooLarge" | "badType" | "empty";
+} | null;
 
 export async function updateSettings(
   _prev: SettingsState,
@@ -49,9 +55,33 @@ export async function updateSettings(
 
   const before = await prisma.schoolSettings.findUnique({ where: { id: 1 } });
 
+  // The logo is optional on every save — an empty file input must leave the
+  // current one alone rather than blanking it.
+  let logoPath: string | undefined;
+  let logoError: "tooLarge" | "badType" | "empty" | undefined;
+  const upload = formData.get("logo");
+  if (upload instanceof File && upload.size > 0) {
+    const stored = await storeUpload(upload, {
+      uploadedById: actor.id,
+      folder: "brand",
+      allowed: IMAGE_TYPES,
+    });
+    if (stored.ok) {
+      const file = await prisma.storedFile.findUniqueOrThrow({
+        where: { id: stored.fileId },
+        select: { path: true },
+      });
+      logoPath = `/api/files/${file.path}`;
+    } else {
+      // Saving the rest is still the right outcome — the director typed those
+      // changes too, and losing them to a rejected image would be worse.
+      logoError = stored.error;
+    }
+  }
+
   const after = await prisma.schoolSettings.update({
     where: { id: 1 },
-    data: parsed.data,
+    data: { ...parsed.data, ...(logoPath ? { logoPath } : {}) },
   });
 
   await prisma.auditLog.create({
@@ -66,5 +96,5 @@ export async function updateSettings(
   });
 
   revalidatePath("/", "layout");
-  return { ok: true };
+  return { ok: true, logoError };
 }

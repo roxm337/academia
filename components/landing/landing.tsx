@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { getBrand } from "@/lib/school";
 import "@/app/[locale]/landing.css";
 
 // Loaded here, not in the root layout, so the dashboard never pays for them.
@@ -34,6 +35,7 @@ const STATS = [
 
 export async function Landing({ locale }: { locale: string }) {
   const t = await getTranslations("landing");
+  const brand = await getBrand();
 
   return (
     <div
@@ -44,8 +46,8 @@ export async function Landing({ locale }: { locale: string }) {
         <div className="shell flex h-20 items-center gap-3 md:gap-6">
           <Link href="/" className="brand-lockup" aria-label="Planète Montessori">
             <Image
-              src="/planete-montessori-private-school-marrakech-Frame-11.png"
-              alt="Planète Montessori"
+              src={brand.logoPath}
+              alt={t("hero.title")}
               width={270}
               height={79}
               className="h-10 w-auto"
@@ -295,7 +297,7 @@ export async function Landing({ locale }: { locale: string }) {
       <footer className="band-dark py-14!">
         <div className="shell flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <Image src="/planete-montessori-private-school-marrakech-Frame-11.png" alt="Planète Montessori" width={270} height={79} className="h-12 w-auto" />
+            <Image src={brand.logoPath} alt={t("hero.title")} width={270} height={79} className="h-12 w-auto" />
             <p className="mt-2 max-w-xs text-sm text-[#8ea6b0]">
               {t("footer.tagline")}
             </p>
