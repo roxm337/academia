@@ -7,7 +7,7 @@ import { requireRole } from "@/lib/dal";
 import { audit } from "@/lib/audit";
 import { currentYear } from "@/lib/data/structure";
 import { getYearSlotsForConflict } from "@/lib/data/timetable";
-import { detectConflicts, type SlotShape } from "@/lib/timetable";
+import { WEEKDAYS, detectConflicts, type SlotShape } from "@/lib/timetable";
 import type { ActionState } from "@/lib/actions/structure";
 
 /**
@@ -32,16 +32,7 @@ const slotSchema = z
     subjectId: z.string().min(1),
     teacherId: z.string().min(1),
     roomId: z.string().optional(),
-    weekday: z.enum([
-      "MONDAY",
-      "TUESDAY",
-      "WEDNESDAY",
-      "THURSDAY",
-      "FRIDAY",
-      "SATURDAY",
-      "SUNDAY",
-    ]),
-    variant: z.enum(["NORMAL", "RAMADAN"]),
+    weekday: z.enum(WEEKDAYS),
     startMin: z.coerce.number().int().min(0).max(24 * 60),
     endMin: z.coerce.number().int().min(0).max(24 * 60),
   })
@@ -83,7 +74,6 @@ export async function saveSlot(
   const candidate: SlotShape = {
     id: d.id,
     weekday: d.weekday,
-    variant: d.variant,
     startMin: d.startMin,
     endMin: d.endMin,
     classId: d.classId,
@@ -91,7 +81,7 @@ export async function saveSlot(
     roomId,
   };
 
-  const existing = await getYearSlotsForConflict(d.variant);
+  const existing = await getYearSlotsForConflict();
   const conflicts = detectConflicts(candidate, existing);
   if (conflicts.length) {
     // De-dupe kinds; the director cares "teacher busy", not that three slots say so.
@@ -106,7 +96,6 @@ export async function saveSlot(
     teacherId: d.teacherId,
     roomId,
     weekday: d.weekday,
-    variant: d.variant,
     startMin: d.startMin,
     endMin: d.endMin,
   };
@@ -157,108 +146,10 @@ export async function deleteSlot(
   return { ok: true };
 }
 
-/**
- * Seed a class's Ramadan grid from its normal one. The Ramadan periods are
- * shorter, so this copies the *placement* (weekday, subject, teacher, room) and
- * lets the director re-time each lesson — it does not blindly copy 60-minute
- * bands into a 45-minute day.
- *
- * Every copy is conflict-checked against the rest of the Ramadan timetable
- * (a teacher may already be booked elsewhere at that hour); clashes are skipped
- * and counted rather than aborting the whole copy.
- */
-const copySchema = z.object({ classId: z.string().min(1) });
-
-export async function copyNormalToRamadan(
-  _prev: SlotState,
-  formData: FormData,
-): Promise<SlotState> {
-  const actor = await requireRole("DIRECTOR");
-  const year = await currentYear();
-  if (!year) return { error: "noSchoolYear" };
-
-  const parsed = copySchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: "invalid" };
-  const { classId } = parsed.data;
-
-  const source = await prisma.timetableSlot.findMany({
-    where: { classId, variant: "NORMAL", schoolYearId: year.id },
-  });
-  if (source.length === 0) return { error: "nothingToCopy" };
-
-  // Replace whatever Ramadan grid this class already had.
-  await prisma.timetableSlot.deleteMany({
-    where: { classId, variant: "RAMADAN", schoolYearId: year.id },
-  });
-
-  const existing = await getYearSlotsForConflict("RAMADAN");
-  let copied = 0;
-  let skipped = 0;
-
-  for (const s of source) {
-    const candidate: SlotShape = {
-      weekday: s.weekday,
-      variant: "RAMADAN",
-      startMin: s.startMin,
-      endMin: s.endMin,
-      classId: s.classId,
-      teacherId: s.teacherId,
-      roomId: s.roomId,
-    };
-    if (detectConflicts(candidate, existing).length) {
-      skipped++;
-      continue;
-    }
-    const created = await prisma.timetableSlot.create({
-      data: {
-        schoolYearId: year.id,
-        classId: s.classId,
-        subjectId: s.subjectId,
-        teacherId: s.teacherId,
-        roomId: s.roomId,
-        weekday: s.weekday,
-        variant: "RAMADAN",
-        startMin: s.startMin,
-        endMin: s.endMin,
-      },
-    });
-    // Keep the running set current so two copies can't book the same room.
-    existing.push({
-      id: created.id,
-      weekday: s.weekday,
-      variant: "RAMADAN",
-      startMin: s.startMin,
-      endMin: s.endMin,
-      classId: s.classId,
-      teacherId: s.teacherId,
-      roomId: s.roomId,
-    });
-    copied++;
-  }
-
-  await audit({
-    actorId: actor.id,
-    action: "TIMETABLE_COPY_RAMADAN",
-    entity: "Class",
-    entityId: classId,
-    after: { copied, skipped },
-  });
-
-  revalidatePath(REVALIDATE, "page");
-  return { ok: true, copied, skipped };
-}
 
 const moveSchema = z.object({
   id: z.string().min(1),
-  weekday: z.enum([
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-    "SUNDAY",
-  ]),
+  weekday: z.enum(WEEKDAYS),
   startMin: z.coerce.number().int().min(0).max(24 * 60),
   endMin: z.coerce.number().int().min(0).max(24 * 60),
 });
@@ -267,7 +158,7 @@ const moveSchema = z.object({
  * Drop a lesson into a different cell.
  *
  * Only the destination comes from the client. Class, subject, teacher, room
- * and variant are re-read from the stored slot — a drag says "put this here",
+ * are re-read from the stored slot — a drag says "put this here",
  * never "and also change who teaches it". The same conflict engine as the form
  * runs, so dragging cannot create a clash the form would have refused.
  */
@@ -290,7 +181,6 @@ export async function moveSlot(
   const candidate: SlotShape = {
     id: slot.id,
     weekday: d.weekday,
-    variant: slot.variant,
     startMin: d.startMin,
     endMin: d.endMin,
     classId: slot.classId,
@@ -298,7 +188,7 @@ export async function moveSlot(
     roomId: slot.roomId,
   };
 
-  const existing = await getYearSlotsForConflict(slot.variant);
+  const existing = await getYearSlotsForConflict();
   const conflicts = detectConflicts(candidate, existing);
   if (conflicts.length) {
     return { error: "conflict", conflicts: [...new Set(conflicts.map((c) => c.kind))] };

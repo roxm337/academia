@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { TimetableGrid } from "@/components/timetable-grid";
 import { localized } from "@/lib/school";
-import { minToLabel, type TimetableVariant, type Weekday } from "@/lib/timetable";
+import { minToLabel, type Weekday } from "@/lib/timetable";
 
 type UserName = {
   firstNameAr: string; lastNameAr: string; firstNameFr: string; lastNameFr: string;
@@ -23,14 +23,12 @@ type ReadSlot = {
  * parent sees which teacher.
  */
 export async function ReadOnlyTimetable({
-  variant,
   slots,
   locale,
   mode,
   todayWeekday,
   nowMinutes,
 }: {
-  variant: TimetableVariant;
   slots: ReadSlot[];
   locale: string;
   mode: "teacher" | "student";
@@ -85,7 +83,6 @@ export async function ReadOnlyTimetable({
         </section>
       ) : null}
       <TimetableGrid
-        variant={variant}
         slots={slots}
         renderSlot={(s) => (
           <div className="flex w-full flex-col gap-0.5 rounded-md bg-[var(--brand)]/10 p-1.5 text-xs">

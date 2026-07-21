@@ -39,7 +39,7 @@ async function main() {
   // A class whose level carries at least two subject coefficients, with ≥2 students.
   const classes = await prisma.class.findMany({
     where: { schoolYearId: year.id },
-    select: { id: true, name: true, levelId: true, streamId: true },
+    select: { id: true, name: true, levelId: true },
   });
 
   let picked:
@@ -47,17 +47,15 @@ async function main() {
     | null = null;
 
   for (const c of classes) {
+    // Tronc commun only: a spécialité coefficient counts for the students who
+    // chose it, which is what acceptance-specialites.ts covers separately.
     const coefRows = await prisma.levelSubject.findMany({
-      where: { levelId: c.levelId, OR: [{ streamId: c.streamId }, { streamId: null }] },
+      where: { levelId: c.levelId, specialityId: null },
       include: { subject: true },
     });
-    // Resolve to one coefficient per subject (stream-specific wins).
     const bySubject = new Map<string, { subject: typeof coefRows[number]["subject"]; coef: number }>();
     for (const r of coefRows) {
-      const streamSpecific = r.streamId === c.streamId && c.streamId !== null;
-      if (!bySubject.has(r.subjectId) || streamSpecific) {
-        bySubject.set(r.subjectId, { subject: r.subject, coef: Number(r.coefficient) });
-      }
+      bySubject.set(r.subjectId, { subject: r.subject, coef: Number(r.coefficient) });
     }
     const subs = [...bySubject.values()].filter((s) => s.coef > 0).slice(0, 2);
     if (subs.length < 2) continue;

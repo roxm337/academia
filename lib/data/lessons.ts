@@ -9,7 +9,7 @@ import type { CurriculumOption } from "@/components/learning/lesson-modal";
 const teacherLessonInclude = {
   subject: true,
   level: true,
-  stream: true,
+  speciality: true,
   lessons: {
     orderBy: { order: "asc" as const },
     include: {
@@ -34,34 +34,43 @@ export const teacherContentOptions = cache(async (userId: string, locale: string
     select: {
       id: true,
       assignments: {
-        select: {
-          subject: true,
-          class: { select: { levelId: true, streamId: true, level: true, stream: true } },
-        },
+        select: { subjectId: true, class: { select: { levelId: true } } },
       },
     },
   });
   if (!profile) return null;
 
+  // The assignments say which (level, subject) pairs this teacher is entitled
+  // to; LevelSubject says how each pair is actually taught there — once for the
+  // tronc commun, or once per spécialité. Reading the coordinates off the
+  // curriculum table is what keeps the picker from offering a spécialité that
+  // does not exist at that level.
+  const pairs = profile.assignments.map((a) => ({
+    levelId: a.class.levelId,
+    subjectId: a.subjectId,
+  }));
+  if (pairs.length === 0) return { teacherId: profile.id, options: [] };
+
+  const rows = await prisma.levelSubject.findMany({
+    where: { OR: pairs },
+    include: { level: true, speciality: true, subject: true },
+  });
+
   const seen = new Set<string>();
-  const options: CurriculumOption[] = profile.assignments.flatMap((assignment) => {
-    const key = curriculumKey(
-      assignment.class.levelId,
-      assignment.class.streamId,
-      assignment.subject.id,
-    );
+  const options: CurriculumOption[] = rows.flatMap((row) => {
+    const key = curriculumKey(row.levelId, row.specialityId, row.subjectId);
     if (seen.has(key)) return [];
     seen.add(key);
     return [
       {
-        levelId: assignment.class.levelId,
-        levelLabel: localized(assignment.class.level, locale),
-        streamId: assignment.class.streamId,
-        streamLabel: assignment.class.stream
-          ? `${assignment.class.stream.code} — ${localized(assignment.class.stream, locale)}`
+        levelId: row.levelId,
+        levelLabel: localized(row.level, locale),
+        specialityId: row.specialityId,
+        specialityLabel: row.speciality
+          ? `${row.speciality.code} — ${localized(row.speciality, locale)}`
           : null,
-        subjectId: assignment.subject.id,
-        subjectLabel: `${assignment.subject.code} — ${localized(assignment.subject, locale)}`,
+        subjectId: row.subjectId,
+        subjectLabel: `${row.subject.code} — ${localized(row.subject, locale)}`,
       },
     ];
   });
@@ -77,9 +86,9 @@ export const teacherUnits = cache(async (teacherId: string) =>
 );
 
 /**
- * The class a student is currently enrolled in — the only source of the
- * level/stream scope their reads are allowed to cover. Never taken from a
- * query parameter.
+ * The scope a student's reads are allowed to cover: the level of the class
+ * they are enrolled in, plus the spécialités they personally chose. Never
+ * taken from a query parameter.
  */
 async function activeScope(userId: string) {
   const student = await prisma.studentProfile.findUnique({
@@ -93,12 +102,12 @@ async function activeScope(userId: string) {
           class: {
             select: {
               levelId: true,
-              streamId: true,
               assignments: { select: { subjectId: true } },
             },
           },
         },
       },
+      specialities: { select: { specialityId: true } },
     },
   });
   const enrollment = student?.enrollments[0];
@@ -111,7 +120,10 @@ async function activeScope(userId: string) {
   const subjectIds = [...new Set(enrollment.class.assignments.map((a) => a.subjectId))];
   return {
     studentId: student.id,
-    klass: enrollment.class,
+    learner: {
+      levelId: enrollment.class.levelId,
+      specialityIds: student.specialities.map((x) => x.specialityId),
+    },
     subjectIds: subjectIds.length > 0 ? subjectIds : null,
   };
 }
@@ -121,13 +133,13 @@ async function activeScope(userId: string) {
  * `unitVisibleTo` in lib/lessons.ts, which is where the rule is tested.
  */
 function visibleUnitWhere(
-  klass: { levelId: string; streamId: string | null },
+  learner: { levelId: string; specialityIds: string[] },
   subjectIds: string[] | null,
 ) {
   return {
-    levelId: klass.levelId,
-    // A unit with no stream is level-wide; otherwise it must match exactly.
-    OR: [{ streamId: null }, { streamId: klass.streamId }],
+    levelId: learner.levelId,
+    // Tronc commun, or a spécialité this student actually chose.
+    OR: [{ specialityId: null }, { specialityId: { in: learner.specialityIds } }],
     // null = the class has no assignments recorded, so do not filter at all.
     ...(subjectIds ? { subjectId: { in: subjectIds } } : {}),
   };
@@ -139,13 +151,13 @@ export const studentLessons = cache(async (userId: string) => {
 
   const units = await prisma.unit.findMany({
     where: {
-      ...visibleUnitWhere(scope.klass, scope.subjectIds),
+      ...visibleUnitWhere(scope.learner, scope.subjectIds),
       lessons: { some: { isPublished: true } },
     },
     include: {
       subject: true,
       level: true,
-      stream: true,
+      speciality: true,
       lessons: {
         where: { isPublished: true },
         orderBy: { order: "asc" },
@@ -170,10 +182,10 @@ export const studentLesson = cache(async (userId: string, lessonId: string) => {
     where: {
       id: lessonId,
       isPublished: true,
-      unit: visibleUnitWhere(scope.klass, scope.subjectIds),
+      unit: visibleUnitWhere(scope.learner, scope.subjectIds),
     },
     include: {
-      unit: { include: { subject: true, level: true, stream: true } },
+      unit: { include: { subject: true, level: true, speciality: true } },
       attachments: { include: { file: true } },
       progress: { where: { studentId: scope.studentId } },
     },

@@ -46,22 +46,13 @@ export default async function SettingsPage({
                 {semesters.map((s) => (
                   <div key={s.id} className="flex justify-between gap-2">
                     <dt className="text-[var(--muted)]">
-                      {t(s.index === 1 ? "semester1" : "semester2")}
+                      {t("term", { index: s.index })}
                     </dt>
                     <dd className="text-end">
                       {dateFmt.format(s.startDate)} — {dateFmt.format(s.endDate)}
                     </dd>
                   </div>
                 ))}
-                {year.ramadanStart && year.ramadanEnd ? (
-                  <div className="flex justify-between gap-2 border-t border-[var(--border)] pt-2">
-                    <dt className="text-[var(--muted)]">{t("ramadan")}</dt>
-                    <dd className="text-end">
-                      {dateFmt.format(year.ramadanStart)} —{" "}
-                      {dateFmt.format(year.ramadanEnd)}
-                    </dd>
-                  </div>
-                ) : null}
               </dl>
             ) : null}
           </Card>

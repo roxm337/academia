@@ -12,41 +12,87 @@ import {
   type Mention,
 } from "@/lib/grades";
 
+export type CoefficientRow = {
+  coefficient: number;
+  subject: SubjectLite;
+  /** null = tronc commun, taken by everyone at the level. */
+  specialityId: string | null;
+};
+
 /**
- * The coefficient for each subject *as it applies to this class*. A class sits
- * in a level and (maybe) a stream; a coefficient may be set level-wide
- * (streamId null) or for a specific stream. The stream-specific value wins over
- * the level-wide fallback — that's the whole point of streams.
+ * Every subject taught at this class's level: the tronc commun plus every
+ * spécialité offered there.
+ *
+ * This is the *class* view — what a teacher can open a gradebook for. It is
+ * deliberately the union, not any one student's list: since the 2019 reform a
+ * class is no longer "1re S", so the room contains several combinations at
+ * once. Which of these actually count for a given student is decided by
+ * `studentSubjects` below, and nowhere else.
  */
 export const classCoefficients = cache(async (classId: string) => {
   const klass = await prisma.class.findUnique({
     where: { id: classId },
-    select: { levelId: true, streamId: true },
+    select: { levelId: true },
   });
-  if (!klass) return new Map<string, { coefficient: number; subject: SubjectLite }>();
+  if (!klass) return new Map<string, CoefficientRow>();
 
   const rows = await prisma.levelSubject.findMany({
-    where: {
-      levelId: klass.levelId,
-      OR: [{ streamId: klass.streamId }, { streamId: null }],
-    },
+    where: { levelId: klass.levelId },
     include: { subject: true },
   });
 
-  const bySubject = new Map<string, { coefficient: number; subject: SubjectLite }>();
+  const bySubject = new Map<string, CoefficientRow>();
   for (const r of rows) {
-    const existing = bySubject.get(r.subjectId);
-    // Prefer the stream-specific row; only fall back to level-wide.
-    const isStreamSpecific = r.streamId === klass.streamId && klass.streamId !== null;
-    if (!existing || isStreamSpecific) {
-      bySubject.set(r.subjectId, {
-        coefficient: Number(r.coefficient),
-        subject: r.subject,
-      });
-    }
+    bySubject.set(r.subjectId, {
+      coefficient: Number(r.coefficient),
+      subject: r.subject,
+      specialityId: r.specialityId,
+    });
   }
   return bySubject;
 });
+
+/**
+ * The spécialités each of these students chose in the active year.
+ *
+ * One query for the whole roster rather than one per student: a Terminale
+ * bulletin run walks every class in the school, and a per-student round trip
+ * there is a few hundred queries for data that fits in one.
+ */
+export const specialitiesOfStudents = cache(async (studentIds: string[]) => {
+  const byStudent = new Map<string, string[]>();
+  if (studentIds.length === 0) return byStudent;
+
+  const year = await currentYear();
+  if (!year) return byStudent;
+
+  const rows = await prisma.studentSpeciality.findMany({
+    where: { studentId: { in: studentIds }, schoolYearId: year.id },
+    select: { studentId: true, specialityId: true },
+  });
+  for (const r of rows) {
+    byStudent.set(r.studentId, [...(byStudent.get(r.studentId) ?? []), r.specialityId]);
+  }
+  return byStudent;
+});
+
+/**
+ * One student's actual subject list: the tronc commun, plus the spécialités
+ * they chose — and nothing from the ones they did not.
+ *
+ * A spécialité subject a student never took must not appear on their bulletin
+ * at all. Not as a blank row, and above all not in the denominator of the
+ * general average: an untaken Spécialité NSI at coefficient 16 would otherwise
+ * be either a silent zero or a phantom line on the report card.
+ */
+export function studentSubjects(
+  all: Map<string, CoefficientRow>,
+  specialityIds: string[],
+): Array<[string, CoefficientRow]> {
+  return [...all.entries()].filter(
+    ([, row]) => row.specialityId === null || specialityIds.includes(row.specialityId),
+  );
+}
 
 type SubjectLite = { id: string; code: string; nameAr: string; nameFr: string };
 
@@ -196,13 +242,15 @@ export const computeClassResults = cache(
       }
     }
 
-    const subjectsSorted = [...coefMap.entries()].sort((a, b) =>
-      a[1].subject.code.localeCompare(b[1].subject.code),
-    );
+    const specialityIds = await specialitiesOfStudents(roster.map((e) => e.student.id));
 
     const students = roster.map((e) => {
       const s = e.student;
-      const subjects: StudentSubjectResult[] = subjectsSorted.map(([subjectId, { coefficient, subject }]) => {
+      // Each student's own list — classmates in the same room do not share one.
+      const mine = studentSubjects(coefMap, specialityIds.get(s.id) ?? []).sort((a, b) =>
+        a[1].subject.code.localeCompare(b[1].subject.code),
+      );
+      const subjects: StudentSubjectResult[] = mine.map(([subjectId, { coefficient, subject }]) => {
         const grades = gradesBySubjectStudent.get(subjectId)?.get(s.id) ?? [];
         return {
           subjectId,
@@ -240,7 +288,12 @@ export const computeClassResults = cache(
       rank: rankById.get(s.studentId) ?? null,
     }));
     const stats = classStats(ranked.map((r) => r.general));
-    return { students: ranked, stats, subjects: subjectsSorted.map(([, v]) => v) };
+    // The union taught at this level — column headers for the class-wide views.
+    // Individual students each have their own subset of these.
+    const classSubjects = [...coefMap.entries()]
+      .sort((a, b) => a[1].subject.code.localeCompare(b[1].subject.code))
+      .map(([, v]) => v);
+    return { students: ranked, stats, subjects: classSubjects };
   },
 );
 

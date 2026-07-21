@@ -15,10 +15,9 @@ import {
 } from "@react-pdf/renderer";
 import {
   periodIndexFor,
-  periodsFor,
+  PERIODS,
   minToLabel,
   WEEKDAYS,
-  type TimetableVariant,
   type Weekday,
 } from "@/lib/timetable";
 import { rtl } from "@/lib/pdf/bidi";
@@ -56,7 +55,6 @@ export type PdfSlot = {
 export type TimetablePdfInput = {
   title: string;
   subtitle: string;
-  variant: TimetableVariant;
   locale: string;
   timeLabel: string;
   weekdayLabels: Record<string, string>;
@@ -113,7 +111,7 @@ export async function renderTimetablePdf(
 
   const isAr = input.locale === "ar";
   const tx = (s: string) => (isAr && s ? rtl(s) : s);
-  const periods = periodsFor(input.variant);
+  const periods = PERIODS;
 
   // Under RTL the columns run right-to-left; @react-pdf doesn't reorder them,
   // so reverse the weekday order and let the time column sit on the right.

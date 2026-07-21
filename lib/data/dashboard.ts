@@ -18,7 +18,7 @@ async function todaysLessons(classId: string): Promise<number> {
   const ctx = await dayContext(new Date());
   if (ctx.holiday) return 0;
   return prisma.timetableSlot.count({
-    where: { classId, variant: ctx.variant, weekday: ctx.weekday, schoolYearId: year.id },
+    where: { classId, weekday: ctx.weekday, schoolYearId: year.id },
   });
 }
 
@@ -68,7 +68,7 @@ export async function teacherKpis(userId: string): Promise<Kpi[]> {
   const ctx = await dayContext(new Date());
   const [todayLessons, toReview] = await Promise.all([
     year && !ctx.holiday
-      ? prisma.timetableSlot.count({ where: { teacherId: profile.id, variant: ctx.variant, weekday: ctx.weekday, schoolYearId: year.id } })
+      ? prisma.timetableSlot.count({ where: { teacherId: profile.id, weekday: ctx.weekday, schoolYearId: year.id } })
       : 0,
     prisma.homeworkSubmission.count({ where: { grade: null, homework: { teacherId: profile.id } } }),
   ]);

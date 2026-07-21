@@ -100,26 +100,26 @@ export async function deleteLevel(
   return { ok: true };
 }
 
-// ---------------------------------------------------------------- streams
+// ---------------------------------------------------------------- spécialités
 
-const streamSchema = z.object({
+const specialitySchema = z.object({
   id: z.string().optional(),
   levelId: z.string().min(1),
   code: z.string().trim().min(1).max(12).toUpperCase(),
   ...bilingual,
 });
 
-export async function saveStream(
+export async function saveSpeciality(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
   const actor = await requireRole("DIRECTOR");
-  const parsed = streamSchema.safeParse(Object.fromEntries(formData));
+  const parsed = specialitySchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "invalid" };
 
   const { id, ...data } = parsed.data;
 
-  const clash = await prisma.stream.findFirst({
+  const clash = await prisma.speciality.findFirst({
     where: {
       levelId: data.levelId,
       code: data.code,
@@ -129,23 +129,23 @@ export async function saveStream(
   });
   if (clash) return { error: "duplicateCode" };
 
-  const stream = id
-    ? await prisma.stream.update({ where: { id }, data })
-    : await prisma.stream.create({ data });
+  const speciality = id
+    ? await prisma.speciality.update({ where: { id }, data })
+    : await prisma.speciality.create({ data });
 
   await audit({
     actorId: actor.id,
-    action: id ? "STREAM_UPDATE" : "STREAM_CREATE",
-    entity: "Stream",
-    entityId: stream.id,
-    after: stream,
+    action: id ? "SPECIALITY_UPDATE" : "SPECIALITY_CREATE",
+    entity: "Speciality",
+    entityId: speciality.id,
+    after: speciality,
   });
 
   revalidatePath("/[locale]/(dashboard)/director/classes", "page");
   return { ok: true };
 }
 
-export async function deleteStream(
+export async function deleteSpeciality(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
@@ -153,14 +153,17 @@ export async function deleteStream(
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "invalid" };
 
-  const classCount = await prisma.class.count({ where: { streamId: id } });
-  if (classCount > 0) return { error: "streamHasClasses" };
+  // Students hold spécialités directly now, so that — not a class — is what
+  // makes one undeletable: dropping it would silently erase their choice and
+  // every coefficient that hangs off it.
+  const chosen = await prisma.studentSpeciality.count({ where: { specialityId: id } });
+  if (chosen > 0) return { error: "specialityHasStudents" };
 
-  await prisma.stream.delete({ where: { id } });
+  await prisma.speciality.delete({ where: { id } });
   await audit({
     actorId: actor.id,
-    action: "STREAM_DELETE",
-    entity: "Stream",
+    action: "SPECIALITY_DELETE",
+    entity: "Speciality",
     entityId: id,
   });
 
@@ -174,7 +177,7 @@ const classSchema = z.object({
   id: z.string().optional(),
   name: z.string().trim().min(1).max(60),
   levelId: z.string().min(1),
-  streamId: z.string().optional(),
+  specialityId: z.string().optional(),
   capacity: z.coerce.number().int().min(1).max(80).optional().or(z.literal("").transform(() => undefined)),
   mainTeacherId: z.string().optional(),
 });
@@ -191,12 +194,11 @@ export async function saveClass(
   const parsed = classSchema.safeParse(raw);
   if (!parsed.success) return { error: "invalid" };
 
-  const { id, streamId, mainTeacherId, capacity, ...rest } = parsed.data;
+  const { id, mainTeacherId, capacity, ...rest } = parsed.data;
 
   const data = {
     ...rest,
     schoolYearId: year.id,
-    streamId: streamId || null,
     mainTeacherId: mainTeacherId || null,
     capacity: capacity ?? null,
   };
@@ -327,13 +329,13 @@ export async function deleteSubject(
 
 const coefficientSchema = z.object({
   levelId: z.string().min(1),
-  streamId: z.string().optional(),
+  specialityId: z.string().optional(),
   subjectId: z.string().min(1),
   coefficient: z.coerce.number().min(0).max(20),
 });
 
 /**
- * Sets (or clears) one subject's coefficient for a level/stream.
+ * Sets (or clears) one subject's coefficient for a level/spécialité.
  * A coefficient of 0 removes the subject from that level entirely.
  */
 export async function setCoefficient(
@@ -345,10 +347,10 @@ export async function setCoefficient(
   if (!parsed.success) return { error: "invalid" };
 
   const { levelId, subjectId, coefficient } = parsed.data;
-  const streamId = parsed.data.streamId || null;
+  const specialityId = parsed.data.specialityId || null;
 
   const existing = await prisma.levelSubject.findFirst({
-    where: { levelId, streamId, subjectId },
+    where: { levelId, specialityId, subjectId },
   });
 
   if (coefficient === 0) {
@@ -377,7 +379,7 @@ export async function setCoefficient(
     });
   } else {
     const created = await prisma.levelSubject.create({
-      data: { levelId, streamId, subjectId, coefficient },
+      data: { levelId, specialityId, subjectId, coefficient },
     });
     await audit({
       actorId: actor.id,

@@ -67,8 +67,8 @@
       "massarText": "Trois campus partagent les mêmes outils, les mêmes repères et une vision commune de l'apprentissage.",
       "bilingualTitle": "Trois langues, un même parcours",
       "bilingualText": "L'arabe, le français et l'anglais font partie de l'expérience scolaire et restent accessibles aux familles.",
-      "ramadanTitle": "Les familles restent proches",
-      "ramadanText": "Messages, calendrier, devoirs et informations importantes sont réunis dans un espace simple à consulter.",
+      "familiesTitle": "Les familles restent proches",
+      "familiesText": "Messages, calendrier, devoirs et informations importantes sont réunis dans un espace simple à consulter.",
       "formula": "Observer · comprendre · progresser"
     },
     "flow": {
@@ -181,8 +181,8 @@
     "newLesson": "Nouvelle leçon",
     "editLesson": "Modifier la leçon",
     "level": "Niveau",
-    "stream": "Filière",
-    "allStreams": "Toutes les filières",
+    "stream": "Spécialité",
+    "allStreams": "Tronc commun (tous)",
     "subject": "Matière",
     "unitTitleFr": "Unité (français)",
     "unitTitleAr": "Unité (arabe)",
@@ -322,16 +322,14 @@
     "secondaryColor": "Couleur secondaire",
     "year": "Année scolaire",
     "currentYear": "Année en cours",
-    "semester1": "Semestre 1",
-    "semester2": "Semestre 2",
-    "ramadan": "Période de Ramadan",
     "rules": "Règles",
     "teachersCanTakeAttendance": "Les enseignants peuvent faire l'appel",
     "allowTeacherParentMessaging": "Messagerie directe enseignant ↔ parent",
     "defaultControles": "Contrôles continus par semestre",
     "absenceAlertThreshold": "Seuil d'alerte d'absences",
     "from": "Du",
-    "to": "au"
+    "to": "au",
+    "term": "Trimestre {index}"
   },
   "director": {
     "common": {
@@ -355,14 +353,14 @@
       "newClass": "Nouvelle classe",
       "className": "Nom de la classe",
       "level": "Niveau",
-      "stream": "Filière",
+      "stream": "Spécialité",
       "capacity": "Effectif maximum",
       "mainTeacher": "Professeur principal",
       "students": "Élèves",
-      "noStream": "Sans filière",
+      "noStream": "Tronc commun",
       "structure": "Niveaux et filières",
       "newLevel": "Nouveau niveau",
-      "newStream": "Nouvelle filière",
+      "newStream": "Nouvelle spécialité",
       "cycle": "Cycle",
       "code": "Code",
       "order": "Ordre",
@@ -513,7 +511,6 @@
       "duplicateClassName": "Une classe porte déjà ce nom cette année.",
       "duplicateMassar": "Ce Code Massar existe déjà.",
       "levelHasClasses": "Ce niveau contient des classes. Supprimez-les d'abord.",
-      "streamHasClasses": "Cette filière contient des classes. Supprimez-les d'abord.",
       "classHasStudents": "Cette classe contient des élèves. Transférez-les d'abord.",
       "subjectHasGrades": "Cette matière a déjà des notes. Suppression impossible.",
       "noSchoolYear": "Aucune année scolaire active.",
@@ -526,7 +523,8 @@
       "conflict": "Conflit d'horaire : voir les détails ci-dessous.",
       "notAssigned": "Cet enseignant n'est pas affecté à cette matière pour cette classe.",
       "nothingToCopy": "Aucun cours à copier dans l'emploi du temps normal.",
-      "notAllowed": "Vous n'êtes pas autorisé à effectuer cette action."
+      "notAllowed": "Vous n'êtes pas autorisé à effectuer cette action.",
+      "specialityHasStudents": "Des élèves ont choisi cette spécialité. Retirez-la de leurs choix d'abord."
     }
   },
   "timetable": {
@@ -543,12 +541,6 @@
       "SATURDAY": "Samedi",
       "SUNDAY": "Dimanche"
     },
-    "variants": {
-      "NORMAL": "Normal",
-      "RAMADAN": "Ramadan"
-    },
-    "variantLabel": "Mode",
-    "ramadanActive": "Le mode Ramadan est actif aujourd'hui.",
     "selectClass": "Classe",
     "pickClassPrompt": "Choisissez une classe pour afficher son emploi du temps.",
     "noClasses": "Aucune classe pour cette année. Créez-en une d'abord.",
@@ -568,7 +560,6 @@
     "conflictTeacher": "L'enseignant enseigne déjà à cette heure.",
     "conflictRoom": "La salle est déjà occupée à cette heure.",
     "copyFromNormal": "Copier depuis l'emploi normal",
-    "copyConfirm": "Remplacer l'emploi du temps Ramadan de cette classe par une copie de l'emploi normal ?",
     "copyDone": "{copied} cours copiés, {skipped} ignorés pour cause de conflit.",
     "print": "Imprimer / PDF",
     "today": "Aujourd'hui",
@@ -685,8 +676,8 @@
     "subtitle": "Saisissez les notes par classe, matière et semestre.",
     "selectClass": "Classe",
     "selectSubject": "Matière",
-    "selectSemester": "Semestre",
-    "semesterN": "Semestre {n}",
+    "selectSemester": "Trimestre",
+    "semesterN": "Trimestre {n}",
     "controle": "Contrôle",
     "activite": "Activité",
     "kind": "Type",
@@ -742,7 +733,7 @@
       "invalid": "Données invalides.",
       "notAllowed": "Vous n'êtes pas autorisé à modifier ce carnet de notes.",
       "notFound": "Introuvable.",
-      "semesterLocked": "Le semestre est verrouillé.",
+      "semesterLocked": "Le trimestre est verrouillé.",
       "duplicateItem": "Une évaluation porte déjà ce type et ce numéro.",
       "badScore": "Note hors barème."
     },
@@ -1020,8 +1011,8 @@
     "gradeSummary": "Relevé de notes",
     "feeLedger": "État des paiements",
     "attendanceStats": "Statistiques d'absences",
-    "semester": "Semestre",
-    "needsSemester": "Choisissez un semestre",
+    "semester": "Trimestre",
+    "needsSemester": "Choisissez un trimestre",
     "noClass": "Aucune classe.",
     "codeMassar": "Code Massar",
     "name": "Nom",

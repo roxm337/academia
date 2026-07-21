@@ -30,13 +30,33 @@ function check(name: string, ok: boolean, detail = "") {
 async function main() {
   const year = await prisma.schoolYear.findFirst({ where: { isCurrent: true } });
   if (!year) throw new Error("seed the database first");
-  const enrollment = await prisma.enrollment.findFirst({
+  const anyEnrollment = await prisma.enrollment.findFirst({
     where: { isActive: true },
-    select: { studentId: true, class: { select: { levelId: true } } },
+    select: { classId: true, class: { select: { levelId: true } } },
   });
-  if (!enrollment) throw new Error("no active enrolment");
-  const studentId = enrollment.studentId;
-  const levelId = enrollment.class.levelId;
+  if (!anyEnrollment) throw new Error("no active enrolment");
+  const levelId = anyEnrollment.class.levelId;
+
+  // A throwaway student rather than a seeded one: FeeSchedule is unique per
+  // (student, year), so reusing a real pupil either collides with the schedule
+  // the seed gave them or destroys it on cleanup.
+  const tempUser = await prisma.user.create({
+    data: {
+      email: `__accept_fees_${Date.now()}@planetemontessori.demo`,
+      passwordHash: "x", role: "STUDENT",
+      firstNameAr: "اختبار", lastNameAr: "اختبار",
+      firstNameFr: "Test", lastNameFr: "Fees",
+      studentProfile: {
+        create: {
+          codeMassar: `Z${String(Date.now()).slice(-9)}`,
+          birthDate: new Date("2010-01-01"),
+          enrollments: { create: { classId: anyEnrollment.classId } },
+        },
+      },
+    },
+    include: { studentProfile: true },
+  });
+  const studentId = tempUser.studentProfile!.id;
   const director = await prisma.user.findFirst({ where: { role: "DIRECTOR" }, select: { id: true } });
 
   const months = monthsBetween(year.startDate, year.endDate).length;
@@ -114,6 +134,7 @@ async function main() {
   } finally {
     if (scheduleId) await prisma.feeSchedule.delete({ where: { id: scheduleId } }); // cascades installments, payments, allocations, receipts
     if (feeItemIds.length) await prisma.feeItem.deleteMany({ where: { id: { in: feeItemIds } } });
+    await prisma.user.delete({ where: { id: tempUser.id } }); // cascades the profile and its enrolment
   }
 
   console.log(`\n${failures === 0 ? "PASS" : "FAIL"}: ${failures} failing check(s)`);

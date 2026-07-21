@@ -3,7 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { currentYear } from "@/lib/data/structure";
-import type { TimetableVariant } from "@/lib/timetable";
+
 
 /**
  * Read models for the timetable. Everything is scoped to the active school year
@@ -16,26 +16,26 @@ const slotInclude = {
   room: true,
 } as const;
 
-/** One class's weekly grid for a variant. */
+/** One class's weekly grid. */
 export const getClassSlots = cache(
-  async (classId: string, variant: TimetableVariant) => {
+  async (classId: string) => {
     const year = await currentYear();
     if (!year) return [];
     return prisma.timetableSlot.findMany({
-      where: { classId, variant, schoolYearId: year.id },
+      where: { classId, schoolYearId: year.id },
       include: slotInclude,
       orderBy: [{ weekday: "asc" }, { startMin: "asc" }],
     });
   },
 );
 
-/** One teacher's weekly grid for a variant, across every class they teach. */
+/** One teacher's weekly grid, across every class they teach. */
 export const getTeacherSlots = cache(
-  async (teacherId: string, variant: TimetableVariant) => {
+  async (teacherId: string) => {
     const year = await currentYear();
     if (!year) return [];
     return prisma.timetableSlot.findMany({
-      where: { teacherId, variant, schoolYearId: year.id },
+      where: { teacherId, schoolYearId: year.id },
       include: { ...slotInclude, class: true },
       orderBy: [{ weekday: "asc" }, { startMin: "asc" }],
     });
@@ -43,21 +43,20 @@ export const getTeacherSlots = cache(
 );
 
 /**
- * Every slot in the year for one variant, as the bare shape the conflict engine
+ * Every slot in the year, as the bare shape the conflict engine
  * needs. This is what a write checks itself against — a teacher or room booked
  * by ANOTHER class is exactly the clash we must catch, so the query is not
  * scoped to one class.
  */
 export const getYearSlotsForConflict = cache(
-  async (variant: TimetableVariant) => {
+  async () => {
     const year = await currentYear();
     if (!year) return [];
     return prisma.timetableSlot.findMany({
-      where: { variant, schoolYearId: year.id },
+      where: { schoolYearId: year.id },
       select: {
         id: true,
         weekday: true,
-        variant: true,
         startMin: true,
         endMin: true,
         classId: true,

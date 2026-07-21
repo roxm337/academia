@@ -21,7 +21,7 @@ export default async function SubjectsPage({
 
   const sp = await searchParams;
   const selected = typeof sp.level === "string" ? sp.level : "";
-  const selectedStream = typeof sp.stream === "string" ? sp.stream : "";
+  const selectedStream = typeof sp.speciality === "string" ? sp.speciality : "";
 
   const [subjects, levels] = await Promise.all([listSubjects(), listLevels()]);
 
@@ -107,14 +107,14 @@ export default async function SubjectsPage({
               ))}
             </select>
 
-            {level && level.streams.length > 0 ? (
+            {level && level.specialities.length > 0 ? (
               <select
                 name="stream"
                 defaultValue={selectedStream}
                 className="h-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm"
               >
                 <option value="">{tc("all")}</option>
-                {level.streams.map((s) => (
+                {level.specialities.map((s) => (
                   <option key={s.id} value={s.id}>
                     {localized(s, locale)}
                   </option>
@@ -141,7 +141,7 @@ export default async function SubjectsPage({
                   <CoefficientRow
                     key={s.id}
                     levelId={level.id}
-                    streamId={selectedStream}
+                    specialityId={selectedStream}
                     subjectId={s.id}
                     label={localized(s, locale)}
                     value={coefOf(s.id)}

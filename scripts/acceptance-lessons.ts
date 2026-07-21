@@ -35,12 +35,20 @@ async function main() {
       enrollments: {
         where: { isActive: true },
         take: 1,
-        select: { class: { select: { levelId: true, streamId: true } } },
+        select: { class: { select: { levelId: true } } },
       },
     },
   });
   if (!student) throw new Error("seed missing: eleve1@planetemontessori.demo");
   const klass = student.enrollments[0]!.class;
+  const chosen = await prisma.studentSpeciality.findMany({
+    where: { studentId: student.id },
+    select: { specialityId: true },
+  });
+  const learner = {
+    levelId: klass.levelId,
+    specialityIds: chosen.map((c) => c.specialityId),
+  };
 
   const unit = await prisma.unit.findFirst({
     where: { levelId: klass.levelId },
@@ -50,20 +58,21 @@ async function main() {
 
   console.log("\n== pure rules ==");
   check(
-    "level-wide unit reaches every stream",
-    unitVisibleTo({ levelId: klass.levelId, streamId: null }, klass),
+    "a tronc commun unit reaches every student at the level",
+    unitVisibleTo({ levelId: klass.levelId, specialityId: null }, learner),
   );
   check(
     "unit from another level is hidden",
-    !unitVisibleTo({ levelId: "other-level", streamId: null }, klass),
+    !unitVisibleTo({ levelId: "other-level", specialityId: null }, learner),
+  );
+  check(
+    "a spécialité the student did not choose is hidden",
+    !unitVisibleTo({ levelId: klass.levelId, specialityId: "spe-not-chosen" }, learner),
   );
   check("first lesson in an empty unit is position 0", nextOrder(null) === 0);
   check(
-    "an unassigned coordinate is refused",
-    !canAuthorAt([{ levelId: klass.levelId, streamId: klass.streamId }], {
-      levelId: "other-level",
-      streamId: null,
-    }),
+    "an unassigned level is refused",
+    !canAuthorAt([{ levelId: klass.levelId }], { levelId: "other-level" }),
   );
 
   console.log("\n== draft lessons are invisible to students ==");
@@ -111,7 +120,7 @@ async function main() {
   const teachers = await prisma.teacherProfile.findMany({
     select: {
       id: true,
-      assignments: { select: { subjectId: true, class: { select: { levelId: true, streamId: true } } } },
+      assignments: { select: { subjectId: true, class: { select: { levelId: true } } } },
     },
     take: 5,
   });
@@ -120,7 +129,7 @@ async function main() {
     const owns = other.assignments
       .filter((a) => a.subjectId === unit.subjectId)
       .map((a) => a.class);
-    const couldAuthor = canAuthorAt(owns, { levelId: unit.levelId, streamId: unit.streamId });
+    const couldAuthor = canAuthorAt(owns, { levelId: unit.levelId });
     // Even a teacher who shares the coordinate is not the unit's author, and
     // every write path additionally compares unit.authorId.
     check(
@@ -167,7 +176,7 @@ async function main() {
     data: {
       authorId: unit.authorId,
       levelId: unit.levelId,
-      streamId: unit.streamId,
+      specialityId: unit.specialityId,
       subjectId: unit.subjectId,
       titleAr: "وحدة مؤقتة",
       titleFr: "Unité temporaire",

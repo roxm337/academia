@@ -6,17 +6,17 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import {
   saveSlot,
-  copyNormalToRamadan,
   type SlotState,
 } from "@/lib/actions/timetable";
 import { labelToMin, minToLabel, type Weekday } from "@/lib/timetable";
 import { Button } from "@/components/ui/button";
 import { FieldError, Label, Select } from "@/components/ui/field";
 import { CloseOnSuccess, Modal } from "@/components/ui/modal";
+import { WEEKDAYS } from "@/lib/timetable";
 
-const DAYS: Weekday[] = [
-  "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
-];
+// Deliberately not a second list: a day offered here but missing from the grid
+// is a lesson the director can place and then never see again.
+const DAYS: Weekday[] = WEEKDAYS;
 
 type Pair = { subjectId: string; teacherId: string; label: string };
 type Room = { id: string; name: string };
@@ -65,14 +65,12 @@ function Errors({ state }: { state: SlotState }) {
  */
 export function SlotForm({
   classId,
-  variant,
   pairs,
   rooms,
   slot,
   trigger,
 }: {
   classId: string;
-  variant: "NORMAL" | "RAMADAN";
   pairs: Pair[];
   rooms: Room[];
   slot?: SlotDefaults;
@@ -108,7 +106,6 @@ export function SlotForm({
       {(close) => (
         <form action={action} className="space-y-4">
           <input type="hidden" name="classId" value={classId} />
-          <input type="hidden" name="variant" value={variant} />
           {slot?.id ? <input type="hidden" name="id" value={slot.id} /> : null}
           <input type="hidden" name="subjectId" value={subjectId ?? ""} />
           <input type="hidden" name="teacherId" value={teacherId ?? ""} />
@@ -202,7 +199,6 @@ export function SlotForm({
 /** "+" trigger used inside an empty grid cell. */
 export function AddSlotButton({
   classId,
-  variant,
   pairs,
   rooms,
   weekday,
@@ -210,7 +206,6 @@ export function AddSlotButton({
   endMin,
 }: {
   classId: string;
-  variant: "NORMAL" | "RAMADAN";
   pairs: Pair[];
   rooms: Room[];
   weekday: Weekday;
@@ -222,7 +217,6 @@ export function AddSlotButton({
   return (
     <SlotForm
       classId={classId}
-      variant={variant}
       pairs={pairs}
       rooms={rooms}
       slot={{ weekday, startMin, endMin }}
@@ -239,29 +233,3 @@ export function AddSlotButton({
   );
 }
 
-/** Rebuild a class's Ramadan grid from its normal one. */
-export function CopyRamadanForm({ classId }: { classId: string }) {
-  const tt = useTranslations("timetable");
-  const [state, action, pending] = useActionState<SlotState, FormData>(
-    copyNormalToRamadan,
-    null,
-  );
-  return (
-    <form
-      action={action}
-      onSubmit={(e) => {
-        if (!window.confirm(tt("copyConfirm"))) e.preventDefault();
-      }}
-    >
-      <input type="hidden" name="classId" value={classId} />
-      <Button type="submit" variant="outline" size="sm" disabled={pending}>
-        {tt("copyFromNormal")}
-      </Button>
-      {state?.ok && state.copied !== undefined ? (
-        <span className="ms-2 text-xs text-emerald-700">
-          {tt("copyDone", { copied: state.copied, skipped: state.skipped ?? 0 })}
-        </span>
-      ) : null}
-    </form>
-  );
-}

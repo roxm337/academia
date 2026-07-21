@@ -4,20 +4,17 @@ import {
   labelToMin,
   minToLabel,
   periodIndexFor,
-  periodsFor,
   rangesOverlap,
-  variantForDate,
-  NORMAL_PERIODS,
-  RAMADAN_PERIODS,
+  PERIODS,
+  WEEKDAYS,
   type SlotShape,
 } from "../timetable";
 
-/** A NORMAL Monday lesson 09:00–10:00 for one class/teacher/room, overridable. */
+/** A Monday lesson 09:00–10:00 for one class/teacher/room, overridable. */
 function slot(over: Partial<SlotShape> = {}): SlotShape {
   return {
     id: "cand",
     weekday: "MONDAY",
-    variant: "NORMAL",
     startMin: 9 * 60,
     endMin: 10 * 60,
     classId: "classA",
@@ -43,7 +40,7 @@ describe("time helpers", () => {
   });
 
   it("round-trips every period boundary", () => {
-    for (const p of [...NORMAL_PERIODS, ...RAMADAN_PERIODS]) {
+    for (const p of PERIODS) {
       expect(labelToMin(minToLabel(p.startMin))).toBe(p.startMin);
       expect(labelToMin(minToLabel(p.endMin))).toBe(p.endMin);
     }
@@ -63,15 +60,11 @@ describe("rangesOverlap", () => {
 
 describe("periodIndexFor", () => {
   it("maps a start time to its band", () => {
-    expect(periodIndexFor(9 * 60, NORMAL_PERIODS)).toBe(1);
-    expect(periodIndexFor(8 * 60, NORMAL_PERIODS)).toBe(0);
+    expect(periodIndexFor(9 * 60, PERIODS)).toBe(1);
+    expect(periodIndexFor(8 * 60, PERIODS)).toBe(0);
   });
   it("returns null for a time in no band (e.g. lunch)", () => {
-    expect(periodIndexFor(13 * 60 + 30, NORMAL_PERIODS)).toBeNull();
-  });
-  it("uses the shorter Ramadan template", () => {
-    expect(periodsFor("RAMADAN")).toHaveLength(RAMADAN_PERIODS.length);
-    expect(periodIndexFor(9 * 60, RAMADAN_PERIODS)).toBe(0);
+    expect(periodIndexFor(13 * 60 + 30, PERIODS)).toBeNull();
   });
 });
 
@@ -118,10 +111,6 @@ describe("detectConflicts", () => {
     expect(detectConflicts(slot(), [existing])).toEqual([]);
   });
 
-  it("keeps NORMAL and RAMADAN independent", () => {
-    const existing = slot({ id: "x", variant: "RAMADAN" });
-    expect(detectConflicts(slot(), [existing])).toEqual([]);
-  });
 
   it("never conflicts with itself when editing in place", () => {
     const self = slot({ id: "same" });
@@ -136,20 +125,17 @@ describe("detectConflicts", () => {
   });
 });
 
-describe("variantForDate", () => {
-  const start = new Date(Date.UTC(2026, 1, 18)); // 18 Feb 2026
-  const end = new Date(Date.UTC(2026, 2, 19)); // 19 Mar 2026
 
-  it("is NORMAL when no Ramadan window is set", () => {
-    expect(variantForDate(new Date(), null, null)).toBe("NORMAL");
-  });
-  it("is RAMADAN inside the window, inclusive of both ends", () => {
-    expect(variantForDate(new Date(Date.UTC(2026, 1, 18)), start, end)).toBe("RAMADAN");
-    expect(variantForDate(new Date(Date.UTC(2026, 2, 1)), start, end)).toBe("RAMADAN");
-    expect(variantForDate(new Date(Date.UTC(2026, 2, 19)), start, end)).toBe("RAMADAN");
-  });
-  it("is NORMAL just outside the window", () => {
-    expect(variantForDate(new Date(Date.UTC(2026, 1, 17)), start, end)).toBe("NORMAL");
-    expect(variantForDate(new Date(Date.UTC(2026, 2, 20)), start, end)).toBe("NORMAL");
+describe("the school week", () => {
+  it("runs Monday to Friday", () => {
+    // France has no Saturday morning: a grid with a Saturday column would
+    // invite the director to place a lesson nobody turns up to.
+    expect(WEEKDAYS).toEqual([
+      "MONDAY",
+      "TUESDAY",
+      "WEDNESDAY",
+      "THURSDAY",
+      "FRIDAY",
+    ]);
   });
 });

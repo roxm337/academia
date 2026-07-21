@@ -100,13 +100,13 @@ export function SubjectForm({
  */
 export function CoefficientRow({
   levelId,
-  streamId,
+  specialityId,
   subjectId,
   label,
   value,
 }: {
   levelId: string;
-  streamId: string;
+  specialityId: string;
   subjectId: string;
   label: string;
   value: number;
@@ -123,7 +123,7 @@ export function CoefficientRow({
       className="grid grid-cols-[1fr_auto_auto] items-center gap-3 border-b border-[var(--border)] px-3 py-2 last:border-b-0"
     >
       <input type="hidden" name="levelId" value={levelId} />
-      <input type="hidden" name="streamId" value={streamId} />
+      <input type="hidden" name="specialityId" value={specialityId} />
       <input type="hidden" name="subjectId" value={subjectId} />
 
       <span className={value === 0 ? "text-[var(--muted)]" : ""}>{label}</span>

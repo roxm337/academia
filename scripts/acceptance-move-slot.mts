@@ -27,12 +27,11 @@ const check = (name: string, ok: boolean, detail = "") => {
 
 async function main() {
   const slots = await prisma.timetableSlot.findMany({
-    where: { variant: "NORMAL" },
     orderBy: [{ weekday: "asc" }, { startMin: "asc" }],
   });
   if (slots.length < 2) throw new Error("seed missing: at least two NORMAL slots");
 
-  const existing = await getYearSlotsForConflict("NORMAL");
+  const existing = await getYearSlotsForConflict();
   const subject = slots[0];
   const other = slots.find(
     (s) => s.id !== subject.id && (s.weekday !== subject.weekday || s.startMin !== subject.startMin),
@@ -42,7 +41,6 @@ async function main() {
   const at = (weekday: typeof subject.weekday, startMin: number, endMin: number): SlotShape => ({
     id: subject.id,
     weekday,
-    variant: "NORMAL",
     startMin,
     endMin,
     classId: subject.classId,
@@ -52,7 +50,7 @@ async function main() {
 
   console.log("\n== a free cell accepts the move ==");
   // Saturday evening: outside every seeded band, so guaranteed empty.
-  const free = detectConflicts(at("SATURDAY", 1140, 1200), existing);
+  const free = detectConflicts(at("FRIDAY", 1140, 1200), existing);
   check("no conflict moving into an empty band", free.length === 0, JSON.stringify(free));
 
   console.log("\n== the slot does not clash with itself ==");
@@ -84,17 +82,12 @@ async function main() {
   );
   check("an overlapping band conflicts", overlap.length > 0);
 
-  console.log("\n== the RAMADAN variant is a separate timetable ==");
-  const ramadan = await getYearSlotsForConflict("RAMADAN");
-  const crossVariant = detectConflicts(
-    { ...at(other.weekday, other.startMin, other.endMin), variant: "RAMADAN" },
-    ramadan.filter((s) => s.id !== subject.id),
-  );
-  const normalClash = detectConflicts(at(other.weekday, other.startMin, other.endMin), existing);
+  console.log("\n== an occupied cell is refused ==");
+  const clash = detectConflicts(at(other.weekday, other.startMin, other.endMin), existing);
   check(
-    "a cell that clashes in NORMAL is judged independently in RAMADAN",
-    normalClash.length > 0 && Array.isArray(crossVariant),
-    `normal=${normalClash.length} ramadan=${crossVariant.length}`,
+    "dropping onto another lesson's slot reports a conflict",
+    clash.length > 0,
+    `conflicts=[${clash.map((c) => c.kind)}]`,
   );
 
   console.log("\n== identity fields are not part of a move ==");

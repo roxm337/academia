@@ -64,7 +64,7 @@ async function main() {
       "DisciplineIncident","AbsenceJustification","AttendanceRecord","Session",
       "TimetableSlot","TeacherAssignment","Enrollment","StudentDocument","StudentGuardian",
       "Guardian","StudentProfile","TeacherSubject","TeacherProfile","User","Class","Room",
-      "LevelSubject","Subject","Stream","Level","Cycle","Holiday","Semester",
+      "LevelSubject","Subject","StudentSpeciality","Speciality","Level","Cycle","Holiday","Semester",
       "SchoolSettings","SchoolYear"
     RESTART IDENTITY CASCADE;
   `);
@@ -76,27 +76,28 @@ async function main() {
   const year = await prisma.schoolYear.create({
     data: {
       label: "2025-2026",
-      startDate: new Date("2025-09-08"),
-      endDate: new Date("2026-07-10"),
+      startDate: new Date("2025-09-01"),
+      endDate: new Date("2026-07-03"),
       isCurrent: true,
-      // Ramadan 1447 ≈ 17 Feb – 19 Mar 2026 → alternate timetable window
-      ramadanStart: new Date("2026-02-17"),
-      ramadanEnd: new Date("2026-03-19"),
+      // A French year runs in three trimestres, each closed by a conseil de classe.
       semesters: {
         create: [
-          { index: 1, startDate: new Date("2025-09-08"), endDate: new Date("2026-01-23") },
-          { index: 2, startDate: new Date("2026-01-26"), endDate: new Date("2026-07-10") },
+          { index: 1, startDate: new Date("2025-09-01"), endDate: new Date("2025-11-21") },
+          { index: 2, startDate: new Date("2025-11-24"), endDate: new Date("2026-03-06") },
+          { index: 3, startDate: new Date("2026-03-09"), endDate: new Date("2026-07-03") },
         ],
       },
+      // Vacances scolaires — zone C, plus the jours fériés that fall in term.
       holidays: {
         create: [
-          { nameAr: "عيد المسيرة الخضراء", nameFr: "Marche Verte", startDate: new Date("2025-11-06"), endDate: new Date("2025-11-06") },
-          { nameAr: "عيد الاستقلال", nameFr: "Fête de l'Indépendance", startDate: new Date("2025-11-18"), endDate: new Date("2025-11-18") },
-          { nameAr: "العطلة البينية الأولى", nameFr: "Vacances intermédiaires 1", startDate: new Date("2025-10-26"), endDate: new Date("2025-11-02") },
-          { nameAr: "عطلة نصف السنة", nameFr: "Vacances de mi-année", startDate: new Date("2026-01-24"), endDate: new Date("2026-02-01") },
-          { nameAr: "عيد الفطر", nameFr: "Aïd Al-Fitr", startDate: new Date("2026-03-20"), endDate: new Date("2026-03-22") },
+          { nameAr: "عطلة جميع القديسين", nameFr: "Vacances de la Toussaint", startDate: new Date("2025-10-18"), endDate: new Date("2025-11-02") },
+          { nameAr: "هدنة 11 نونبر", nameFr: "Armistice 1918", startDate: new Date("2025-11-11"), endDate: new Date("2025-11-11") },
+          { nameAr: "عطلة عيد الميلاد", nameFr: "Vacances de Noël", startDate: new Date("2025-12-20"), endDate: new Date("2026-01-04") },
+          { nameAr: "عطلة الشتاء", nameFr: "Vacances d'hiver", startDate: new Date("2026-02-14"), endDate: new Date("2026-03-01") },
+          { nameAr: "عطلة الربيع", nameFr: "Vacances de printemps", startDate: new Date("2026-04-11"), endDate: new Date("2026-04-26") },
           { nameAr: "عيد الشغل", nameFr: "Fête du Travail", startDate: new Date("2026-05-01"), endDate: new Date("2026-05-01") },
-          { nameAr: "عيد العرش", nameFr: "Fête du Trône", startDate: new Date("2026-07-30"), endDate: new Date("2026-07-30") },
+          { nameAr: "عيد النصر 1945", nameFr: "Victoire 1945", startDate: new Date("2026-05-08"), endDate: new Date("2026-05-08") },
+          { nameAr: "عيد الصعود", nameFr: "Ascension", startDate: new Date("2026-05-14"), endDate: new Date("2026-05-15") },
         ],
       },
     },
@@ -120,124 +121,142 @@ async function main() {
   });
 
   // ---------------------------------------------------------------- structure
-  console.log("· cycles, levels, streams");
-  const primaire = await prisma.cycle.create({
-    data: { kind: CycleKind.PRIMAIRE, nameAr: "التعليم الابتدائي", nameFr: "Primaire", order: 1 },
+  console.log("· cycles, levels, spécialités");
+  const elementaire = await prisma.cycle.create({
+    data: { kind: CycleKind.ELEMENTAIRE, nameAr: "التعليم الابتدائي", nameFr: "Élémentaire", order: 1 },
   });
   const college = await prisma.cycle.create({
     data: { kind: CycleKind.COLLEGE, nameAr: "التعليم الإعدادي", nameFr: "Collège", order: 2 },
   });
   const lycee = await prisma.cycle.create({
-    data: { kind: CycleKind.LYCEE, nameAr: "التعليم الثانوي التأهيلي", nameFr: "Lycée", order: 3 },
+    data: { kind: CycleKind.LYCEE, nameAr: "التعليم الثانوي", nameFr: "Lycée", order: 3 },
   });
 
   const levelData = [
-    ...[1, 2, 3, 4, 5, 6].map((i) => ({
-      cycleId: primaire.id, code: `${i}AP`,
-      nameAr: `المستوى ${i} ابتدائي`, nameFr: `${i}ère année primaire`.replace("1ère", "1ère"), order: i,
-    })),
-    ...[1, 2, 3].map((i) => ({
-      cycleId: college.id, code: `${i}AC`,
-      nameAr: `${i} إعدادي`, nameFr: `${i}ère année collège`, order: 10 + i,
-    })),
-    { cycleId: lycee.id, code: "TC", nameAr: "الجذع المشترك", nameFr: "Tronc Commun", order: 21 },
-    { cycleId: lycee.id, code: "1BAC", nameAr: "الأولى باكالوريا", nameFr: "1ère Bac", order: 22 },
-    { cycleId: lycee.id, code: "2BAC", nameAr: "الثانية باكالوريا", nameFr: "2ème Bac", order: 23 },
+    { cycleId: elementaire.id, code: "CP", nameAr: "السنة التحضيرية", nameFr: "CP", order: 1 },
+    { cycleId: elementaire.id, code: "CE1", nameAr: "السنة الابتدائية الأولى", nameFr: "CE1", order: 2 },
+    { cycleId: elementaire.id, code: "CE2", nameAr: "السنة الابتدائية الثانية", nameFr: "CE2", order: 3 },
+    { cycleId: elementaire.id, code: "CM1", nameAr: "السنة المتوسطة الأولى", nameFr: "CM1", order: 4 },
+    { cycleId: elementaire.id, code: "CM2", nameAr: "السنة المتوسطة الثانية", nameFr: "CM2", order: 5 },
+    { cycleId: college.id, code: "6E", nameAr: "السادسة", nameFr: "Sixième", order: 11 },
+    { cycleId: college.id, code: "5E", nameAr: "الخامسة", nameFr: "Cinquième", order: 12 },
+    { cycleId: college.id, code: "4E", nameAr: "الرابعة", nameFr: "Quatrième", order: 13 },
+    { cycleId: college.id, code: "3E", nameAr: "الثالثة", nameFr: "Troisième", order: 14 },
+    { cycleId: lycee.id, code: "2NDE", nameAr: "الثانية", nameFr: "Seconde", order: 21 },
+    { cycleId: lycee.id, code: "1RE", nameAr: "الأولى", nameFr: "Première", order: 22 },
+    { cycleId: lycee.id, code: "TLE", nameAr: "النهائية", nameFr: "Terminale", order: 23 },
   ];
   await prisma.level.createMany({ data: levelData });
   const levels = await prisma.level.findMany();
   const byCode = (c: string) => levels.find((l) => l.code === c)!;
 
-  const streamDefs = [
-    { code: "SM", nameAr: "علوم رياضية", nameFr: "Sciences Mathématiques" },
-    { code: "PC", nameAr: "علوم فيزيائية", nameFr: "Sciences Physiques" },
-    { code: "SVT", nameAr: "علوم الحياة والأرض", nameFr: "Sciences de la Vie et de la Terre" },
-    { code: "LETTRES", nameAr: "آداب وعلوم إنسانية", nameFr: "Lettres et Sciences Humaines" },
-    { code: "ECO", nameAr: "علوم اقتصادية", nameFr: "Sciences Économiques" },
+  // Enseignements de spécialité, offered in Première and Terminale. Since the
+  // 2019 reform these replace the old filières: the class no longer carries
+  // one, each student does.
+  const specialityDefs = [
+    { code: "SPE_MATHS", nameAr: "الرياضيات", nameFr: "Mathématiques" },
+    { code: "SPE_NSI", nameAr: "المعلوميات وعلوم الرقمية", nameFr: "Numérique et sciences informatiques" },
+    { code: "SPE_PC", nameAr: "الفيزياء والكيمياء", nameFr: "Physique-Chimie" },
+    { code: "SPE_SVT", nameAr: "علوم الحياة والأرض", nameFr: "Sciences de la vie et de la Terre" },
+    { code: "SPE_SES", nameAr: "العلوم الاقتصادية والاجتماعية", nameFr: "Sciences économiques et sociales" },
+    { code: "SPE_HGGSP", nameAr: "التاريخ والجغرافيا والجيوسياسة", nameFr: "Histoire-géographie, géopolitique et sciences politiques" },
+    { code: "SPE_HLP", nameAr: "الإنسانيات والأدب والفلسفة", nameFr: "Humanités, littérature et philosophie" },
+    { code: "SPE_LLCER", nameAr: "اللغات والآداب والحضارات الأجنبية", nameFr: "Langues, littératures et cultures étrangères" },
   ];
-  for (const lvl of ["1BAC", "2BAC"]) {
-    await prisma.stream.createMany({
-      data: streamDefs.map((s) => ({ ...s, levelId: byCode(lvl).id })),
+  for (const lvl of ["1RE", "TLE"]) {
+    await prisma.speciality.createMany({
+      data: specialityDefs.map((sp) => ({ ...sp, levelId: byCode(lvl).id })),
     });
   }
-  const streams = await prisma.stream.findMany();
-  const stream = (levelCode: string, code: string) =>
-    streams.find((s) => s.levelId === byCode(levelCode).id && s.code === code)!;
+  const specialities = await prisma.speciality.findMany();
+  const spe = (levelCode: string, code: string) =>
+    specialities.find((x) => x.levelId === byCode(levelCode).id && x.code === code)!;
 
   // ---------------------------------------------------------------- subjects
   console.log("· subjects + coefficients");
   const subjectDefs = [
-    { code: "ARA", nameAr: "اللغة العربية", nameFr: "Langue Arabe" },
-    { code: "FRA", nameAr: "اللغة الفرنسية", nameFr: "Langue Française" },
-    { code: "ANG", nameAr: "اللغة الإنجليزية", nameFr: "Langue Anglaise" },
+    // tronc commun
+    { code: "FRA", nameAr: "اللغة الفرنسية", nameFr: "Français" },
     { code: "MATH", nameAr: "الرياضيات", nameFr: "Mathématiques" },
+    { code: "HG", nameAr: "التاريخ والجغرافيا", nameFr: "Histoire-Géographie" },
+    { code: "EMC", nameAr: "التربية المدنية", nameFr: "Enseignement moral et civique" },
+    { code: "ANG", nameAr: "اللغة الإنجليزية", nameFr: "Anglais (LVA)" },
+    { code: "ESP", nameAr: "اللغة الإسبانية", nameFr: "Espagnol (LVB)" },
+    { code: "ARA", nameAr: "اللغة العربية", nameFr: "Arabe" },
+    { code: "SVT", nameAr: "علوم الحياة والأرض", nameFr: "Sciences de la vie et de la Terre" },
     { code: "PC", nameAr: "الفيزياء والكيمياء", nameFr: "Physique-Chimie" },
-    { code: "SVT", nameAr: "علوم الحياة والأرض", nameFr: "Sciences de la Vie et de la Terre" },
-    { code: "HG", nameAr: "الاجتماعيات", nameFr: "Histoire-Géographie" },
-    { code: "EI", nameAr: "التربية الإسلامية", nameFr: "Éducation Islamique" },
+    { code: "TECH", nameAr: "التكنولوجيا", nameFr: "Technologie" },
+    { code: "EPS", nameAr: "التربية البدنية", nameFr: "Éducation physique et sportive" },
+    { code: "ART", nameAr: "الفنون التشكيلية", nameFr: "Arts plastiques" },
+    { code: "MUS", nameAr: "التربية الموسيقية", nameFr: "Éducation musicale" },
     { code: "PHILO", nameAr: "الفلسفة", nameFr: "Philosophie" },
-    { code: "EPS", nameAr: "التربية البدنية", nameFr: "Éducation Physique et Sportive" },
-    { code: "INFO", nameAr: "المعلوميات", nameFr: "Informatique" },
-    { code: "AS", nameAr: "النشاط العلمي", nameFr: "Activité Scientifique" },
+    { code: "QLM", nameAr: "استكشاف العالم", nameFr: "Questionner le monde" },
+    { code: "ES", nameAr: "التربية العلمية", nameFr: "Enseignement scientifique" },
+    { code: "SNT", nameAr: "العلوم الرقمية والتكنولوجيا", nameFr: "Sciences numériques et technologie" },
+    // enseignements de spécialité — one subject per spécialité, so a mark and a
+    // coefficient can hang off it like any other course
+    { code: "SPE_MATHS", nameAr: "تخصص الرياضيات", nameFr: "Spécialité Mathématiques" },
+    { code: "SPE_NSI", nameAr: "تخصص المعلوميات", nameFr: "Spécialité NSI" },
+    { code: "SPE_PC", nameAr: "تخصص الفيزياء والكيمياء", nameFr: "Spécialité Physique-Chimie" },
+    { code: "SPE_SVT", nameAr: "تخصص علوم الحياة والأرض", nameFr: "Spécialité SVT" },
+    { code: "SPE_SES", nameAr: "تخصص العلوم الاقتصادية", nameFr: "Spécialité SES" },
+    { code: "SPE_HGGSP", nameAr: "تخصص التاريخ والجغرافيا", nameFr: "Spécialité HGGSP" },
+    { code: "SPE_HLP", nameAr: "تخصص الإنسانيات", nameFr: "Spécialité HLP" },
+    { code: "SPE_LLCER", nameAr: "تخصص اللغات", nameFr: "Spécialité LLCER" },
   ];
   await prisma.subject.createMany({ data: subjectDefs });
   const subjects = await prisma.subject.findMany();
-  const subj = (code: string) => subjects.find((s) => s.code === code)!;
+  const subj = (code: string) => subjects.find((x) => x.code === code)!;
 
-  // 2BAC PC coefficients (real Moroccan weighting)
-  const coef2BacPC: Array<[string, number]> = [
-    ["MATH", 7], ["PC", 7], ["SVT", 5], ["ANG", 2],
-    ["PHILO", 2], ["ARA", 2], ["FRA", 4], ["EI", 2], ["EPS", 2],
-  ];
-  await prisma.levelSubject.createMany({
-    data: coef2BacPC.map(([code, coefficient]) => ({
-      levelId: byCode("2BAC").id,
-      streamId: stream("2BAC", "PC").id,
-      subjectId: subj(code).id,
-      coefficient,
-    })),
-  });
+  /** Level-wide rows: the tronc commun every student at that level follows. */
+  const troncCommun = async (levelCode: string, coefs: Array<[string, number]>) =>
+    prisma.levelSubject.createMany({
+      data: coefs.map(([code, coefficient]) => ({
+        levelId: byCode(levelCode).id,
+        specialityId: null,
+        subjectId: subj(code).id,
+        coefficient,
+      })),
+    });
 
-  // 2BAC SM
-  const coef2BacSM: Array<[string, number]> = [
-    ["MATH", 9], ["PC", 7], ["SVT", 3], ["ANG", 2],
-    ["PHILO", 2], ["ARA", 2], ["FRA", 4], ["EI", 2], ["EPS", 2],
-  ];
-  await prisma.levelSubject.createMany({
-    data: coef2BacSM.map(([code, coefficient]) => ({
-      levelId: byCode("2BAC").id,
-      streamId: stream("2BAC", "SM").id,
-      subjectId: subj(code).id,
-      coefficient,
-    })),
-  });
+  // Élémentaire — CM2.
+  await troncCommun("CM2", [
+    ["FRA", 5], ["MATH", 5], ["QLM", 2], ["ANG", 2], ["EPS", 1], ["ART", 1], ["EMC", 1],
+  ]);
 
-  // Collège 3AC (no stream)
-  const coef3AC: Array<[string, number]> = [
-    ["ARA", 4], ["FRA", 4], ["ANG", 2], ["MATH", 4],
-    ["PC", 2], ["SVT", 2], ["HG", 2], ["EI", 2], ["EPS", 1], ["INFO", 1],
-  ];
-  await prisma.levelSubject.createMany({
-    data: coef3AC.map(([code, coefficient]) => ({
-      levelId: byCode("3AC").id,
-      streamId: null,
-      subjectId: subj(code).id,
-      coefficient,
-    })),
-  });
+  // Collège — Troisième, the DNB year.
+  await troncCommun("3E", [
+    ["FRA", 4], ["MATH", 4], ["HG", 3], ["ANG", 3], ["ESP", 2], ["SVT", 2],
+    ["PC", 2], ["TECH", 2], ["EPS", 2], ["ART", 1], ["MUS", 1], ["EMC", 1],
+  ]);
 
-  // Primaire 6AP
-  const coef6AP: Array<[string, number]> = [
-    ["ARA", 4], ["FRA", 3], ["MATH", 4], ["AS", 2], ["EI", 2], ["EPS", 1],
-  ];
-  await prisma.levelSubject.createMany({
-    data: coef6AP.map(([code, coefficient]) => ({
-      levelId: byCode("6AP").id,
-      streamId: null,
-      subjectId: subj(code).id,
-      coefficient,
-    })),
-  });
+  // Lycée — Seconde is a common trunk, no spécialité yet.
+  await troncCommun("2NDE", [
+    ["FRA", 4], ["MATH", 4], ["HG", 3], ["ANG", 3], ["ESP", 2], ["SVT", 2],
+    ["PC", 2], ["SNT", 1], ["EPS", 2], ["EMC", 1],
+  ]);
+
+  // Première: tronc commun + three spécialités per student.
+  await troncCommun("1RE", [
+    ["FRA", 4], ["HG", 3], ["ANG", 3], ["ESP", 2], ["ES", 2], ["EPS", 2], ["EMC", 1],
+  ]);
+
+  // Terminale: Français gives way to Philosophie, and the two kept spécialités
+  // carry the weight they do at the bac.
+  await troncCommun("TLE", [
+    ["PHILO", 8], ["HG", 3], ["ANG", 3], ["ESP", 2], ["ES", 2], ["EPS", 2], ["EMC", 1],
+  ]);
+
+  // A spécialité's coefficient is attached to the spécialité, not the level, so
+  // it only ever counts for the students who actually chose it.
+  for (const def of specialityDefs) {
+    await prisma.levelSubject.createMany({
+      data: [
+        { levelId: byCode("1RE").id, specialityId: spe("1RE", def.code).id, subjectId: subj(def.code).id, coefficient: 8 },
+        { levelId: byCode("TLE").id, specialityId: spe("TLE", def.code).id, subjectId: subj(def.code).id, coefficient: 16 },
+      ],
+    });
+  }
 
   // ---------------------------------------------------------------- rooms & classes
   console.log("· rooms + classes");
@@ -252,17 +271,14 @@ async function main() {
     ],
   });
 
-  const class2BacPC = await prisma.class.create({
-    data: {
-      name: "2Bac PC - A", levelId: byCode("2BAC").id,
-      streamId: stream("2BAC", "PC").id, schoolYearId: year.id, capacity: 34,
-    },
+  const classTle = await prisma.class.create({
+    data: { name: "Tle A", levelId: byCode("TLE").id, schoolYearId: year.id, capacity: 34 },
   });
-  const class3AC = await prisma.class.create({
-    data: { name: "3AC - B", levelId: byCode("3AC").id, schoolYearId: year.id, capacity: 36 },
+  const class3e = await prisma.class.create({
+    data: { name: "3e B", levelId: byCode("3E").id, schoolYearId: year.id, capacity: 30 },
   });
-  const class6AP = await prisma.class.create({
-    data: { name: "6AP - A", levelId: byCode("6AP").id, schoolYearId: year.id, capacity: 30 },
+  const classCM2 = await prisma.class.create({
+    data: { name: "CM2 A", levelId: byCode("CM2").id, schoolYearId: year.id, capacity: 28 },
   });
 
   // ---------------------------------------------------------------- staff
@@ -285,11 +301,15 @@ async function main() {
   });
 
   const teacherDefs = [
-    { email: "prof.maths@planetemontessori.demo", ar: ["سعيد", "العلوي"], fr: ["Said", "Alaoui"], subjects: ["MATH"], specialty: "Mathématiques" },
-    { email: "prof.pc@planetemontessori.demo", ar: ["نادية", "الفاسي"], fr: ["Nadia", "Fassi"], subjects: ["PC"], specialty: "Physique-Chimie" },
-    { email: "prof.arabe@planetemontessori.demo", ar: ["مصطفى", "الإدريسي"], fr: ["Mustapha", "Idrissi"], subjects: ["ARA", "EI"], specialty: "Langue Arabe" },
-    { email: "prof.francais@planetemontessori.demo", ar: ["ليلى", "برادة"], fr: ["Leila", "Berrada"], subjects: ["FRA"], specialty: "Langue Française" },
-    { email: "prof.svt@planetemontessori.demo", ar: ["يونس", "الحسني"], fr: ["Younes", "Hassani"], subjects: ["SVT"], specialty: "SVT" },
+    // A lycée teacher covers both the tronc commun subject and its spécialité —
+    // the same person teaches Maths in Seconde and Spécialité Maths in Terminale.
+    { email: "prof.maths@planetemontessori.demo", ar: ["سعيد", "العلوي"], fr: ["Said", "Alaoui"], subjects: ["MATH", "SPE_MATHS"], specialty: "Mathématiques" },
+    { email: "prof.pc@planetemontessori.demo", ar: ["نادية", "الفاسي"], fr: ["Nadia", "Fassi"], subjects: ["PC", "SPE_PC"], specialty: "Physique-Chimie" },
+    { email: "prof.arabe@planetemontessori.demo", ar: ["مصطفى", "الإدريسي"], fr: ["Mustapha", "Idrissi"], subjects: ["ARA"], specialty: "Arabe" },
+    { email: "prof.francais@planetemontessori.demo", ar: ["ليلى", "برادة"], fr: ["Leila", "Berrada"], subjects: ["FRA"], specialty: "Français" },
+    { email: "prof.svt@planetemontessori.demo", ar: ["يونس", "الحسني"], fr: ["Younes", "Hassani"], subjects: ["SVT", "SPE_SVT"], specialty: "SVT" },
+    { email: "prof.philo@planetemontessori.demo", ar: ["سلمى", "العمراني"], fr: ["Salma", "Amrani"], subjects: ["PHILO"], specialty: "Philosophie" },
+    { email: "prof.hg@planetemontessori.demo", ar: ["كريم", "بنسليمان"], fr: ["Karim", "Bensliman"], subjects: ["HG"], specialty: "Histoire-Géographie" },
   ];
 
   const teacherProfiles: Record<string, string> = {};
@@ -311,27 +331,29 @@ async function main() {
       },
       include: { teacherProfile: true },
     });
-    teacherProfiles[t.subjects[0]] = user.teacherProfile!.id;
+    for (const code of t.subjects) teacherProfiles[code] = user.teacherProfile!.id;
   }
 
-  // main teacher (professeur principal) of 2Bac PC
+  // main teacher (professeur principal) of Tle A
   await prisma.class.update({
-    where: { id: class2BacPC.id },
+    where: { id: classTle.id },
     data: { mainTeacherId: teacherProfiles["MATH"] },
   });
 
   // teacher ↔ class ↔ subject assignments
   const assignments = [
-    { c: class2BacPC.id, s: "MATH", t: teacherProfiles["MATH"] },
-    { c: class2BacPC.id, s: "PC", t: teacherProfiles["PC"] },
-    { c: class2BacPC.id, s: "SVT", t: teacherProfiles["SVT"] },
-    { c: class2BacPC.id, s: "ARA", t: teacherProfiles["ARA"] },
-    { c: class2BacPC.id, s: "FRA", t: teacherProfiles["FRA"] },
-    { c: class3AC.id, s: "MATH", t: teacherProfiles["MATH"] },
-    { c: class3AC.id, s: "ARA", t: teacherProfiles["ARA"] },
-    { c: class3AC.id, s: "FRA", t: teacherProfiles["FRA"] },
-    { c: class6AP.id, s: "ARA", t: teacherProfiles["ARA"] },
-    { c: class6AP.id, s: "FRA", t: teacherProfiles["FRA"] },
+    // Terminale: the tronc commun, plus the two spécialités taught in this room.
+    { c: classTle.id, s: "PHILO", t: teacherProfiles["PHILO"] },
+    { c: classTle.id, s: "HG", t: teacherProfiles["HG"] },
+    { c: classTle.id, s: "SPE_MATHS", t: teacherProfiles["MATH"] },
+    { c: classTle.id, s: "SPE_PC", t: teacherProfiles["PC"] },
+    { c: classTle.id, s: "SPE_SVT", t: teacherProfiles["SVT"] },
+    { c: class3e.id, s: "MATH", t: teacherProfiles["MATH"] },
+    { c: class3e.id, s: "FRA", t: teacherProfiles["FRA"] },
+    { c: class3e.id, s: "HG", t: teacherProfiles["HG"] },
+    { c: class3e.id, s: "SVT", t: teacherProfiles["SVT"] },
+    { c: classCM2.id, s: "FRA", t: teacherProfiles["FRA"] },
+    { c: classCM2.id, s: "MATH", t: teacherProfiles["MATH"] },
   ];
   await prisma.teacherAssignment.createMany({
     data: assignments.map((a) => ({
@@ -339,42 +361,33 @@ async function main() {
     })),
   });
 
-  // ---------------------------------------------------------------- timetable sample (2Bac PC)
-  console.log("· sample timetable for 2Bac PC");
+  // ---------------------------------------------------------------- timetable sample (Tle A)
+  console.log("· sample timetable for Tle A");
   const rooms = await prisma.room.findMany();
   const room = (n: string) => rooms.find((r) => r.name === n)!;
   const slots = [
-    { day: Weekday.MONDAY, start: 8 * 60, end: 10 * 60, s: "MATH", r: "Salle 1" },
-    { day: Weekday.MONDAY, start: 10 * 60 + 15, end: 12 * 60 + 15, s: "PC", r: "Labo PC" },
-    { day: Weekday.TUESDAY, start: 8 * 60, end: 10 * 60, s: "SVT", r: "Salle 2" },
-    { day: Weekday.TUESDAY, start: 14 * 60, end: 16 * 60, s: "FRA", r: "Salle 1" },
-    { day: Weekday.WEDNESDAY, start: 8 * 60, end: 10 * 60, s: "MATH", r: "Salle 1" },
-    { day: Weekday.THURSDAY, start: 10 * 60 + 15, end: 12 * 60 + 15, s: "ARA", r: "Salle 3" },
-    { day: Weekday.FRIDAY, start: 8 * 60, end: 10 * 60, s: "PC", r: "Labo PC" },
+    { day: Weekday.MONDAY, start: 8 * 60, end: 10 * 60, s: "SPE_MATHS", r: "Salle 1" },
+    { day: Weekday.MONDAY, start: 10 * 60 + 15, end: 12 * 60 + 15, s: "SPE_PC", r: "Labo PC" },
+    { day: Weekday.TUESDAY, start: 8 * 60, end: 10 * 60, s: "SPE_SVT", r: "Salle 2" },
+    { day: Weekday.TUESDAY, start: 14 * 60, end: 16 * 60, s: "PHILO", r: "Salle 1" },
+    { day: Weekday.WEDNESDAY, start: 8 * 60, end: 10 * 60, s: "SPE_MATHS", r: "Salle 1" },
+    { day: Weekday.THURSDAY, start: 10 * 60 + 15, end: 12 * 60 + 15, s: "HG", r: "Salle 3" },
+    { day: Weekday.FRIDAY, start: 8 * 60, end: 10 * 60, s: "SPE_PC", r: "Labo PC" },
   ];
   await prisma.timetableSlot.createMany({
     data: slots.map((sl) => ({
-      schoolYearId: year.id, classId: class2BacPC.id, subjectId: subj(sl.s).id,
+      schoolYearId: year.id, classId: classTle.id, subjectId: subj(sl.s).id,
       teacherId: teacherProfiles[sl.s], roomId: room(sl.r).id,
       weekday: sl.day, startMin: sl.start, endMin: sl.end,
-    })),
-  });
-  // Ramadan variant: shortened, morning-only
-  await prisma.timetableSlot.createMany({
-    data: slots.slice(0, 5).map((sl, i) => ({
-      schoolYearId: year.id, classId: class2BacPC.id, subjectId: subj(sl.s).id,
-      teacherId: teacherProfiles[sl.s], roomId: room(sl.r).id,
-      weekday: sl.day, startMin: 9 * 60 + i * 0, endMin: 10 * 60 + 30,
-      variant: "RAMADAN" as const,
     })),
   });
 
   // ---------------------------------------------------------------- students & parents
   console.log("· students, guardians, parent accounts");
   const classesForStudents = [
-    { klass: class2BacPC, count: 12, birthYear: 2008 },
-    { klass: class3AC, count: 8, birthYear: 2011 },
-    { klass: class6AP, count: 6, birthYear: 2014 },
+    { klass: classTle, count: 12, birthYear: 2008 },
+    { klass: class3e, count: 8, birthYear: 2011 },
+    { klass: classCM2, count: 6, birthYear: 2014 },
   ];
 
   let n = 0;
@@ -453,6 +466,33 @@ async function main() {
     }
   }
 
+  // ---------------------------------------------------------------- spécialités
+  // What makes a French Terminale class different from the old filière model:
+  // these twelve students share a room and a tronc commun, but each pair of
+  // spécialités is their own. Rotating three combinations means the demo
+  // database actually exercises the case where a bulletin must leave out a
+  // subject the student never took.
+  console.log("· spécialités (Terminale)");
+  const tleStudents = await prisma.studentProfile.findMany({
+    where: { enrollments: { some: { classId: classTle.id, isActive: true } } },
+    select: { id: true },
+    orderBy: { codeMassar: "asc" },
+  });
+  const COMBINATIONS = [
+    ["SPE_MATHS", "SPE_PC"],   // the maths/physics pairing
+    ["SPE_MATHS", "SPE_SVT"],  // médecine-bound
+    ["SPE_PC", "SPE_SVT"],     // sciences without maths
+  ];
+  await prisma.studentSpeciality.createMany({
+    data: tleStudents.flatMap((st, i) =>
+      COMBINATIONS[i % COMBINATIONS.length].map((code) => ({
+        studentId: st.id,
+        specialityId: spe("TLE", code).id,
+        schoolYearId: year.id,
+      })),
+    ),
+  });
+
   // ---------------------------------------------------------------- demo operations
   // The structure above is enough to log in. The records below make every
   // workspace useful on first launch: grades, attendance, pedagogy, finance,
@@ -482,13 +522,24 @@ async function main() {
     .flatMap((s) => s.guardians.map((g) => g.guardian.user).filter((u): u is NonNullable<typeof u> => Boolean(u)))
     .filter((u, i, all) => all.findIndex((x) => x.id === u.id) === i);
 
-  // Gradebook: two semesters, several assessment types, blank and graded cells.
-  const gradeSubjects: Array<[string, number]> = [
-    ["MATH", 7], ["PC", 7], ["SVT", 5], ["FRA", 4], ["ARA", 2],
-  ];
+  // Gradebook: three trimestres, several assessment types, blank and graded cells.
+  //
+  // The Terminale list deliberately spans all three spécialités taught in the
+  // room. Every student is marked in every one — which is exactly the situation
+  // the bulletin has to survive: it must print only the two each student chose,
+  // and count only those in the general average.
   const classGradeConfigs = [
-    { klass: class2BacPC, subjects: gradeSubjects },
-    { klass: class3AC, subjects: [["MATH", 4], ["FRA", 4], ["ARA", 4]] as Array<[string, number]> },
+    {
+      klass: classTle,
+      subjects: [
+        ["PHILO", 8], ["HG", 3],
+        ["SPE_MATHS", 16], ["SPE_PC", 16], ["SPE_SVT", 16],
+      ] as Array<[string, number]>,
+    },
+    {
+      klass: class3e,
+      subjects: [["MATH", 4], ["FRA", 4], ["HG", 3]] as Array<[string, number]>,
+    },
   ];
   for (const config of classGradeConfigs) {
     const roster = studentsIn(config.klass.id);
@@ -537,7 +588,7 @@ async function main() {
       data: {
         studentId: student.id,
         subjectId: subj(i % 2 === 0 ? "MATH" : "PC").id,
-        classId: class2BacPC.id,
+        classId: classTle.id,
         semesterId: semester1.id,
         teacherId: teacherFor(i % 2 === 0 ? "MATH" : "PC"),
         text: appreciations[i % appreciations.length][0],
@@ -547,7 +598,7 @@ async function main() {
 
   // Attendance: recent sessions with a mixture of absences, lates, and excused records.
   const normalSlots = await prisma.timetableSlot.findMany({
-    where: { classId: class2BacPC.id, variant: "NORMAL" },
+    where: { classId: classTle.id },
     orderBy: [{ weekday: "asc" }, { startMin: "asc" }],
   });
   const attendanceSlots = normalSlots.filter((slot, index, all) =>
@@ -569,7 +620,7 @@ async function main() {
           endMin: slot.endMin,
         },
       });
-      const roster = studentsIn(class2BacPC.id);
+      const roster = studentsIn(classTle.id);
       await prisma.attendanceRecord.createMany({
         data: roster.map((student, studentIndex) => ({
           sessionId: session.id,
@@ -620,7 +671,7 @@ async function main() {
     data: [
       {
         studentId: demoStudents[4].id,
-        classId: class2BacPC.id,
+        classId: classTle.id,
         type: "TARDINESS",
         description: "Retards répétés observés cette semaine.",
         sanction: Sanction.AVERTISSEMENT,
@@ -629,7 +680,7 @@ async function main() {
       },
       {
         studentId: demoStudents[7].id,
-        classId: class3AC.id,
+        classId: class3e.id,
         type: "BEHAVIOUR",
         description: "Incident traité lors d'un échange avec la famille.",
         sanction: Sanction.NONE,
@@ -649,7 +700,7 @@ async function main() {
     const teacherId = teacherFor(h.subject);
     const homework = await prisma.homework.create({
       data: {
-        classId: class2BacPC.id,
+        classId: classTle.id,
         subjectId: subj(h.subject).id,
         teacherId,
         title: h.title,
@@ -660,7 +711,7 @@ async function main() {
       },
     });
     if (index < 2) {
-      const submitters = studentsIn(class2BacPC.id).slice(0, index === 0 ? 5 : 3);
+      const submitters = studentsIn(classTle.id).slice(0, index === 0 ? 5 : 3);
       await prisma.homeworkSubmission.createMany({
         data: submitters.map((student, studentIndex) => ({
           homeworkId: homework.id,
@@ -679,7 +730,7 @@ async function main() {
     await prisma.cahierEntry.create({
       data: {
         sessionId: session.id,
-        classId: class2BacPC.id,
+        classId: classTle.id,
         subjectId: subj(index % 2 === 0 ? "MATH" : "PC").id,
         teacherId: teacherFor(index % 2 === 0 ? "MATH" : "PC"),
         date: day(attendanceDates[index]),
@@ -758,9 +809,9 @@ async function main() {
   const mathUnit = await prisma.unit.create({
     data: {
       authorId: teacherProfiles.MATH,
-      levelId: class2BacPC.levelId,
-      streamId: class2BacPC.streamId,
-      subjectId: subj("MATH").id,
+      levelId: classTle.levelId,
+      specialityId: spe("TLE", "SPE_MATHS").id,
+      subjectId: subj("SPE_MATHS").id,
       titleAr: "الاشتقاق وتغيرات الدوال",
       titleFr: "Dérivation et variations",
       order: 1,
@@ -775,9 +826,9 @@ async function main() {
   const physicsUnit = await prisma.unit.create({
     data: {
       authorId: teacherProfiles.PC,
-      levelId: class2BacPC.levelId,
-      streamId: class2BacPC.streamId,
-      subjectId: subj("PC").id,
+      levelId: classTle.levelId,
+      specialityId: spe("TLE", "SPE_PC").id,
+      subjectId: subj("SPE_PC").id,
       titleAr: "التفاعلات الحمضية القاعدية",
       titleFr: "Réactions acido-basiques",
       order: 1,
@@ -786,13 +837,13 @@ async function main() {
       },
     },
   });
-  // A collège unit: no stream (3AC has none), so it is level-wide. Also carries
+  // A collège unit: no spécialité below Première, so it is level-wide. Also carries
   // a draft, which must stay invisible to students until it is published.
   const collegeUnit = await prisma.unit.create({
     data: {
       authorId: teacherProfiles.MATH,
-      levelId: class3AC.levelId,
-      streamId: class3AC.streamId,
+      levelId: class3e.levelId,
+      specialityId: null,
       subjectId: subj("MATH").id,
       titleAr: "الأعداد الجذرية",
       titleFr: "Les nombres rationnels",
@@ -815,7 +866,7 @@ async function main() {
     data: [
       { authorId: director.id, titleAr: "اجتماع أولياء الأمور", titleFr: "Réunion de parents", bodyAr: "يسر إدارة بلانيت مونتيسوري دعوتكم إلى لقاء أولياء الأمور يوم السبت.", bodyFr: "La direction de Planète Montessori vous invite à la réunion de parents samedi matin.", audience: AnnouncementAudience.PARENTS, isPublished: true, publishAt: day("2026-01-08") },
       { authorId: director.id, titleAr: "توقيت رمضان", titleFr: "Horaires de Ramadan", bodyAr: "سيبدأ العمل بتوقيت رمضان يوم 17 فبراير.", bodyFr: "Les horaires de Ramadan entreront en vigueur le 17 février.", audience: AnnouncementAudience.WHOLE_SCHOOL, isPublished: true, publishAt: day("2026-01-18") },
-      { authorId: surveillant.id, titleAr: "تذكير بالانضباط", titleFr: "Rappel de vie scolaire", bodyAr: "يرجى احترام أوقات الدخول والخروج.", bodyFr: "Merci de respecter les horaires d'entrée et de sortie.", audience: AnnouncementAudience.CLASS, classId: class2BacPC.id, isPublished: true, publishAt: day("2026-01-14") },
+      { authorId: surveillant.id, titleAr: "تذكير بالانضباط", titleFr: "Rappel de vie scolaire", bodyAr: "يرجى احترام أوقات الدخول والخروج.", bodyFr: "Merci de respecter les horaires d'entrée et de sortie.", audience: AnnouncementAudience.CLASS, classId: classTle.id, isPublished: true, publishAt: day("2026-01-14") },
       { authorId: director.id, titleAr: "برنامج المجلس", titleFr: "Ordre du jour du conseil", bodyAr: "الاجتماع مخصص لتتبع نتائج الدورة الأولى.", bodyFr: "Le conseil de classe portera sur le bilan du premier semestre.", audience: AnnouncementAudience.TEACHERS, isPublished: false, publishAt: day("2026-01-19") },
     ],
   });
@@ -827,7 +878,7 @@ async function main() {
       data: {
         kind: ThreadKind.PARENT_TEACHER,
         subject: "Suivi des progrès en mathématiques",
-        classId: class2BacPC.id,
+        classId: classTle.id,
         participants: { create: [{ userId: firstParent.id }, { userId: firstTeacher.id }] },
         messages: {
           create: [
@@ -849,9 +900,9 @@ async function main() {
   await prisma.auditLog.createMany({
     data: [
       { actorId: director.id, action: "SCHOOL_SETTINGS_UPDATE", entity: "SchoolSettings", entityId: "1", after: { primaryColor: "#133562", secondaryColor: "#ef5b4e" }, createdAt: day("2026-01-05") },
-      { actorId: director.id, action: "SCHEDULE_GENERATE_CLASS", entity: "Class", entityId: class2BacPC.id, after: { created: demoStudents.length }, createdAt: day("2026-01-06") },
-      { actorId: surveillant.id, action: "ATTENDANCE_MARK", entity: "Session", entityId: attendanceSessions[0]?.id, after: { marked: studentsIn(class2BacPC.id).length }, createdAt: day("2026-01-12") },
-      { actorId: firstTeacher.id, action: "GRADE_ENTER", entity: "GradeItem", after: { count: studentsIn(class2BacPC.id).length }, createdAt: day("2026-01-18") },
+      { actorId: director.id, action: "SCHEDULE_GENERATE_CLASS", entity: "Class", entityId: classTle.id, after: { created: demoStudents.length }, createdAt: day("2026-01-06") },
+      { actorId: surveillant.id, action: "ATTENDANCE_MARK", entity: "Session", entityId: attendanceSessions[0]?.id, after: { marked: studentsIn(classTle.id).length }, createdAt: day("2026-01-12") },
+      { actorId: firstTeacher.id, action: "GRADE_ENTER", entity: "GradeItem", after: { count: studentsIn(classTle.id).length }, createdAt: day("2026-01-18") },
     ],
   });
 

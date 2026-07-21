@@ -13,8 +13,6 @@ import { renderTimetablePdf, type PdfSlot } from "@/lib/pdf/timetable";
 import { resolveLocale } from "@/i18n/routing";
 import {
   WEEKDAYS,
-  variantForDate,
-  type TimetableVariant,
 } from "@/lib/timetable";
 
 /**
@@ -36,15 +34,6 @@ export async function GET(req: NextRequest) {
   const reqTeacher = url.searchParams.get("teacher");
 
   const year = await currentYear();
-  const rawVariant = url.searchParams.get("variant");
-  const variant: TimetableVariant =
-    rawVariant === "RAMADAN"
-      ? "RAMADAN"
-      : rawVariant === "NORMAL"
-        ? "NORMAL"
-        : year
-          ? variantForDate(new Date(), year.ramadanStart, year.ramadanEnd)
-          : "NORMAL";
 
   // Resolve the scope the caller is actually entitled to.
   let scope:
@@ -106,7 +95,7 @@ export async function GET(req: NextRequest) {
         where: { id: scope.classId },
         select: { name: true },
       }),
-      getClassSlots(scope.classId, variant),
+      getClassSlots(scope.classId),
     ]);
     if (!klass) return new Response(null, { status: 404 });
     title = t("forClass", { name: klass.name });
@@ -124,7 +113,7 @@ export async function GET(req: NextRequest) {
         where: { id: scope.teacherId },
         select: { user: true },
       }),
-      getTeacherSlots(scope.teacherId, variant),
+      getTeacherSlots(scope.teacherId),
     ]);
     if (!teacher) return new Response(null, { status: 404 });
     title = t("forTeacher", { name: personName(teacher.user) });
@@ -141,14 +130,11 @@ export async function GET(req: NextRequest) {
   const weekdayLabels: Record<string, string> = {};
   for (const d of WEEKDAYS) weekdayLabels[d] = t(`weekdays.${d}`);
 
-  const subtitle = `${t("schoolYear", { year: year?.label ?? "" })} · ${t(
-    `variants.${variant}`,
-  )}`;
+  const subtitle = t("schoolYear", { year: year?.label ?? "" });
 
   const pdf = await renderTimetablePdf({
     title,
     subtitle,
-    variant,
     locale,
     timeLabel: t("time"),
     weekdayLabels,
@@ -158,7 +144,6 @@ export async function GET(req: NextRequest) {
   return new Response(pdf as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="timetable-${variant.toLowerCase()}.pdf"`,
       "Cache-Control": "private, no-store",
     },
   });

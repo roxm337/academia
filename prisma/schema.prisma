@@ -22,7 +22,7 @@ enum Role {
 }
 
 enum CycleKind {
-  PRIMAIRE
+  ELEMENTAIRE
   COLLEGE
   LYCEE
 }
@@ -49,11 +49,6 @@ enum Weekday {
   FRIDAY
   SATURDAY
   SUNDAY
-}
-
-enum TimetableVariant {
-  NORMAL
-  RAMADAN
 }
 
 enum AttendanceStatus {
@@ -183,10 +178,6 @@ model SchoolYear {
   endDate   DateTime
   isCurrent Boolean  @default(false)
 
-  // Ramadan timetable activation window
-  ramadanStart DateTime?
-  ramadanEnd   DateTime?
-
   semesters   Semester[]
   classes     Class[]
   holidays    Holiday[]
@@ -195,6 +186,7 @@ model SchoolYear {
   feeItems    FeeItem[]
   schedules   FeeSchedule[]
   settings    SchoolSettings[]
+  specialities StudentSpeciality[]
 
   @@index([isCurrent])
 }
@@ -203,7 +195,7 @@ model Semester {
   id           String   @id @default(cuid())
   schoolYearId String
   schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
-  index        Int // 1 or 2
+  index        Int // 1, 2 or 3 — a French year runs in trimestres
   startDate    DateTime
   endDate      DateTime
 
@@ -246,12 +238,12 @@ model Level {
   id      String @id @default(cuid())
   cycleId String
   cycle   Cycle  @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  code    String @unique // "1AP".."6AP", "1AC".."3AC", "TC", "1BAC", "2BAC"
+  code    String @unique // "CP".."CM2", "6E".."3E", "2NDE", "1RE", "TLE"
   nameAr  String
   nameFr  String
   order   Int
 
-  streams       Stream[]
+  specialities  Speciality[]
   classes       Class[]
   levelSubjects LevelSubject[]
   units         Unit[]
@@ -259,19 +251,44 @@ model Level {
   announcements Announcement[]
 }
 
-model Stream {
+/// An enseignement de specialite, offered at a level (1re or Tle).
+///
+/// Since the 2019 reform there are no filieres: a class is no longer "1re S".
+/// Students pick three specialites in Premiere and keep two in Terminale, so
+/// two classmates sit in the same room with different subject lists — which is
+/// why this hangs off the student, not off the class.
+model Speciality {
   id      String @id @default(cuid())
   levelId String
   level   Level  @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  code    String // "SM", "PC", "SVT", "LETTRES", "ECO"
+  code    String // "NSI", "MATHS", "PC", "SVT", "SES", "HGGSP", "HLP", "LLCE"
   nameAr  String
   nameFr  String
 
-  classes       Class[]
   levelSubjects LevelSubject[]
   units         Unit[]
+  students      StudentSpeciality[]
 
   @@unique([levelId, code])
+}
+
+/// One specialite chosen by one student for one year.
+///
+/// Scoped to the school year because the choice changes between Premiere and
+/// Terminale: three become two, and which one is dropped is the point.
+model StudentSpeciality {
+  id           String @id @default(cuid())
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  specialityId String
+  speciality   Speciality     @relation(fields: [specialityId], references: [id], onDelete: Cascade)
+  schoolYearId String
+  schoolYear   SchoolYear     @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+
+  chosenAt DateTime @default(now())
+
+  @@unique([studentId, specialityId, schoolYearId])
+  @@index([studentId, schoolYearId])
 }
 
 model Subject {
@@ -292,18 +309,18 @@ model Subject {
   units           Unit[]
 }
 
-// Coefficient lives here — per level, optionally narrowed to a stream.
+// Coefficient lives here — per level, optionally narrowed to a specialite.
 model LevelSubject {
   id          String  @id @default(cuid())
   levelId     String
   level       Level   @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  streamId    String?
-  stream      Stream? @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  specialityId String?
+  speciality   Speciality? @relation(fields: [specialityId], references: [id], onDelete: Cascade)
   subjectId   String
   subject     Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   coefficient Decimal @db.Decimal(4, 2)
 
-  @@unique([levelId, streamId, subjectId])
+  @@unique([levelId, specialityId, subjectId])
 }
 
 model Room {
@@ -318,11 +335,9 @@ model Room {
 
 model Class {
   id           String  @id @default(cuid())
-  name         String // "2Bac PC - A"
+  name         String // "1re A", "6e B", "CM2 A"
   levelId      String
   level        Level   @relation(fields: [levelId], references: [id])
-  streamId     String?
-  stream       Stream? @relation(fields: [streamId], references: [id])
   schoolYearId String
   schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
   capacity     Int?
@@ -445,6 +460,7 @@ model StudentProfile {
   feeSchedules  FeeSchedule[]
   payments      Payment[]
   lessonProgress LessonProgress[]
+  specialities   StudentSpeciality[]
 
   @@index([status])
 }
@@ -539,13 +555,12 @@ model TimetableSlot {
   weekday   Weekday
   startMin  Int // minutes from midnight — simpler + safer to compare than DateTime
   endMin    Int
-  variant   TimetableVariant @default(NORMAL)
 
   sessions Session[]
 
-  @@index([classId, variant, weekday])
-  @@index([teacherId, variant, weekday])
-  @@index([roomId, variant, weekday])
+  @@index([classId, weekday])
+  @@index([teacherId, weekday])
+  @@index([roomId, weekday])
 }
 
 model Session {
@@ -743,8 +758,8 @@ model Unit {
   subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   levelId   String
   level     Level   @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  streamId  String?
-  stream    Stream? @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  specialityId String?
+  speciality   Speciality? @relation(fields: [specialityId], references: [id], onDelete: Cascade)
 
   authorId String
   author   TeacherProfile @relation("UnitAuthor", fields: [authorId], references: [id], onDelete: Cascade)
@@ -759,7 +774,7 @@ model Unit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([levelId, streamId, subjectId, order])
+  @@index([levelId, specialityId, subjectId, order])
 }
 
 model Lesson {

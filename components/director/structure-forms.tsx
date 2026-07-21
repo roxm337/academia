@@ -6,7 +6,7 @@ import { Plus, Pencil } from "lucide-react";
 import {
   saveClass,
   saveLevel,
-  saveStream,
+  saveSpeciality,
   type ActionState,
 } from "@/lib/actions/structure";
 import { Button } from "@/components/ui/button";
@@ -39,18 +39,15 @@ function SubmitRow({ pending, close }: { pending: boolean; close: () => void }) 
 
 export function ClassForm({
   levels,
-  streamsByLevel,
   teachers,
   klass,
 }: {
   levels: Option[];
-  streamsByLevel: Record<string, Option[]>;
   teachers: Option[];
   klass?: {
     id: string;
     name: string;
     levelId: string;
-    streamId: string | null;
     capacity: number | null;
     mainTeacherId: string | null;
   };
@@ -60,12 +57,6 @@ export function ClassForm({
   const [state, action, pending] = useActionState<ActionState, FormData>(
     saveClass,
     null,
-  );
-
-  // Streams depend on the level; keep it simple and list every stream, labelled
-  // by level, rather than shipping a client-side dependent <select>.
-  const allStreams = Object.entries(streamsByLevel).flatMap(([levelId, list]) =>
-    list.map((s) => ({ ...s, levelId })),
   );
 
   return (
@@ -119,21 +110,6 @@ export function ClassForm({
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="streamId">{t("stream")}</Label>
-              <Select
-                id="streamId"
-                name="streamId"
-                defaultValue={klass?.streamId ?? ""}
-              >
-                <option value="">{t("noStream")}</option>
-                {allStreams.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
 
             <div>
               <Label htmlFor="capacity">{t("capacity")}</Label>
@@ -291,10 +267,10 @@ export function LevelForm({
 
 // ---------------------------------------------------------------- stream
 
-export function StreamForm({ levels }: { levels: Option[] }) {
+export function SpecialityForm({ levels }: { levels: Option[] }) {
   const t = useTranslations("director.classes");
   const [state, action, pending] = useActionState<ActionState, FormData>(
-    saveStream,
+    saveSpeciality,
     null,
   );
 

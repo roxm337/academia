@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/dal";
 import { audit } from "@/lib/audit";
 import { notifyMany } from "@/lib/notifications";
-import { canAuthorAt, nextOrder, normalizeStream } from "@/lib/lessons";
+import { canAuthorAt, nextOrder, normalizeSpeciality } from "@/lib/lessons";
 import { attachFiles } from "@/lib/lesson-attachments";
 import type { ActionState } from "@/lib/actions/structure";
 
@@ -22,7 +22,7 @@ const STUDENT_DETAIL_PATH = "/[locale]/(dashboard)/student/lessons/[id]";
 const createSchema = z.object({
   unitId: z.string().optional(),
   levelId: z.string().min(1),
-  streamId: z.string().optional(),
+  specialityId: z.string().optional(),
   subjectId: z.string().min(1),
   unitTitleAr: z.string().trim().min(1).max(160),
   unitTitleFr: z.string().trim().min(1).max(160),
@@ -50,13 +50,17 @@ const unitSchema = z.object({
 
 /**
  * The teacher's own profile id, but only if they actually teach the given
- * subject at the given level+stream. Returns null for every other role, since
- * only a TEACHER has a TeacherProfile.
+ * subject at the given level. Returns null for every other role, since only a
+ * TEACHER has a TeacherProfile.
+ *
+ * The spécialité is verified separately, against the database: it has to be one
+ * offered at that level. A class no longer carries a spécialité, so the
+ * assignment cannot prove it and the form must not be believed.
  */
 async function authorAt(
   actorId: string,
   levelId: string,
-  streamId: string | null | undefined,
+  specialityId: string | null | undefined,
   subjectId: string,
 ) {
   const profile = await prisma.teacherProfile.findUnique({
@@ -65,13 +69,22 @@ async function authorAt(
       id: true,
       assignments: {
         where: { subjectId },
-        select: { class: { select: { levelId: true, streamId: true } } },
+        select: { class: { select: { levelId: true } } },
       },
     },
   });
   if (!profile) return null;
   const assignments = profile.assignments.map((a) => a.class);
-  return canAuthorAt(assignments, { levelId, streamId }) ? profile.id : null;
+  if (!canAuthorAt(assignments, { levelId })) return null;
+
+  const speciality = normalizeSpeciality(specialityId);
+  if (speciality) {
+    const offered = await prisma.speciality.count({
+      where: { id: speciality, levelId },
+    });
+    if (offered === 0) return null;
+  }
+  return profile.id;
 }
 
 /** The unit behind a lesson, with the caller's authorship already verified. */
@@ -86,7 +99,7 @@ async function ownedLesson(actorId: string, lessonId: string) {
   const teacherId = await authorAt(
     actorId,
     lesson.unit.levelId,
-    lesson.unit.streamId,
+    lesson.unit.specialityId,
     lesson.unit.subjectId,
   );
   if (!teacherId || lesson.unit.authorId !== teacherId) {
@@ -95,27 +108,27 @@ async function ownedLesson(actorId: string, lessonId: string) {
   return { lesson, teacherId };
 }
 
-/** Students who can see a unit, for publication notices. */
-async function audienceFor(unit: { levelId: string; streamId: string | null }) {
+/**
+ * Students who can see a unit, for publication notices.
+ *
+ * Mirrors `unitVisibleTo`: enrolled at the level, and — for a spécialité unit —
+ * actually holding that spécialité. Notifying a whole class about a lesson two
+ * thirds of them cannot open is how a notification bell becomes noise.
+ */
+async function audienceFor(unit: { levelId: string; specialityId: string | null }) {
   const students = await prisma.studentProfile.findMany({
     where: {
-      enrollments: {
-        some: {
-          isActive: true,
-          class: {
-            levelId: unit.levelId,
-            // A level-wide unit (no stream) reaches every stream at the level.
-            ...(unit.streamId ? { streamId: unit.streamId } : {}),
-          },
-        },
-      },
+      enrollments: { some: { isActive: true, class: { levelId: unit.levelId } } },
+      ...(unit.specialityId
+        ? { specialities: { some: { specialityId: unit.specialityId } } }
+        : {}),
     },
     select: { userId: true },
   });
   return students.map((s) => s.userId);
 }
 
-async function announcePublication(lessonId: string, unit: { levelId: string; streamId: string | null }) {
+async function announcePublication(lessonId: string, unit: { levelId: string; specialityId: string | null }) {
   const userIds = await audienceFor(unit);
   if (userIds.length === 0) return;
   await notifyMany(userIds, {
@@ -133,9 +146,9 @@ export async function createLesson(_prev: ActionState, formData: FormData): Prom
   const parsed = createSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "invalid" };
   const d = parsed.data;
-  const streamId = normalizeStream(d.streamId);
+  const specialityId = normalizeSpeciality(d.specialityId);
 
-  const teacherId = await authorAt(actor.id, d.levelId, streamId, d.subjectId);
+  const teacherId = await authorAt(actor.id, d.levelId, specialityId, d.subjectId);
   if (!teacherId) return { error: "notAllowed" };
   const published = d.isPublished === "on";
 
@@ -145,7 +158,7 @@ export async function createLesson(_prev: ActionState, formData: FormData): Prom
           id: d.unitId,
           authorId: teacherId,
           levelId: d.levelId,
-          streamId,
+          specialityId,
           subjectId: d.subjectId,
         },
       })
@@ -153,7 +166,7 @@ export async function createLesson(_prev: ActionState, formData: FormData): Prom
         data: {
           authorId: teacherId,
           levelId: d.levelId,
-          streamId,
+          specialityId,
           subjectId: d.subjectId,
           titleAr: d.unitTitleAr,
           titleFr: d.unitTitleFr,
@@ -274,7 +287,7 @@ export async function updateUnit(_prev: ActionState, formData: FormData): Promis
 
   const unit = await prisma.unit.findUnique({ where: { id: d.unitId } });
   if (!unit) return { error: "notFound" };
-  const teacherId = await authorAt(actor.id, unit.levelId, unit.streamId, unit.subjectId);
+  const teacherId = await authorAt(actor.id, unit.levelId, unit.specialityId, unit.subjectId);
   if (!teacherId || unit.authorId !== teacherId) return { error: "notAllowed" };
 
   await prisma.unit.update({
@@ -300,7 +313,7 @@ export async function deleteUnit(_prev: ActionState, formData: FormData): Promis
   const id = String(formData.get("id") ?? "");
   const unit = await prisma.unit.findUnique({ where: { id } });
   if (!unit) return { error: "notFound" };
-  const teacherId = await authorAt(actor.id, unit.levelId, unit.streamId, unit.subjectId);
+  const teacherId = await authorAt(actor.id, unit.levelId, unit.specialityId, unit.subjectId);
   if (!teacherId || unit.authorId !== teacherId) return { error: "notAllowed" };
 
   // Lessons, attachments and progress cascade (schema.prisma onDelete: Cascade).
@@ -384,20 +397,23 @@ async function readableLesson(actorRole: string, actorId: string, lessonId: stri
       enrollments: {
         where: { isActive: true },
         take: 1,
-        select: { class: { select: { levelId: true, streamId: true } } },
+        select: { class: { select: { levelId: true } } },
       },
+      specialities: { select: { specialityId: true } },
     },
   });
   const enrollment = student?.enrollments[0];
   if (!student || !enrollment) return { error: "notAllowed" as const };
 
+  const specialityIds = student.specialities.map((x) => x.specialityId);
   const lesson = await prisma.lesson.findFirst({
     where: {
       id: lessonId,
       isPublished: true,
       unit: {
         levelId: enrollment.class.levelId,
-        OR: [{ streamId: null }, { streamId: enrollment.class.streamId }],
+        // Tronc commun, or one of the spécialités this student actually chose.
+        OR: [{ specialityId: null }, { specialityId: { in: specialityIds } }],
       },
     },
     select: { id: true },

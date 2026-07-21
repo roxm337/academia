@@ -223,9 +223,9 @@ export async function Landing({ locale }: { locale: string }) {
 
             <article className="plate">
               <CalendarClock className="size-7 text-[var(--brand-blue)]" strokeWidth={1.5} />
-              <h3 className="h3 mt-4">{t("school.ramadanTitle")}</h3>
+              <h3 className="h3 mt-4">{t("school.familiesTitle")}</h3>
               <p className="mt-3 text-sm leading-relaxed text-[#4d6269]">
-                {t("school.ramadanText")}
+                {t("school.familiesText")}
               </p>
             </article>
           </div>

@@ -4,8 +4,6 @@ import { PageHeader, EmptyState } from "@/components/page-header";
 import { ReadOnlyTimetable } from "@/components/readonly-timetable";
 import { requireRole, childrenOfParent } from "@/lib/dal";
 import { activeClassOfStudentId, getClassSlots } from "@/lib/data/timetable";
-import { currentYear } from "@/lib/data/structure";
-import { variantForDate, type TimetableVariant } from "@/lib/timetable";
 import { cn } from "@/lib/utils";
 
 export default async function Page({
@@ -14,10 +12,10 @@ export default async function Page({
 }: PageProps<"/[locale]/parent/timetable">) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const sp = await searchParams;
   const user = await requireRole("PARENT");
 
   const t = await getTranslations("timetable");
-  const sp = await searchParams;
 
   // Only ever this parent's own children — never a studentId from the URL.
   const children = await childrenOfParent(user.id);
@@ -43,18 +41,11 @@ export default async function Page({
       : null) ?? children[0].id;
   const child = children.find((c) => c.id === childId)!;
 
-  const year = await currentYear();
-  const today: TimetableVariant = year
-    ? variantForDate(new Date(), year.ramadanStart, year.ramadanEnd)
-    : "NORMAL";
-  const variant: TimetableVariant =
-    sp.variant === "RAMADAN" ? "RAMADAN" : sp.variant === "NORMAL" ? "NORMAL" : today;
 
   const klass = await activeClassOfStudentId(childId);
-  const slots = klass ? await getClassSlots(klass.id, variant) : [];
+  const slots = klass ? await getClassSlots(klass.id) : [];
 
-  const q = (next: { child?: string; variant?: string }) =>
-    `?child=${next.child ?? childId}&variant=${next.variant ?? variant}`;
+  const q = (next: { child?: string }) => `?child=${next.child ?? childId}`;
 
   return (
     <>
@@ -84,26 +75,9 @@ export default async function Page({
       ) : null}
 
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex rounded-lg border border-[var(--border)] bg-[var(--surface)] p-0.5">
-          {(["NORMAL", "RAMADAN"] as const).map((v) => (
-            <a
-              key={v}
-              href={q({ variant: v })}
-              aria-current={variant === v ? "true" : undefined}
-              className={cn(
-                "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
-                variant === v
-                  ? "bg-[var(--brand)] text-white"
-                  : "text-[var(--muted)] hover:text-[var(--foreground)]",
-              )}
-            >
-              {t(`variants.${v}`)}
-            </a>
-          ))}
-        </div>
         {klass ? (
           <a
-            href={`/api/timetable/pdf?class=${klass.id}&variant=${variant}&locale=${locale}`}
+            href={`/api/timetable/pdf?class=${klass.id}&locale=${locale}`}
             target="_blank"
             rel="noopener"
             className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm hover:bg-black/[0.03]"
@@ -116,7 +90,6 @@ export default async function Page({
 
       {klass ? (
         <ReadOnlyTimetable
-          variant={variant}
           slots={slots}
           locale={locale}
           mode="student"

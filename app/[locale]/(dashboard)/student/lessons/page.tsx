@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                     <Badge tone="neutral">{localized(unit.subject, locale)}</Badge>
                     <span className="text-xs text-[var(--muted)]">
                       {localized(unit.level, locale)}
-                      {unit.stream ? ` · ${localized(unit.stream, locale)}` : ""}
+                      {unit.speciality ? ` · ${localized(unit.speciality, locale)}` : ""}
                     </span>
                   </div>
                   <h2 className="mt-2 text-lg font-semibold">

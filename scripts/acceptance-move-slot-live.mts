@@ -36,14 +36,13 @@ async function tryMove(
   const candidate: SlotShape = {
     id: slot.id,
     weekday,
-    variant: slot.variant,
-    startMin,
+        startMin,
     endMin,
     classId: slot.classId,
     teacherId: slot.teacherId,
     roomId: slot.roomId,
   };
-  const conflicts = detectConflicts(candidate, await getYearSlotsForConflict(slot.variant));
+  const conflicts = detectConflicts(candidate, await getYearSlotsForConflict());
   if (conflicts.length) {
     return { error: "conflict" as const, kinds: [...new Set(conflicts.map((c) => c.kind))] };
   }
@@ -57,7 +56,6 @@ async function tryMove(
 
 async function main() {
   const slot = await prisma.timetableSlot.findFirst({
-    where: { variant: "NORMAL" },
     orderBy: [{ weekday: "asc" }, { startMin: "asc" }],
   });
   if (!slot) throw new Error("seed missing: a NORMAL slot");
@@ -73,10 +71,10 @@ async function main() {
   try {
     console.log("\n== a legal move persists ==");
     // Saturday evening — outside every seeded band.
-    const moved = await tryMove(slot.id, "SATURDAY", 1140, 1200);
+    const moved = await tryMove(slot.id, "FRIDAY", 1140, 1200);
     check("the move is accepted", "ok" in moved && moved.ok === true, JSON.stringify(moved));
     const after = await prisma.timetableSlot.findUnique({ where: { id: slot.id } });
-    check("the new day was written", after?.weekday === "SATURDAY", String(after?.weekday));
+    check("the new day was written", after?.weekday === "FRIDAY", String(after?.weekday));
     check("the new time was written", after?.startMin === 1140 && after?.endMin === 1200);
     check(
       "class, subject, teacher and room are untouched",
@@ -88,7 +86,7 @@ async function main() {
 
     console.log("\n== an illegal move changes nothing ==");
     const blocker = await prisma.timetableSlot.findFirst({
-      where: { variant: "NORMAL", id: { not: slot.id }, classId: slot.classId },
+      where: { id: { not: slot.id }, classId: slot.classId },
     });
     if (blocker) {
       const refused = await tryMove(slot.id, blocker.weekday, blocker.startMin, blocker.endMin);
@@ -96,7 +94,7 @@ async function main() {
       const unchanged = await prisma.timetableSlot.findUnique({ where: { id: slot.id } });
       check(
         "the slot stayed where it was",
-        unchanged?.weekday === "SATURDAY" && unchanged?.startMin === 1140,
+        unchanged?.weekday === "FRIDAY" && unchanged?.startMin === 1140,
         `${unchanged?.weekday} ${unchanged?.startMin}`,
       );
     } else {
@@ -104,7 +102,7 @@ async function main() {
     }
 
     console.log("\n== dropping a slot back on itself is a no-op ==");
-    const noop = await tryMove(slot.id, "SATURDAY", 1140, 1200);
+    const noop = await tryMove(slot.id, "FRIDAY", 1140, 1200);
     check("same cell returns ok without writing", "ok" in noop && noop.ok === true);
   } finally {
     await restore();

@@ -67,8 +67,8 @@
       "massarText": "Three campuses share the same tools, standards, and vision of learning.",
       "bilingualTitle": "Three languages, one learning journey",
       "bilingualText": "Arabic, French, and English are part of the school experience and remain accessible to families.",
-      "ramadanTitle": "Families stay connected",
-      "ramadanText": "Messages, calendars, homework, and important information are brought together in one easy-to-use space.",
+      "familiesTitle": "Families stay close",
+      "familiesText": "Messages, calendars, homework, and important information are brought together in one easy-to-use space.",
       "formula": "Observe · understand · progress"
     },
     "flow": {
@@ -181,8 +181,8 @@
     "newLesson": "New lesson",
     "editLesson": "Edit lesson",
     "level": "Level",
-    "stream": "Stream",
-    "allStreams": "All streams",
+    "stream": "Speciality",
+    "allStreams": "Core curriculum (all)",
     "subject": "Subject",
     "unitTitleFr": "Unit (French)",
     "unitTitleAr": "Unit (Arabic)",
@@ -322,16 +322,14 @@
     "secondaryColor": "Secondary color",
     "year": "School year",
     "currentYear": "Current year",
-    "semester1": "Semester 1",
-    "semester2": "Semester 2",
-    "ramadan": "Ramadan period",
     "rules": "Rules",
     "teachersCanTakeAttendance": "Teachers can take attendance",
     "allowTeacherParentMessaging": "Direct teacher ↔ parent messaging",
     "defaultControles": "Continuous assessments per semester",
     "absenceAlertThreshold": "Absence alert threshold",
     "from": "From",
-    "to": "to"
+    "to": "to",
+    "term": "Term {index}"
   },
   "director": {
     "common": {
@@ -355,14 +353,14 @@
       "newClass": "New class",
       "className": "Class name",
       "level": "Level",
-      "stream": "Stream",
+      "stream": "Speciality",
       "capacity": "Maximum capacity",
       "mainTeacher": "Homeroom teacher",
       "students": "Students",
-      "noStream": "No stream",
+      "noStream": "Core curriculum",
       "structure": "Levels and streams",
       "newLevel": "New level",
-      "newStream": "New stream",
+      "newStream": "New speciality",
       "cycle": "Cycle",
       "code": "Code",
       "order": "Order",
@@ -513,7 +511,6 @@
       "duplicateClassName": "A class already has this name this year.",
       "duplicateMassar": "This Massar code already exists.",
       "levelHasClasses": "This level contains classes. Delete them first.",
-      "streamHasClasses": "This stream contains classes. Delete them first.",
       "classHasStudents": "This class contains students. Transfer them first.",
       "subjectHasGrades": "This subject already has grades and cannot be deleted.",
       "noSchoolYear": "No active school year.",
@@ -526,7 +523,8 @@
       "conflict": "Scheduling conflict: see details below.",
       "notAssigned": "This teacher is not assigned to this subject for this class.",
       "nothingToCopy": "No lessons to copy into the regular timetable.",
-      "notAllowed": "You are not authorized to perform this action."
+      "notAllowed": "You are not authorized to perform this action.",
+      "specialityHasStudents": "Students have chosen this speciality. Remove it from their choices first."
     }
   },
   "timetable": {
@@ -543,12 +541,6 @@
       "SATURDAY": "Saturday",
       "SUNDAY": "Sunday"
     },
-    "variants": {
-      "NORMAL": "Regular",
-      "RAMADAN": "Ramadan"
-    },
-    "variantLabel": "Mode",
-    "ramadanActive": "Ramadan mode is active today.",
     "selectClass": "Class",
     "pickClassPrompt": "Choose a class to view its timetable.",
     "noClasses": "No classes for this year. Create one first.",
@@ -568,7 +560,6 @@
     "conflictTeacher": "The teacher is already teaching at this time.",
     "conflictRoom": "The room is already occupied at this time.",
     "copyFromNormal": "Copy from regular timetable",
-    "copyConfirm": "Replace this class's Ramadan timetable with a copy of the regular timetable?",
     "copyDone": "{copied} lessons copied, {skipped} skipped due to conflicts.",
     "print": "Print / PDF",
     "today": "Today",
@@ -685,8 +676,8 @@
     "subtitle": "Enter grades by class, subject, and semester.",
     "selectClass": "Class",
     "selectSubject": "Subject",
-    "selectSemester": "Semester",
-    "semesterN": "Semester {n}",
+    "selectSemester": "Term",
+    "semesterN": "Term {n}",
     "controle": "Assessment",
     "activite": "Activity",
     "kind": "Type",
@@ -742,7 +733,7 @@
       "invalid": "Invalid data.",
       "notAllowed": "You are not authorized to edit this gradebook.",
       "notFound": "Not found.",
-      "semesterLocked": "The semester is locked.",
+      "semesterLocked": "The term is locked.",
       "duplicateItem": "An assessment already has this type and number.",
       "badScore": "Grade exceeds the allowed range."
     },
@@ -1020,8 +1011,8 @@
     "gradeSummary": "Grade report",
     "feeLedger": "Payment statement",
     "attendanceStats": "Absence statistics",
-    "semester": "Semester",
-    "needsSemester": "Choose a semester",
+    "semester": "Term",
+    "needsSemester": "Choose a term",
     "noClass": "No classes.",
     "codeMassar": "Massar code",
     "name": "Name",

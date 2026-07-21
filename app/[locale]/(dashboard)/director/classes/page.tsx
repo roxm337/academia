@@ -4,7 +4,7 @@ import {
   Badge, Card, Table, TableWrap, Td, Th,
 } from "@/components/ui/field";
 import {
-  ClassForm, LevelForm, StreamForm,
+  ClassForm, LevelForm, SpecialityForm,
 } from "@/components/director/structure-forms";
 import { DeleteForm } from "@/components/director/delete-form";
 import { requireRole } from "@/lib/dal";
@@ -50,7 +50,7 @@ export default async function ClassesPage({
   }));
   const streamsByLevel: Record<string, { id: string; label: string }[]> = {};
   for (const l of levels) {
-    streamsByLevel[l.id] = l.streams.map((s) => ({
+    streamsByLevel[l.id] = l.specialities.map((s) => ({
       id: s.id,
       label: `${l.code} · ${localized(s, locale)}`,
     }));
@@ -63,11 +63,10 @@ export default async function ClassesPage({
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <ClassForm
           levels={levelOptions}
-          streamsByLevel={streamsByLevel}
           teachers={teacherOptions}
         />
         <LevelForm cycles={cycleOptions} />
-        <StreamForm levels={levelOptions} />
+        <SpecialityForm levels={levelOptions} />
       </div>
 
       {classes.length === 0 ? (
@@ -81,7 +80,6 @@ export default async function ClassesPage({
               <tr>
                 <Th>{t("className")}</Th>
                 <Th>{t("level")}</Th>
-                <Th>{t("stream")}</Th>
                 <Th>{t("mainTeacher")}</Th>
                 <Th>{t("students")}</Th>
                 <Th className="text-end">{tc("actions")}</Th>
@@ -92,13 +90,6 @@ export default async function ClassesPage({
                 <tr key={k.id}>
                   <Td className="font-medium">{k.name}</Td>
                   <Td>{localized(k.level, locale)}</Td>
-                  <Td>
-                    {k.stream ? (
-                      localized(k.stream, locale)
-                    ) : (
-                      <span className="text-[var(--muted)]">{t("noStream")}</span>
-                    )}
-                  </Td>
                   <Td>
                     {k.mainTeacher ? (
                       locale === "ar"
@@ -124,13 +115,11 @@ export default async function ClassesPage({
                     <div className="flex items-center justify-end gap-1">
                       <ClassForm
                         levels={levelOptions}
-                        streamsByLevel={streamsByLevel}
                         teachers={teacherOptions}
                         klass={{
                           id: k.id,
                           name: k.name,
                           levelId: k.levelId,
-                          streamId: k.streamId,
                           capacity: k.capacity,
                           mainTeacherId: k.mainTeacherId,
                         }}
@@ -168,10 +157,10 @@ export default async function ClassesPage({
                 </Td>
                 <Td>
                   <div className="flex flex-wrap gap-1">
-                    {l.streams.length === 0 ? (
+                    {l.specialities.length === 0 ? (
                       <span className="text-[var(--muted)]">{tc("none")}</span>
                     ) : (
-                      l.streams.map((s) => (
+                      l.specialities.map((s) => (
                         <Badge key={s.id}>{localized(s, locale)}</Badge>
                       ))
                     )}

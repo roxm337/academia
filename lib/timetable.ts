@@ -19,11 +19,10 @@ export type Weekday =
   | "SATURDAY"
   | "SUNDAY";
 
-export type TimetableVariant = "NORMAL" | "RAMADAN";
-
 /**
- * The Moroccan school week runs Monday–Saturday (Saturday is usually a half
- * day). Sunday is off, so it is not a column in the grid.
+ * The French school week runs Monday–Friday. Wednesday is commonly a half day
+ * in élémentaire, which is a matter of how few slots get placed rather than a
+ * missing column, so it stays in the grid.
  */
 export const WEEKDAYS: Weekday[] = [
   "MONDAY",
@@ -31,7 +30,6 @@ export const WEEKDAYS: Weekday[] = [
   "WEDNESDAY",
   "THURSDAY",
   "FRIDAY",
-  "SATURDAY",
 ];
 
 export type Period = { startMin: number; endMin: number };
@@ -40,11 +38,8 @@ export type Period = { startMin: number; endMin: number };
  * Row template for the weekly grid. A slot is drawn in the row whose band
  * contains its start; conflict detection (below) guarantees at most one lesson
  * per class in any band, so a cell never has to stack two blocks.
- *
- * Ramadan runs a compressed morning-only day with shorter periods — the whole
- * reason the school keeps a second variant.
  */
-export const NORMAL_PERIODS: Period[] = [
+export const PERIODS: Period[] = [
   { startMin: 8 * 60, endMin: 9 * 60 }, // 08:00–09:00
   { startMin: 9 * 60, endMin: 10 * 60 },
   { startMin: 10 * 60, endMin: 11 * 60 },
@@ -56,18 +51,6 @@ export const NORMAL_PERIODS: Period[] = [
   { startMin: 17 * 60, endMin: 18 * 60 },
 ];
 
-export const RAMADAN_PERIODS: Period[] = [
-  { startMin: 9 * 60, endMin: 9 * 60 + 45 }, // 09:00–09:45
-  { startMin: 9 * 60 + 45, endMin: 10 * 60 + 30 },
-  { startMin: 10 * 60 + 30, endMin: 11 * 60 + 15 },
-  { startMin: 11 * 60 + 15, endMin: 12 * 60 },
-  { startMin: 12 * 60, endMin: 12 * 60 + 45 },
-  { startMin: 12 * 60 + 45, endMin: 13 * 60 + 30 },
-];
-
-export function periodsFor(variant: TimetableVariant): Period[] {
-  return variant === "RAMADAN" ? RAMADAN_PERIODS : NORMAL_PERIODS;
-}
 
 /** "08:00" <- 480. Always zero-padded, 24-hour. */
 export function minToLabel(min: number): string {
@@ -112,7 +95,6 @@ export function periodIndexFor(
 export type SlotShape = {
   id?: string;
   weekday: Weekday;
-  variant: TimetableVariant;
   startMin: number;
   endMin: number;
   classId: string;
@@ -131,9 +113,7 @@ export type Conflict = {
 /**
  * Everything wrong with placing `candidate`, checked against `existing`.
  *
- * A clash needs the same weekday AND the same variant AND overlapping times —
- * the NORMAL and RAMADAN timetables are independent, so a teacher booked at
- * 09:00 NORMAL is free at 09:00 RAMADAN. On top of that, one of:
+ * A clash needs the same weekday AND overlapping times, plus one of:
  *   - class:   this class is already in a lesson then (can't be in two rooms)
  *   - teacher: this teacher is already teaching then
  *   - room:    this room is already occupied then
@@ -150,7 +130,6 @@ export function detectConflicts(
   for (const other of existing) {
     if (candidate.id && other.id === candidate.id) continue;
     if (other.weekday !== candidate.weekday) continue;
-    if (other.variant !== candidate.variant) continue;
     if (
       !rangesOverlap(
         candidate.startMin,
@@ -178,28 +157,4 @@ export function detectConflicts(
   }
 
   return conflicts;
-}
-
-// ---------------------------------------------------------------- variant
-
-/**
- * Which timetable is in force on a given day. RAMADAN wins when the date falls
- * inside the school year's Ramadan window (inclusive); otherwise NORMAL. Dates
- * are compared by calendar day, so the window's end date is itself a Ramadan
- * day.
- */
-export function variantForDate(
-  date: Date,
-  ramadanStart: Date | null | undefined,
-  ramadanEnd: Date | null | undefined,
-): TimetableVariant {
-  if (!ramadanStart || !ramadanEnd) return "NORMAL";
-  const day = atMidnight(date);
-  const from = atMidnight(ramadanStart);
-  const to = atMidnight(ramadanEnd);
-  return day >= from && day <= to ? "RAMADAN" : "NORMAL";
-}
-
-function atMidnight(d: Date): number {
-  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }

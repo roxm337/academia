@@ -72,7 +72,7 @@ export const getStudent = cache(async (id: string) =>
       user: true,
       enrollments: {
         orderBy: { enrolledAt: "desc" },
-        include: { class: { include: { level: true, stream: true } } },
+        include: { class: { include: { level: true } } },
       },
       guardians: { include: { guardian: { include: { user: true } } } },
       documents: { include: { file: true }, orderBy: { createdAt: "desc" } },

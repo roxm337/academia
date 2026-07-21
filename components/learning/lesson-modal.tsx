@@ -18,8 +18,8 @@ import { DOC_ACCEPT } from "@/lib/upload-accept";
 export type CurriculumOption = {
   levelId: string;
   levelLabel: string;
-  streamId: string | null;
-  streamLabel: string | null;
+  specialityId: string | null;
+  specialityLabel: string | null;
   subjectId: string;
   subjectLabel: string;
 };
@@ -40,7 +40,7 @@ export function LessonCreateModal({
 }: {
   options: CurriculumOption[];
   /** Present when adding to an existing unit — its coordinates are fixed. */
-  unit?: { id: string; levelId: string; streamId: string | null; subjectId: string; titleAr: string; titleFr: string };
+  unit?: { id: string; levelId: string; specialityId: string | null; subjectId: string; titleAr: string; titleFr: string };
 }) {
   const t = useTranslations("lessons");
   const te = useTranslations("lessons.errors");
@@ -48,14 +48,14 @@ export function LessonCreateModal({
 
   const levels = dedupe(options.map((o) => [o.levelId, o.levelLabel] as const));
   const streams = dedupe(
-    options.filter((o) => o.streamId).map((o) => [o.streamId!, o.streamLabel!] as const),
+    options.filter((o) => o.specialityId).map((o) => [o.specialityId!, o.specialityLabel!] as const),
   );
   const subjects = dedupe(options.map((o) => [o.subjectId, o.subjectLabel] as const));
   // "All streams" means a unit with no stream, which the server only accepts
   // from a teacher who actually teaches a stream-less class (collège has no
   // streams). Offering it to a lycée-only teacher would just earn them a
   // refusal after they filled the whole form in.
-  const canTargetAllStreams = options.some((o) => o.streamId === null);
+  const canTargetAllStreams = options.some((o) => o.specialityId === null);
 
   return (
     <Modal
@@ -80,7 +80,7 @@ export function LessonCreateModal({
             <>
               <input type="hidden" name="unitId" value={unit.id} />
               <input type="hidden" name="levelId" value={unit.levelId} />
-              <input type="hidden" name="streamId" value={unit.streamId ?? ""} />
+              <input type="hidden" name="specialityId" value={unit.specialityId ?? ""} />
               <input type="hidden" name="subjectId" value={unit.subjectId} />
               <input type="hidden" name="unitTitleAr" value={unit.titleAr} />
               <input type="hidden" name="unitTitleFr" value={unit.titleFr} />
@@ -99,8 +99,8 @@ export function LessonCreateModal({
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="streamId">{t("stream")}</Label>
-                  <Select id="streamId" name="streamId" required={!canTargetAllStreams}>
+                  <Label htmlFor="specialityId">{t("stream")}</Label>
+                  <Select id="specialityId" name="specialityId" required={!canTargetAllStreams}>
                     {canTargetAllStreams ? (
                       <option value="">{t("allStreams")}</option>
                     ) : null}

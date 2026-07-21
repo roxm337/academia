@@ -17,7 +17,7 @@ export const listCycles = cache(async () =>
     include: {
       levels: {
         orderBy: { order: "asc" },
-        include: { streams: { orderBy: { code: "asc" } } },
+        include: { specialities: { orderBy: { code: "asc" } } },
       },
     },
   }),
@@ -26,7 +26,7 @@ export const listCycles = cache(async () =>
 export const listLevels = cache(async () =>
   prisma.level.findMany({
     orderBy: { order: "asc" },
-    include: { cycle: true, streams: { orderBy: { code: "asc" } } },
+    include: { cycle: true, specialities: { orderBy: { code: "asc" } } },
   }),
 );
 
@@ -48,18 +48,17 @@ export const listClasses = cache(async () => {
     orderBy: [{ level: { order: "asc" } }, { name: "asc" }],
     include: {
       level: { include: { cycle: true } },
-      stream: true,
       mainTeacher: { include: { user: true } },
       _count: { select: { enrollments: { where: { isActive: true } } } },
     },
   });
 });
 
-/** Coefficients for one level (optionally narrowed to a stream). */
+/** Coefficients for one level (optionally narrowed to a spécialité). */
 export const coefficientsFor = cache(
-  async (levelId: string, streamId: string | null) =>
+  async (levelId: string, specialityId: string | null) =>
     prisma.levelSubject.findMany({
-      where: { levelId, streamId },
+      where: { levelId, specialityId },
       include: { subject: true },
       orderBy: { subject: { code: "asc" } },
     }),
@@ -68,7 +67,7 @@ export const coefficientsFor = cache(
 /** Every coefficient row, for the matrix view. */
 export const listCoefficients = cache(async () =>
   prisma.levelSubject.findMany({
-    include: { subject: true, level: true, stream: true },
+    include: { subject: true, level: true, speciality: true },
     orderBy: [{ level: { order: "asc" } }, { subject: { code: "asc" } }],
   }),
 );

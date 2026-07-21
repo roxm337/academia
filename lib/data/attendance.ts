@@ -3,7 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { currentYear } from "@/lib/data/structure";
-import { variantForDate, type TimetableVariant, type Weekday } from "@/lib/timetable";
+import { type Weekday } from "@/lib/timetable";
 import { weekdayOf, isHoliday, dayNumber } from "@/lib/attendance";
 
 /** Normalize any Date to that calendar day at UTC midnight (how sessions store `date`). */
@@ -22,11 +22,10 @@ export function parseDay(s: string | undefined | null): Date | null {
 
 export type DayContext = {
   weekday: Weekday;
-  variant: TimetableVariant;
   holiday: { nameAr: string; nameFr: string } | null;
 };
 
-/** What kind of day this is: weekday, which timetable variant, whether a holiday. */
+/** What kind of day this is: weekday, and whether it is a holiday. */
 export const dayContext = cache(async (date: Date): Promise<DayContext> => {
   const year = await currentYear();
   const holidays = year
@@ -40,9 +39,6 @@ export const dayContext = cache(async (date: Date): Promise<DayContext> => {
   );
   return {
     weekday: weekdayOf(date),
-    variant: year
-      ? variantForDate(date, year.ramadanStart, year.ramadanEnd)
-      : "NORMAL",
     holiday: hit ? { nameAr: hit.nameAr, nameFr: hit.nameFr } : null,
   };
 });
@@ -65,7 +61,7 @@ export const classDaySlots = cache(async (classId: string, date: Date) => {
   if (!year) return { ctx, lessons: [] as DayLesson[] };
 
   const slots = await prisma.timetableSlot.findMany({
-    where: { classId, variant: ctx.variant, weekday: ctx.weekday, schoolYearId: year.id },
+    where: { classId, weekday: ctx.weekday, schoolYearId: year.id },
     include: slotInclude,
     orderBy: { startMin: "asc" },
   });
@@ -93,7 +89,7 @@ export const teacherDaySlots = cache(async (teacherId: string, date: Date) => {
   if (!year) return { ctx, lessons: [] as DayLesson[] };
 
   const slots = await prisma.timetableSlot.findMany({
-    where: { teacherId, variant: ctx.variant, weekday: ctx.weekday, schoolYearId: year.id },
+    where: { teacherId, weekday: ctx.weekday, schoolYearId: year.id },
     include: { ...slotInclude, class: true },
     orderBy: { startMin: "asc" },
   });

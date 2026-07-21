@@ -109,7 +109,7 @@ async function main() {
   }
 
   const director = await prisma.user.findFirst({ where: { role: "DIRECTOR" } });
-  const klass = await prisma.class.findFirst({ where: { name: "3AC - B" } });
+  const klass = await prisma.class.findFirst({ where: { name: "3e B" } });
   if (!director || !klass) throw new Error("seed the database first");
 
   const before = await prisma.studentProfile.count();

@@ -23,11 +23,11 @@ function check(name: string, ok: boolean, detail = "") {
 }
 
 /** Existing NORMAL/RAMADAN slots for the year, in the shape the engine wants. */
-async function existingSlots(schoolYearId: string, variant: "NORMAL" | "RAMADAN") {
+async function existingSlots(schoolYearId: string) {
   return prisma.timetableSlot.findMany({
-    where: { schoolYearId, variant },
+    where: { schoolYearId },
     select: {
-      id: true, weekday: true, variant: true, startMin: true, endMin: true,
+      id: true, weekday: true, startMin: true, endMin: true,
       classId: true, teacherId: true, roomId: true,
     },
   }) as Promise<SlotShape[]>;
@@ -71,27 +71,26 @@ async function main() {
   const createdIds: string[] = [];
   // Saturday 16:00–17:00 — a band the seed timetable leaves empty, so these
   // checks measure the engine, not a collision with seed data.
-  const SLOT = { weekday: "SATURDAY" as const, startMin: 16 * 60, endMin: 17 * 60 };
+  const SLOT = { weekday: "FRIDAY" as const, startMin: 16 * 60, endMin: 17 * 60 };
 
   try {
     // --- Anchor lesson: class C1, teacher T1, room R1, Saturday 16:00–17:00.
     const anchor = await prisma.timetableSlot.create({
       data: {
         schoolYearId: year.id,
-        classId: C1.id, subjectId: S1.id, teacherId: T1.id, roomId: R1.id,
-        variant: "NORMAL", ...SLOT,
+        classId: C1.id, subjectId: S1.id, teacherId: T1.id, roomId: R1.id, ...SLOT,
       },
     });
     createdIds.push(anchor.id);
     console.log(`· anchor placed: ${C1.name}, Saturday 16:00–17:00\n`);
 
     const base = (over: Partial<SlotShape>): SlotShape => ({
-      weekday: "SATURDAY", variant: "NORMAL", startMin: 16 * 60, endMin: 17 * 60,
+      weekday: "FRIDAY", startMin: 16 * 60, endMin: 17 * 60,
       classId: C2.id, teacherId: T2.id, roomId: R2.id, ...over,
     });
 
     // --- Teacher double-book: same teacher, other class/room, same slot.
-    let existing = await existingSlots(year.id, "NORMAL");
+    let existing = await existingSlots(year.id);
     let c = detectConflicts(base({ teacherId: T1.id }), existing).map((x) => x.kind);
     check("teacher double-booked is blocked", c.includes("teacher"), `got [${c}]`);
 
@@ -110,26 +109,24 @@ async function main() {
     ).map((x) => x.kind);
     check("adjacent 17:00–18:00 for same teacher is allowed", c.length === 0, `got [${c}]`);
 
-    // --- Same slot but RAMADAN variant: independent, allowed.
-    const ramExisting = await existingSlots(year.id, "RAMADAN");
+    // --- A different weekday is never a clash, whatever else matches.
     c = detectConflicts(
-      base({ teacherId: T1.id, roomId: R1.id, classId: C1.id, variant: "RAMADAN" }),
-      ramExisting,
+      base({ teacherId: T1.id, roomId: R1.id, classId: C1.id, weekday: "THURSDAY" }),
+      await existingSlots(year.id),
     ).map((x) => x.kind);
-    check("same time in RAMADAN variant is allowed", c.length === 0, `got [${c}]`);
+    check("the same hour on another day is free", c.length === 0, `got [${c}]`);
 
     // --- A genuinely free lesson persists and reads back.
     const freeCandidate = base({
       teacherId: T1.id, roomId: R2.id, startMin: 17 * 60, endMin: 18 * 60,
     });
-    existing = await existingSlots(year.id, "NORMAL");
+    existing = await existingSlots(year.id);
     if (detectConflicts(freeCandidate, existing).length === 0) {
       const placed = await prisma.timetableSlot.create({
         data: {
           schoolYearId: year.id,
           classId: freeCandidate.classId, subjectId: S1.id,
           teacherId: freeCandidate.teacherId, roomId: freeCandidate.roomId,
-          variant: "NORMAL",
           weekday: freeCandidate.weekday,
           startMin: freeCandidate.startMin, endMin: freeCandidate.endMin,
         },
@@ -137,7 +134,7 @@ async function main() {
       createdIds.push(placed.id);
     }
     const c1Slots = await prisma.timetableSlot.findMany({
-      where: { classId: C1.id, variant: "NORMAL", schoolYearId: year.id },
+      where: { classId: C1.id, schoolYearId: year.id },
     });
     check("anchor lesson reads back from the class grid", c1Slots.some((s) => s.id === anchor.id));
 
@@ -147,13 +144,12 @@ async function main() {
       FRIDAY: "Vendredi", SATURDAY: "Samedi", SUNDAY: "Dimanche",
     };
     const withNames = await prisma.timetableSlot.findMany({
-      where: { classId: C1.id, variant: "NORMAL", schoolYearId: year.id },
+      where: { classId: C1.id, schoolYearId: year.id },
       include: { subject: true, teacher: { include: { user: true } }, room: true },
     });
     const pdf = await renderTimetablePdf({
       title: `Classe : ${C1.name}`,
       subtitle: `Année ${year.label} · Normal`,
-      variant: "NORMAL",
       locale: "fr",
       timeLabel: "Heure",
       weekdayLabels,
@@ -171,7 +167,7 @@ async function main() {
 
     // --- Arabic PDF (RTL + Amiri) renders too.
     const pdfAr = await renderTimetablePdf({
-      title: "القسم", subtitle: "رمضان", variant: "RAMADAN", locale: "ar",
+      title: "القسم", subtitle: "رمضان", locale: "ar",
       timeLabel: "التوقيت",
       weekdayLabels: {
         MONDAY: "الاثنين", TUESDAY: "الثلاثاء", WEDNESDAY: "الأربعاء", THURSDAY: "الخميس",

@@ -6,7 +6,6 @@ import { TimetableGrid } from "@/components/timetable-grid";
 import { TimetablePicker } from "@/components/director/timetable-picker";
 import {
   AddSlotButton,
-  CopyRamadanForm,
   SlotForm,
 } from "@/components/director/timetable-forms";
 import { DeleteForm } from "@/components/director/delete-form";
@@ -22,12 +21,10 @@ import {
   getClassSlots,
   listClassesLite,
 } from "@/lib/data/timetable";
-import { currentYear, listRooms } from "@/lib/data/structure";
+import {  listRooms } from "@/lib/data/structure";
 import { localized } from "@/lib/school";
 import {
   minToLabel,
-  variantForDate,
-  type TimetableVariant,
 } from "@/lib/timetable";
 
 export default async function TimetablePage({
@@ -36,10 +33,10 @@ export default async function TimetablePage({
 }: PageProps<"/[locale]/director/timetable">) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const sp = await searchParams;
   await requireRole("DIRECTOR");
 
   const t = await getTranslations("timetable");
-  const sp = await searchParams;
 
   const classes = await listClassesLite();
   if (classes.length === 0) {
@@ -55,13 +52,11 @@ export default async function TimetablePage({
     (typeof sp.class === "string" && classes.some((c) => c.id === sp.class)
       ? sp.class
       : null) ?? classes[0].id;
-  const variant: TimetableVariant = sp.variant === "RAMADAN" ? "RAMADAN" : "NORMAL";
 
-  const [pairsRaw, rooms, slots, year] = await Promise.all([
+  const [pairsRaw, rooms, slots] = await Promise.all([
     classTeachingOptions(classId),
     listRooms(),
-    getClassSlots(classId, variant),
-    currentYear(),
+    getClassSlots(classId),
   ]);
 
   const teacherName = (u: {
@@ -79,21 +74,16 @@ export default async function TimetablePage({
 
   const roomOptions = rooms.map((r) => ({ id: r.id, name: r.name }));
 
-  // Whether the Ramadan grid is what students would actually see today.
-  const ramadanToday =
-    year &&
-    variantForDate(new Date(), year.ramadanStart, year.ramadanEnd) === "RAMADAN";
 
-  const pdfHref = `/api/timetable/pdf?class=${classId}&variant=${variant}&locale=${locale}`;
+  const pdfHref = `/api/timetable/pdf?class=${classId}&locale=${locale}`;
 
   return (
     <>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
-      <TimetablePicker classes={classes} classId={classId} variant={variant} />
+      <TimetablePicker classes={classes} classId={classId} />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        {variant === "RAMADAN" ? <CopyRamadanForm classId={classId} /> : null}
         <a
           href={pdfHref}
           target="_blank"
@@ -103,10 +93,7 @@ export default async function TimetablePage({
           <Printer className="size-4" />
           {t("print")}
         </a>
-        {ramadanToday && variant === "NORMAL" ? (
-          <span className="text-xs text-amber-700">{t("ramadanActive")}</span>
-        ) : null}
-      </div>
+              </div>
 
       {pairs.length === 0 ? (
         <Card className="mb-4 text-sm text-amber-800">{t("noAssignments")}</Card>
@@ -116,13 +103,11 @@ export default async function TimetablePage({
 
       <TimetableDndProvider>
       <TimetableGrid
-        variant={variant}
         slots={slots}
         renderEmpty={(weekday, period) => (
           <DropCell weekday={weekday} startMin={period.startMin} endMin={period.endMin}>
           <AddSlotButton
             classId={classId}
-            variant={variant}
             pairs={pairs}
             rooms={roomOptions}
             weekday={weekday}
@@ -136,7 +121,6 @@ export default async function TimetablePage({
           <div className="group relative">
             <SlotForm
               classId={classId}
-              variant={variant}
               pairs={pairs}
               rooms={roomOptions}
               slot={{
