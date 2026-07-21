@@ -22,7 +22,6 @@ export const NAV: Record<Role, NavItem[]> = {
     { key: "gradebook", href: "/director/grades", icon: "ClipboardList" },
     { key: "bulletins", href: "/director/bulletins", icon: "FileText" },
     { key: "council", href: "/director/council", icon: "Gavel" },
-    { key: "attendance", href: "/director/attendance", icon: "UserCheck" },
     { key: "fees", href: "/director/fees", icon: "Wallet" },
     { key: "announcements", href: "/director/announcements", icon: "Megaphone" },
     { key: "messages", href: "/director/messages", icon: "MessageSquare" },

@@ -13,10 +13,11 @@ export default async function Page({ params }: PageProps<"/[locale]/director">) 
   const [settings, kpis] = await Promise.all([getSchoolSettings(), directorKpis()]);
   return (
     <>
-      <PageHeader title={t("director")} subtitle={t("welcome", { name: locale === "ar" ? user.nameAr : user.name })} />
-      {settings?.currentSchoolYear ? (
-        <p className="mb-4 text-sm text-[var(--muted)]">{t("schoolYear", { year: settings.currentSchoolYear.label })}</p>
-      ) : null}
+      <PageHeader
+        title={t("director")}
+        subtitle={t("welcome", { name: locale === "ar" ? user.nameAr : user.name })}
+        eyebrow={settings?.currentSchoolYear ? t("schoolYear", { year: settings.currentSchoolYear.label }) : undefined}
+      />
       <RoleDashboard role="director" kpis={kpis} />
     </>
   );

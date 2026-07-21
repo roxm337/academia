@@ -47,7 +47,7 @@ export function StudentDashboard({ data }: { data: StudentDashboardData }) {
         <p className="eyebrow text-white/60">
           {s("schoolYear", { year: data.schoolYear })}
         </p>
-        <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h2 className="mt-2 text-2xl font-semibold sm:text-3xl">
           {t("welcome", { name: data.studentName })}
         </h2>
         {/* The two facts that identify this record. */}

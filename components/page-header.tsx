@@ -20,18 +20,18 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <header className="mb-6 border-b border-[var(--rule-strong)] pb-4">
+    <header className="mb-6 border-b border-[var(--rule-strong)] pb-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
           {eyebrow ? <p className="eyebrow mb-1.5">{eyebrow}</p> : null}
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--ink)]">
+          <h1 className="text-2xl font-semibold text-[var(--ink)] sm:text-[1.7rem]">
             {title}
           </h1>
           {subtitle ? (
             <p className="mt-1 max-w-2xl text-sm text-[var(--muted)]">{subtitle}</p>
           ) : null}
         </div>
-        {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+        {actions ? <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">{actions}</div> : null}
       </div>
     </header>
   );
@@ -49,9 +49,13 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[10px] border border-dashed border-[var(--rule-strong)] bg-[var(--surface)] px-6 py-12 text-center">
-      <p className="text-sm text-[var(--muted)]">{message}</p>
+    <div className="rounded-lg border border-dashed border-[var(--rule-strong)] bg-[var(--surface)] px-6 py-14 text-center shadow-[0_1px_2px_rgba(23,44,70,0.03)]">
+      <span className="mx-auto grid size-11 place-items-center rounded-lg bg-[var(--surface-sunken)] text-[var(--muted)]">
+        <Inbox className="size-5" aria-hidden="true" />
+      </span>
+      <p className="mx-auto mt-4 max-w-md text-sm text-[var(--muted)]">{message}</p>
       {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
     </div>
   );
 }
+import { Inbox } from "lucide-react";

@@ -122,7 +122,11 @@
     "required": "This field is required",
     "comingSoon": "Coming soon",
     "emptyState": "No data yet",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "openNavigation": "Open navigation",
+    "closeNavigation": "Close navigation",
+    "navigation": "Main navigation",
+    "results": "{count, plural, =0 {No results} =1 {One result} other {# results}}"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -230,6 +234,7 @@
     "schoolYear": "School year {year}",
     "noDataYet": "Indicators will appear here as the next modules become available.",
     "kpis": {
+      "overview": "Key indicators",
       "students": "Active students",
       "classes": "Classes",
       "teachers": "Teachers",
@@ -1054,7 +1059,21 @@
   },
   "notifications": {
     "title": "Notifications",
+    "subtitle": "Updates and actions that need your attention.",
     "none": "No notifications.",
     "unread": "Unread"
+  },
+  "childrenPage": {
+    "title": "My children",
+    "subtitle": "A clear overview of each child's school journey.",
+    "class": "Current class",
+    "massar": "Massar code",
+    "noClass": "No active class",
+    "none": "No children are linked to this account.",
+    "timetable": "Timetable",
+    "grades": "Grades",
+    "homework": "Homework",
+    "attendance": "Attendance",
+    "fees": "Tuition fees"
   }
 }

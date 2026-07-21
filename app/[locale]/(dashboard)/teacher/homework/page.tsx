@@ -55,12 +55,8 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} actions={<HomeworkModal classId={classId} subjectId={subjectId} />} />
       <ClassSubjectPicker ns="homework" classes={classes} subjectsByClass={subjectsByClass} classId={classId} subjectId={subjectId} />
-
-      <div className="mb-4">
-        <HomeworkModal classId={classId} subjectId={subjectId} />
-      </div>
 
       {homework.length === 0 ? (
         <EmptyState message={t("none")} />

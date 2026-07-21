@@ -72,6 +72,19 @@ body {
   font-family: var(--font-latin), system-ui, sans-serif;
 }
 
+::selection {
+  background: var(--brand-soft);
+  color: var(--ink);
+}
+
+tbody tr {
+  transition: background-color 150ms ease;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 /* Arabic gets its own face; RTL flow is handled by dir="rtl" + logical
    utilities (ps-/pe-/ms-/me-/start-/end-), never by hardcoded left/right. */
 html[dir="rtl"] body {

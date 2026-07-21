@@ -122,7 +122,11 @@
     "required": "Ce champ est obligatoire",
     "comingSoon": "Bientôt disponible",
     "emptyState": "Aucune donnée pour le moment",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "openNavigation": "Ouvrir la navigation",
+    "closeNavigation": "Fermer la navigation",
+    "navigation": "Navigation principale",
+    "results": "{count, plural, =0 {Aucun résultat} =1 {Un résultat} other {# résultats}}"
   },
   "auth": {
     "loginTitle": "Connexion",
@@ -230,6 +234,7 @@
     "schoolYear": "Année scolaire {year}",
     "noDataYet": "Les indicateurs apparaîtront ici au fur et à mesure des prochains modules.",
     "kpis": {
+      "overview": "Indicateurs clés",
       "students": "Élèves actifs",
       "classes": "Classes",
       "teachers": "Enseignants",
@@ -1054,7 +1059,21 @@
   },
   "notifications": {
     "title": "Notifications",
+    "subtitle": "Les informations et actions qui demandent votre attention.",
     "none": "Aucune notification.",
     "unread": "Non lu"
+  },
+  "childrenPage": {
+    "title": "Mes enfants",
+    "subtitle": "Une vue claire du parcours scolaire de chaque enfant.",
+    "class": "Classe actuelle",
+    "massar": "Code Massar",
+    "noClass": "Aucune classe active",
+    "none": "Aucun enfant n'est rattaché à ce compte.",
+    "timetable": "Emploi du temps",
+    "grades": "Notes",
+    "homework": "Devoirs",
+    "attendance": "Présences",
+    "fees": "Frais de scolarité"
   }
 }

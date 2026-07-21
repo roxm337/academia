@@ -4,9 +4,9 @@ export function Input({ className, ...props }: React.ComponentProps<"input">) {
   return (
     <input
       className={cn(
-        "h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm",
+        "h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm shadow-[0_1px_1px_rgba(23,44,70,0.02)] transition-[border-color,box-shadow]",
         "placeholder:text-[var(--muted)]",
-        "focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-[var(--brand)]",
+        "focus-visible:border-[var(--brand)] focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-[var(--brand)]",
         className,
       )}
       {...props}
@@ -27,7 +27,7 @@ export function Select({ className, ...props }: React.ComponentProps<"select">) 
   return (
     <select
       className={cn(
-        "h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm",
+        "h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm shadow-[0_1px_1px_rgba(23,44,70,0.02)] transition-[border-color,box-shadow]",
         "focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-[var(--brand)]",
         className,
       )}
@@ -43,7 +43,7 @@ export function Textarea({
   return (
     <textarea
       className={cn(
-        "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm",
+        "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm shadow-[0_1px_1px_rgba(23,44,70,0.02)] transition-[border-color,box-shadow]",
         "focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-[var(--brand)]",
         className,
       )}
@@ -56,7 +56,7 @@ export function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "rounded-[10px] border border-[var(--line)] bg-[var(--surface)] p-5",
+        "rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_1px_2px_rgba(23,44,70,0.035)]",
         className,
       )}
       {...props}
@@ -82,7 +82,7 @@ export function TableWrap({ className, ...props }: React.ComponentProps<"div">) 
   return (
     <div
       className={cn(
-        "overflow-x-auto rounded-[10px] border border-[var(--line)] bg-[var(--surface)]",
+        "overflow-x-auto rounded-lg border border-[var(--line)] bg-[var(--surface)] shadow-[0_1px_2px_rgba(23,44,70,0.035)]",
         className,
       )}
       {...props}
