@@ -297,6 +297,7 @@ function PublishAndAttachment({ isPublished }: { isPublished?: boolean }) {
           multiple
           className="block w-full text-sm"
         />
+        <p className="mt-1.5 text-xs text-[var(--muted)]">{t("attachmentHint")}</p>
       </div>
     </div>
   );

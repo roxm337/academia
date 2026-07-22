@@ -2,6 +2,32 @@ import "server-only";
 
 import { prisma } from "@/lib/prisma";
 import { storeUpload, DOC_TYPES, type UploadError } from "@/lib/storage";
+import { DOCX_MIME } from "@/lib/upload-accept";
+
+/**
+ * Convert a Word file to HTML so students can read it in the page.
+ *
+ * Done once, at upload, because conversion is the slow part and a lesson is
+ * read far more often than it is edited. `mammoth` is imported lazily: it is a
+ * few hundred kilobytes of parser that most uploads (a PDF, a photo) never
+ * need, and a static import would pull it into every route that touches this
+ * module.
+ *
+ * Never throws. A document the converter chokes on still gets stored and still
+ * downloads — losing the teacher's file because we could not render a preview
+ * of it would be a much worse outcome than not having the preview.
+ */
+async function convertDocx(file: File): Promise<string | null> {
+  try {
+    const mammoth = await import("mammoth");
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const result = await mammoth.convertToHtml({ buffer });
+    return result.value?.trim() ? result.value : null;
+  } catch (e) {
+    console.error("[lesson-attachments] docx conversion failed:", e);
+    return null;
+  }
+}
 
 /**
  * Attaching resources to a lesson.
@@ -40,6 +66,15 @@ export async function attachFiles(
     if (!up.ok) {
       firstError ??= { error: up.error };
       continue;
+    }
+    if (file.type === DOCX_MIME) {
+      const readerHtml = await convertDocx(file);
+      if (readerHtml) {
+        await prisma.storedFile.update({
+          where: { id: up.fileId },
+          data: { readerHtml },
+        });
+      }
     }
     await prisma.lessonAttachment.create({ data: { lessonId, fileId: up.fileId } });
   }

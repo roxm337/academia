@@ -196,6 +196,7 @@
     "contentAr": "Contenu (arabe)",
     "publish": "Publier aux élèves",
     "attachment": "Ressources jointes",
+    "attachmentHint": "PDF, Word (.docx) ou image — 5 Mo maximum. Les élèves les lisent directement dans la page.",
     "published": "Publié",
     "draft": "Brouillon",
     "views": "consultations",
@@ -217,12 +218,21 @@
       "tooLarge": "Fichier trop volumineux (5 Mo max).",
       "badType": "Type de fichier non autorisé.",
       "empty": "Fichier vide.",
-      "busy": "Enregistrement impossible, réessayez."
+      "busy": "Enregistrement impossible, réessayez.",
+      "legacyDoc": "Format Word ancien (.doc). Enregistrez le fichier au format .docx puis réessayez."
     },
     "newLessonInUnit": "Ajouter une leçon",
     "editUnit": "Modifier l’unité",
     "completions": "terminées",
-    "markIncomplete": "Marquer comme non terminé"
+    "markIncomplete": "Marquer comme non terminé",
+    "read": "Lire",
+    "closeReader": "Fermer",
+    "download": "Télécharger",
+    "readerLoading": "Ouverture du document…",
+    "readerFailed": "Ce document ne peut pas s'afficher ici.",
+    "prevPage": "Précédente",
+    "nextPage": "Suivante",
+    "pageOf": "Page {page} / {pages}"
   },
   "dashboard": {
     "welcome": "Bonjour, {name}",
@@ -529,7 +539,8 @@
       "notAssigned": "Cet enseignant n'est pas affecté à cette matière pour cette classe.",
       "nothingToCopy": "Aucun cours à copier dans l'emploi du temps normal.",
       "notAllowed": "Vous n'êtes pas autorisé à effectuer cette action.",
-      "specialityHasStudents": "Des élèves ont choisi cette spécialité. Retirez-la de leurs choix d'abord."
+      "specialityHasStudents": "Des élèves ont choisi cette spécialité. Retirez-la de leurs choix d'abord.",
+      "legacyDoc": "Format Word ancien (.doc). Enregistrez le fichier au format .docx puis réessayez."
     }
   },
   "timetable": {

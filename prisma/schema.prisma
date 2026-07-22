@@ -1108,6 +1108,15 @@ model StoredFile {
   uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now())
 
+  /// Word documents converted to HTML at upload, so students can read them in
+  /// the page instead of downloading a file no phone can open.
+  ///
+  /// Deliberately stored RAW, exactly as the converter produced it. It is
+  /// sanitised on the way OUT, on every render — treating stored markup as
+  /// trusted is how a stale sanitiser becomes a stored XSS, and sanitising on
+  /// output means fixing the rules also fixes every document already uploaded.
+  readerHtml String?
+
   attachments      Attachment[]
   studentDocuments StudentDocument[]
   lessonAttachments LessonAttachment[]

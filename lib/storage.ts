@@ -4,7 +4,7 @@ import { mkdir, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { DOC_MIME, IMAGE_MIME } from "@/lib/upload-accept";
+import { DOC_MIME, DOCX_MIME, IMAGE_MIME, LEGACY_DOC_MIME } from "@/lib/upload-accept";
 
 /**
  * File storage.
@@ -60,7 +60,7 @@ export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 export const IMAGE_TYPES: readonly string[] = IMAGE_MIME;
 export const DOC_TYPES: readonly string[] = DOC_MIME;
 
-export type UploadError = "tooLarge" | "badType" | "empty";
+export type UploadError = "tooLarge" | "badType" | "empty" | "legacyDoc";
 
 /**
  * Validates and stores an uploaded file, returning the StoredFile row.
@@ -75,6 +75,11 @@ export async function storeUpload(
   if (file.size > MAX_UPLOAD_BYTES) return { ok: false, error: "tooLarge" };
 
   const allowed = opts.allowed ?? DOC_TYPES;
+  if (file.type === LEGACY_DOC_MIME) {
+    // Distinguished from a plain bad type: the fix is one "Save As" away, and
+    // saying so beats "file type not allowed" on a file Word itself produced.
+    return { ok: false, error: "legacyDoc" };
+  }
   if (!allowed.includes(file.type)) return { ok: false, error: "badType" };
 
   const ext = extensionFor(file.type);
@@ -103,6 +108,8 @@ function extensionFor(mime: string): string {
       return ".jpg";
     case "image/png":
       return ".png";
+    case DOCX_MIME:
+      return ".docx";
     case "image/webp":
       return ".webp";
     case "application/pdf":

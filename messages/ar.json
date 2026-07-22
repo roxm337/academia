@@ -196,6 +196,7 @@
     "contentAr": "المحتوى (بالعربية)",
     "publish": "نشر للتلاميذ",
     "attachment": "الموارد المرفقة",
+    "attachmentHint": "PDF أو Word (.docx) أو صورة — 5 ميغابايت كحد أقصى. يقرأها التلاميذ داخل الصفحة مباشرة.",
     "published": "منشور",
     "draft": "مسودة",
     "views": "مشاهدة",
@@ -217,12 +218,21 @@
       "tooLarge": "الملف كبير جدا (5 ميغا كحد أقصى).",
       "badType": "نوع الملف غير مسموح.",
       "empty": "الملف فارغ.",
-      "busy": "تعذر الحفظ، حاول مرة أخرى."
+      "busy": "تعذر الحفظ، حاول مرة أخرى.",
+      "legacyDoc": "صيغة Word قديمة (.doc). احفظ الملف بصيغة .docx ثم أعد المحاولة."
     },
     "newLessonInUnit": "إضافة درس",
     "editUnit": "تعديل الوحدة",
     "completions": "إتمام",
-    "markIncomplete": "إلغاء الإتمام"
+    "markIncomplete": "إلغاء الإتمام",
+    "read": "قراءة",
+    "closeReader": "إغلاق",
+    "download": "تحميل",
+    "readerLoading": "جارٍ فتح المستند…",
+    "readerFailed": "تعذّر عرض هذا المستند هنا.",
+    "prevPage": "السابقة",
+    "nextPage": "التالية",
+    "pageOf": "صفحة {page} / {pages}"
   },
   "dashboard": {
     "welcome": "مرحبا، {name}",
@@ -529,7 +539,8 @@
       "notAssigned": "هذا الأستاذ غير مكلَّف بهذه المادة لهذا القسم.",
       "nothingToCopy": "لا توجد حصص لنسخها من الجدول العادي.",
       "notAllowed": "لا تملك صلاحية القيام بهذا الإجراء.",
-      "specialityHasStudents": "اختار تلاميذ هذا التخصص. أزله من اختياراتهم أولاً."
+      "specialityHasStudents": "اختار تلاميذ هذا التخصص. أزله من اختياراتهم أولاً.",
+      "legacyDoc": "صيغة Word قديمة (.doc). احفظ الملف بصيغة .docx ثم أعد المحاولة."
     }
   },
   "timetable": {

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/dal";
-import { IMAGE_TYPES, storeUpload } from "@/lib/storage";
+import { IMAGE_TYPES, storeUpload, type UploadError } from "@/lib/storage";
 
 const schema = z.object({
   nameAr: z.string().min(1),
@@ -25,7 +25,7 @@ export type SettingsState = {
   ok?: boolean;
   error?: string;
   /** Set when the settings saved but the new logo did not. */
-  logoError?: "tooLarge" | "badType" | "empty";
+  logoError?: UploadError;
 } | null;
 
 export async function updateSettings(
@@ -58,7 +58,7 @@ export async function updateSettings(
   // The logo is optional on every save — an empty file input must leave the
   // current one alone rather than blanking it.
   let logoPath: string | undefined;
-  let logoError: "tooLarge" | "badType" | "empty" | undefined;
+  let logoError: UploadError | undefined;
   const upload = formData.get("logo");
   if (upload instanceof File && upload.size > 0) {
     const stored = await storeUpload(upload, {

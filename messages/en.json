@@ -196,6 +196,7 @@
     "contentAr": "Content (Arabic)",
     "publish": "Publish to students",
     "attachment": "Attached resources",
+    "attachmentHint": "PDF, Word (.docx) or image — 5 MB maximum. Students read them right in the page.",
     "published": "Published",
     "draft": "Draft",
     "views": "views",
@@ -217,12 +218,21 @@
       "tooLarge": "File too large (5 MB max).",
       "badType": "File type not allowed.",
       "empty": "Empty file.",
-      "busy": "Unable to save. Please try again."
+      "busy": "Unable to save. Please try again.",
+      "legacyDoc": "Old Word format (.doc). Save the file as .docx and try again."
     },
     "newLessonInUnit": "Add lesson",
     "editUnit": "Edit unit",
     "completions": "completed",
-    "markIncomplete": "Mark as incomplete"
+    "markIncomplete": "Mark as incomplete",
+    "read": "Read",
+    "closeReader": "Close",
+    "download": "Download",
+    "readerLoading": "Opening the document…",
+    "readerFailed": "This document cannot be displayed here.",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "Page {page} of {pages}"
   },
   "dashboard": {
     "welcome": "Hello, {name}",
@@ -529,7 +539,8 @@
       "notAssigned": "This teacher is not assigned to this subject for this class.",
       "nothingToCopy": "No lessons to copy into the regular timetable.",
       "notAllowed": "You are not authorized to perform this action.",
-      "specialityHasStudents": "Students have chosen this speciality. Remove it from their choices first."
+      "specialityHasStudents": "Students have chosen this speciality. Remove it from their choices first.",
+      "legacyDoc": "Old Word format (.doc). Save the file as .docx and try again."
     }
   },
   "timetable": {
