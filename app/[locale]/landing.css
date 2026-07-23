@@ -57,16 +57,31 @@
 [dir="rtl"] .landing .eyebrow { letter-spacing: 0; text-transform: none; font-size: 0.86rem; }
 .landing .eyebrow::before { content: ""; width: 1.8rem; height: 2px; background: currentColor; opacity: 0.6; }
 .landing .figures { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
-.landing section { padding-block: clamp(4.75rem, 3rem + 7vw, 8.5rem); }
+.landing section { padding-block: clamp(4.5rem, 3.25rem + 4vw, 7rem); }
 .landing .band-dark { background: var(--ink); color: var(--mist); }
 .landing .band-chaux { background: var(--mist); }
 
 /* A stable glass header keeps navigation legible across every image crop. */
+/* A floating pill rather than a full-width bar: the hero behind it is light
+   now, so a translucent navy band would read as a mistake. */
 .landing .hero-nav {
-  background: rgba(19, 53, 98, 0.72);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 35px rgba(7, 27, 52, 0.12);
-  backdrop-filter: blur(16px) saturate(120%);
+  top: 1rem;
+}
+.landing .hero-nav > .shell {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(19, 53, 98, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 12px 34px -18px rgba(7, 27, 52, 0.35);
+  backdrop-filter: blur(16px) saturate(140%);
+  padding-inline: 1.25rem;
+  height: 4rem;
+}
+/* The logo is drawn for dark grounds, so it keeps its brand chip on the pill. */
+.landing .brand-chip {
+  display: inline-flex;
+  border-radius: 10px;
+  background: var(--ink);
+  padding: 0.4rem 0.6rem;
 }
 .landing .brand-lockup {
   display: inline-flex;
@@ -75,38 +90,160 @@
   min-height: 3rem;
   padding: 0;
 }
-.landing .hero-nav-links a { color: rgba(255, 255, 255, 0.78); }
-.landing .hero-nav-links a:hover { color: #fff; }
-.landing .locale-inactive { color: rgba(255, 255, 255, 0.66); }
-.landing .locale-separator { color: rgba(255, 255, 255, 0.3); }
+.landing .hero-nav-links a { color: var(--ink-soft); }
+.landing .hero-nav-links a:hover { color: var(--ink); }
+.landing .locale-inactive { color: var(--muted-ink); }
+.landing .locale-separator { color: #c9d5dd; }
 
-/* Hero: the school and its students are the first brand signal. */
+/* Hero: a light, two-column opening — the school on the left in words, on the
+   right in a photograph, with the numbers that matter floating over it. */
 .landing .hero {
   position: relative;
   overflow: hidden;
-  min-height: clamp(680px, 84svh, 820px);
   display: flex;
   align-items: center;
-  background-image: linear-gradient(90deg, rgba(19,53,98,.94) 0%, rgba(19,53,98,.79) 34%, rgba(19,53,98,.2) 64%, rgba(19,53,98,.03) 82%), url("/brand/hero-campus-v2.webp");
-  background-size: cover;
-  background-position: center center;
-  color: var(--mist);
-  padding-block: clamp(9rem, 7rem + 5vw, 12rem) clamp(5rem, 4rem + 3vw, 7rem);
+  background: linear-gradient(135deg, #f4f2ff 0%, #f7fbfe 46%, #eefaf4 100%);
+  color: var(--ink);
+  padding-block: clamp(7.5rem, 6rem + 5vw, 10rem) clamp(4rem, 3rem + 3vw, 6rem);
 }
+/* Faint graph paper, as on a school exercise book. */
 .landing .hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.035;
+  opacity: 0.5;
   pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: linear-gradient(90deg, #000, transparent 58%);
+  background-image:
+    linear-gradient(rgba(19,53,98,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(19,53,98,.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000, transparent 78%);
 }
-.landing .hero-grid { position: relative; z-index: 1; }
+.landing .hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+@media (min-width: 60rem) {
+  .landing .hero-grid { grid-template-columns: 1.05fr 0.95fr; gap: 2rem; }
+}
 .landing .hero-enter { max-width: 36rem; }
-.landing .hero h1 { color: #fff; max-width: 12ch; text-shadow: 0 3px 24px rgba(8,27,50,.22); }
-.landing .hero .lead { color: #eef7fb; max-width: 38ch; margin-top: 1.35rem; text-shadow: 0 2px 14px rgba(8,27,50,.18); }
+.landing .hero h1 { color: var(--ink); max-width: 14ch; }
+.landing .hero .lead { color: var(--muted-ink); max-width: 40ch; margin-top: 1.35rem; }
+
+/* The proof row under the buttons. Real counts — a school does not get to
+   invent a star rating for itself. */
+.landing .proof {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(19, 53, 98, 0.1);
+}
+.landing .proof-figure {
+  font-weight: 700;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.landing .proof-label { font-size: 0.8125rem; color: var(--muted-ink); }
+
+/* The circular composition on the right. */
+.landing .hero-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  width: min(100%, 30rem);
+  margin-inline: auto;
+}
+.landing .hero-disc {
+  position: absolute;
+  inset: 8%;
+  border-radius: 999px;
+  background: linear-gradient(160deg, #1a7f63 0%, #12b878 100%);
+}
+/* The thin arc that lifts the disc off the page. */
+.landing .hero-ring {
+  position: absolute;
+  inset: 2%;
+  border-radius: 999px;
+  border: 1.5px solid rgba(67, 148, 205, 0.55);
+  border-inline-end-color: transparent;
+  transform: rotate(-28deg);
+}
+.landing .hero-photo {
+  position: absolute;
+  /* Inset further than the disc so a band of school green rims the photo —
+     without it the disc is painted and then completely covered. */
+  inset: 11.5%;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.landing .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Floating figure cards. Absolute so they overlap the disc's edge the way a
+   pinned note overlaps a photograph. */
+.landing .float-card {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(19, 53, 98, 0.07);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 18px 40px -22px rgba(7, 27, 52, 0.5);
+  backdrop-filter: blur(6px);
+}
+.landing .float-card .fc-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  background: var(--accent, var(--brand-cyan));
+  color: #fff;
+  flex: none;
+}
+.landing .float-card .fc-figure {
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.landing .float-card .fc-label { font-size: 0.75rem; color: var(--muted-ink); }
+/* Logical offsets so the cards mirror under RTL instead of colliding. */
+.landing .float-a { inset-block-start: 14%; inset-inline-start: -6%; }
+.landing .float-b { inset-block-end: 16%; inset-inline-end: -4%; }
+
+.landing .hero-dot {
+  position: absolute;
+  border-radius: 999px;
+  z-index: 1;
+}
+.landing .dot-brass {
+  width: 2.5rem; height: 2.5rem;
+  background: var(--brass);
+  inset-block-start: 6%; inset-inline-end: 8%;
+}
+.landing .dot-blue {
+  width: 3.25rem; height: 3.25rem;
+  background: var(--brand-blue);
+  inset-block-end: 8%; inset-inline-start: 6%;
+}
+
+@media (max-width: 67.9375rem) {
+  .landing .hero-visual { width: min(100%, 24rem); }
+  .landing .float-a { inset-inline-start: 0; }
+  .landing .float-b { inset-inline-end: 0; }
+}
 
 .landing .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
@@ -118,25 +255,19 @@
 .landing .btn:active { transform: translateY(0); }
 .landing .btn-brass { background: var(--coral); color: #fff; box-shadow: 0 10px 24px rgba(239,91,78,.22); }
 .landing .btn-brass:hover { background: #ff7164; box-shadow: 0 14px 30px rgba(239,91,78,.3); }
-.landing .btn-quiet { border-color: rgba(255,255,255,.42); color: #fff; background:rgba(19,53,98,.16); backdrop-filter:blur(8px); }
-.landing .btn-quiet:hover { border-color: var(--brand-cyan); color: var(--brand-cyan); }
+.landing .btn-quiet {
+  border-color: rgba(19, 53, 98, 0.18);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.75);
+}
+.landing .btn-quiet:hover { border-color: var(--brand-cyan); color: var(--brand-cyan); background: #fff; }
 .landing .btn-ink { background: var(--ink); color: #fff; }
 .landing .btn-ink:hover { background: var(--coral); }
 .landing :is(a, button):focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 4px; }
 
-/* Stats are a clean signal rail instead of a separate decorative band. */
-.landing .stats-band { border-bottom:1px solid #e2ebf0; }
-.landing .band-chaux .shell.grid { position: relative; }
-.landing .band-chaux .shell.grid > div { border-color: #dbe7e5; }
-.landing .band-chaux .shell.grid > div:first-child { border-inline-start: 0; }
-.landing .band-chaux .figures { color: var(--ink); }
-.landing .stat-item { position:relative; transition:background-color .25s ease; }
-.landing .stat-item:hover { background:rgba(255,255,255,.58); }
-.landing .stat-item::before { content:""; position:absolute; inset-inline:20%; top:0; height:3px; background:var(--brand-blue); transform:scaleX(.34); transition:transform .25s ease; }
-.landing .stat-item:hover::before { transform:scaleX(1); }
-.landing .stat-item:nth-child(2)::before { background:var(--brand-cyan); }
-.landing .stat-item:nth-child(3)::before { background:var(--brass); }
-.landing .stat-item:nth-child(4)::before { background:var(--coral); }
+/* A compact fact strip bridges the hero and the curriculum without turning
+   four numbers into a full second hero. */
+.landing .stats-strip { padding-block: 2.25rem; }
 
 .landing .tiles { display:grid; gap:1px; background:#dbe6e4; border:1px solid #dbe6e4; border-radius:8px; overflow:hidden; box-shadow: 0 18px 50px -40px rgba(11,23,35,.7); }
 @media (min-width:48rem) { .landing .tiles { grid-template-columns:repeat(6,1fr); } .landing .tile-wide { grid-column:span 3; } .landing .tile { grid-column:span 2; } }
@@ -159,31 +290,601 @@
 
 @media (max-width: 48rem) {
   .landing { --shell: min(100% - 1.5rem, 1180px); }
-  .landing .hero { min-height: 720px; align-items:flex-end; background-position: 60% center; background-image: linear-gradient(0deg, rgba(19,53,98,.97) 0%, rgba(19,53,98,.7) 42%, rgba(19,53,98,.08) 78%), url("/brand/hero-campus-v2.webp"); padding-block:8.5rem 4.5rem; }
-  .landing .hero-nav { background:rgba(19,53,98,.92); border-bottom-color:rgba(255,255,255,.12); box-shadow:0 8px 24px rgba(19,53,98,.16); }
-  .landing .brand-lockup { min-height:2.65rem; }
-  .landing .brand-lockup img { height:2rem; }
-  .landing .locale-links { font-size:.75rem; }
-  .landing .locale-inactive { color:rgba(255,255,255,.7); }
-  .landing .locale-separator { color:rgba(255,255,255,.3); }
-  .landing .hero-nav .btn { min-height:2.5rem; }
-  .landing .hero-enter { max-width:32rem; }
+  .landing section { padding-block: 4.5rem; }
+
+  .landing .hero-nav { top: 0.5rem; }
+  .landing .hero-nav > .shell {
+    width: calc(100% - 1rem);
+    height: 3.75rem;
+    gap: 0.5rem;
+    padding-inline: 0.625rem;
+    background: rgba(255, 255, 255, 0.9);
+  }
+  .landing .brand-lockup { min-height: 2.5rem; }
+  .landing .brand-chip { border-radius: 9px; padding: 0.35rem 0.5rem; }
+  .landing .brand-lockup img { height: 1.8rem; }
+  .landing .locale-links { font-size: 0.6875rem; }
+  .landing .locale-separator { margin-inline: 0.25rem; }
+  .landing .hero-nav .btn {
+    min-height: 2.5rem;
+    height: 2.5rem !important;
+    padding-inline: 0.75rem !important;
+    border-radius: 7px;
+    box-shadow: none;
+  }
+
+  .landing .hero {
+    min-height: 0;
+    align-items: stretch;
+    padding-block: 6.75rem 3.75rem;
+    background: linear-gradient(145deg, #f4f2ff 0%, #f8fbfe 52%, #eefaf4 100%);
+  }
+  .landing .hero::after { background-size: 40px 40px; }
+  .landing .hero-grid { gap: 2.75rem; }
+  .landing .hero-enter { max-width: 32rem; }
+  .landing .hero h1 {
+    max-width: 10ch;
+    font-size: clamp(2.8rem, 13vw, 3.65rem);
+  }
+  .landing .hero .lead { margin-top: 1rem; line-height: 1.6; }
+  .landing .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 1.75rem;
+  }
+  .landing .hero-actions .btn { width: 100%; }
+  .landing .proof {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+  }
+  .landing .proof > :last-child { grid-column: 1 / -1; }
+  .landing .proof-figure { font-size: 1.125rem; }
+
+  .landing .hero-visual { width: min(92%, 20.5rem); }
+  .landing .float-card { gap: 0.55rem; padding: 0.6rem 0.7rem; border-radius: 11px; }
+  .landing .float-card .fc-chip { width: 2rem; height: 2rem; border-radius: 8px; }
+  .landing .float-card .fc-figure { font-size: 1rem; }
+  .landing .float-card .fc-label { font-size: 0.6875rem; }
+  .landing .float-a { inset-block-start: 12%; inset-inline-start: -2%; }
+  .landing .float-b { inset-block-end: 12%; inset-inline-end: -2%; }
+  .landing .dot-brass { width: 1.75rem; height: 1.75rem; }
+  .landing .dot-blue { width: 2.25rem; height: 2.25rem; }
+
+  .landing .stats-strip { padding-block: 1.5rem; }
 }
 
-.landing .qa { border-top:1px solid #dbe5e3; padding-block:1.4rem; }
-.landing .qa summary { display:flex; align-items:center; justify-content:space-between; gap:1rem; cursor:pointer; list-style:none; font-weight:600; font-size:1.02rem; }
-.landing .qa summary::-webkit-details-marker { display:none; }
-.landing .qa summary::after { content:""; flex:none; width:.7rem; height:.7rem; border-inline-end:1.5px solid var(--brand-blue); border-block-end:1.5px solid var(--brand-blue); transform:rotate(45deg); transition:transform .2s ease; }
-.landing .qa[open] summary::after { transform:rotate(-135deg); }
-.landing .qa p { margin-top:.85rem; color:#4d6269; line-height:1.7; max-width:62ch; }
+/* FAQ.
+   No card, no rules, no shadow: the questions sit straight on the section's
+   gradient with air between them. A boxed accordion reads as a widget; this
+   reads as a page. Native <details>, so it still costs no JavaScript. */
+.landing .faq {
+  background: linear-gradient(105deg, #eefaf4 0%, #f6f7fe 55%, #f3f1fd 100%);
+}
+/* Gradients do not mirror on their own. The mint end belongs behind the
+   illustration, and the illustration swaps sides under RTL — so the angle has
+   to swap with it, or Arabic gets the tint on the wrong half of the section. */
+[dir="rtl"] .landing .faq {
+  background: linear-gradient(255deg, #eefaf4 0%, #f6f7fe 55%, #f3f1fd 100%);
+}
+/* Row rhythm is set against the reference: a collapsed question there occupies
+   ~106px, mine were 79px, which both looked cramped and left the accordion
+   column far shorter than the illustration beside it. */
+.landing .qa { padding-block: 2.4rem; }
+.landing .qa summary {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem;
+  cursor: pointer; list-style: none;
+  font-weight: 700; font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem);
+  line-height: 1.4; color: var(--ink);
+}
+.landing .qa summary::-webkit-details-marker { display: none; }
+.landing .qa summary:hover { color: var(--brand-blue); }
+/* The chevron is an icon in the markup, not a CSS corner: at this size a
+   rotated border reads as a thick wedge rather than a chevron. It rotates
+   rather than swapping glyphs, so open/closed is one continuous movement. */
+.landing .qa .qa-chevron {
+  flex: none; width: 1.35rem; height: 1.35rem;
+  color: var(--ink-line);
+  transition: transform .22s ease;
+  margin-block-start: .15rem;
+}
+.landing .qa[open] .qa-chevron { transform: rotate(180deg); color: var(--brand-blue); }
+.landing .qa p {
+  margin-top: 1rem; color: var(--muted-ink); line-height: 1.75;
+  max-width: 60ch; padding-inline-end: 2.85rem;
+}
+
+/* The illustration.
+   Its soft blob is already part of the artwork and the PNG is transparent
+   around it, so there is nothing to draw underneath and nothing to clip — an
+   extra CSS blob here would show as a second halo behind the first. */
+/* Sized so the artwork finishes near the last question rather than dangling
+   well below it — the two columns should end together, give or take. */
+.landing .faq-figure {
+  margin-top: 1rem;
+  margin-inline: auto;
+  width: min(100%, 16.5rem);
+}
+.landing .faq-figure img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+/* On one column the illustration sits between the heading and the questions.
+   At full size that is ~340px of decoration a parent must scroll past to reach
+   an answer, so it shrinks to an accent. It stays in the flow rather than being
+   hidden: `display:none` would still download the file on a phone. */
+@media (max-width: 67.9375rem) {
+  .landing .faq-figure { width: min(60%, 12rem); margin-top: 0.5rem; }
+}
 
 @keyframes rise { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+@keyframes compose { from { opacity:0; transform:scale(.96) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
 .landing .hero-enter > * { animation:rise .75s cubic-bezier(.22,1,.36,1) backwards; }
 .landing .hero-enter > *:nth-child(1) { animation-delay:.05s; }
 .landing .hero-enter > *:nth-child(2) { animation-delay:.14s; }
 .landing .hero-enter > *:nth-child(3) { animation-delay:.23s; }
 .landing .hero-enter > *:nth-child(4) { animation-delay:.32s; }
-@supports (animation-timeline:view()) {
-  @media (prefers-reduced-motion:no-preference) { .landing .reveal { animation:rise linear both; animation-timeline:view(); animation-range:entry 5% cover 26%; } }
-}
+.landing .hero-visual { animation:compose .9s cubic-bezier(.22,1,.36,1) .18s backwards; }
 @media (prefers-reduced-motion:reduce) { .landing *, .landing *::before { animation:none !important; transition:none !important; } }
+
+/* ---------------------------------------------------------------- sections
+   Centred section headings, the way a prospectus opens a chapter: a small
+   coloured eyebrow, a large title, one line of explanation. */
+.landing .section-head {
+  max-width: 44rem;
+  margin-inline: auto;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+.landing .section-head .lead { margin-top: 0.75rem; }
+
+/* Tinted information cards — cycles, spécialités, figures.
+   The tint is passed per card so a grid reads as a set of related but distinct
+   things, rather than eight identical boxes. */
+.landing .card-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+.landing .info-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: var(--tint, var(--mist));
+  border: 1px solid color-mix(in oklab, var(--accent, var(--brand-blue)) 14%, transparent);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .landing .info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px -18px rgb(19 53 98 / 0.45);
+  }
+}
+.landing .info-card .card-glyph {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--accent, var(--brand-blue));
+  margin-bottom: 1.75rem;
+}
+.landing .info-card h3 {
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+/* Pushed to the bottom edge so cards of different text length still line up. */
+.landing .info-card .card-meta {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted-ink);
+}
+
+/* The level codes inside a cycle card: CP · CE1 · CE2 … */
+.landing .code-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.875rem;
+}
+.landing .code-pill {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent, var(--brand-blue)) 12%, white);
+  color: var(--ink);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Figures band — a coloured icon chip above a large number. */
+.landing .figure-card {
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  background: var(--tint, var(--mist));
+  border: 1px solid color-mix(in oklab, var(--accent, var(--brand-blue)) 10%, transparent);
+}
+.landing .figure-card .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: var(--accent, var(--brand-blue));
+  color: white;
+  margin-bottom: 1rem;
+}
+.landing .figure-card .figure {
+  font-size: clamp(2rem, 1.4rem + 1.6vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subject chips — a plain readable list, not eight more boxes. */
+.landing .chip-set { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.landing .subject-chip {
+  border: 1px solid #dde4e0;
+  border-radius: 999px;
+  background: white;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.875rem;
+}
+
+/* Component-level phone adjustments live after the component rules so the
+   cascade remains explicit and does not depend on selector tricks. */
+@media (max-width: 48rem) {
+  .landing .section-head { margin-bottom: 2rem; text-align: start; }
+  .landing .section-head .lead { margin-top: 0.625rem; }
+  .landing .info-card { padding: 1.25rem; }
+  .landing .info-card .card-glyph { margin-bottom: 1.25rem; }
+  .landing .figure-card { padding: 1.25rem 0.75rem; }
+  .landing .figure-card .chip { width: 2.5rem; height: 2.5rem; margin-bottom: 0.75rem; }
+  .landing .figure-card .figure { font-size: 2rem; }
+  .landing .qa { padding-block: 1.5rem; border-top: 1px solid rgba(19, 53, 98, 0.1); }
+  .landing .qa p { padding-inline-end: 1.5rem; }
+  .landing .faq-figure { width: min(45%, 9rem); }
+}
+
+@media (max-width: 22.5rem) {
+  .landing .hero-nav > .shell { gap: 0.375rem; padding-inline: 0.5rem; }
+  .landing .brand-chip { padding-inline: 0.4rem; }
+  .landing .brand-lockup img { height: 1.5rem; }
+  .landing .locale-links { font-size: 0.625rem; }
+  .landing .locale-separator { margin-inline: 0.125rem; }
+  .landing .hero-nav .btn { padding-inline: 0.625rem !important; font-size: 0.6875rem !important; }
+}
+
+/* -------------------------------------------------------------------------
+   Learning pathway UI
+   The remaining sections use one shared visual grammar: a precise outer edge,
+   a small piece of useful metadata, and a quiet interaction that rewards
+   exploration. This keeps the page advanced without turning it into a noisy
+   catalogue of unrelated effects. */
+.landing .stats-strip {
+  position: relative;
+  background:
+    linear-gradient(90deg, rgba(67, 148, 205, 0.05), transparent 28%, transparent 72%, rgba(18, 184, 120, 0.06)),
+    var(--mist);
+}
+.landing .figure-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 18px;
+  box-shadow: 0 14px 28px -28px rgb(19 53 98 / 0.7);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.landing .figure-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: auto -20% -60% 30%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+  transition: transform .3s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .landing .figure-card:hover { transform: translateY(-4px); box-shadow: 0 22px 35px -26px rgb(19 53 98 / 0.45); }
+  .landing .figure-card:hover::after { transform: translate(-8%, -10%) scale(1.18); }
+}
+
+.landing .section-head .eyebrow { padding-inline: 0.35rem; }
+.landing .cycle-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.landing .cycle-card {
+  min-height: 16.5rem;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 1.75rem;
+  background: linear-gradient(145deg, color-mix(in oklab, var(--tint) 84%, white), var(--tint));
+  box-shadow: 0 18px 34px -32px rgb(19 53 98 / 0.75);
+}
+.landing .cycle-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 10rem;
+  height: 10rem;
+  border: 1px solid color-mix(in oklab, var(--accent) 32%, transparent);
+  border-radius: 999px;
+  inset: -4.75rem -4.25rem auto auto;
+}
+.landing .cycle-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 11%, transparent);
+  inset: auto -2rem -2.5rem auto;
+}
+.landing .card-index {
+  position: absolute;
+  inset: 1.4rem 1.45rem auto auto;
+  color: color-mix(in oklab, var(--accent) 78%, var(--ink));
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+[dir="rtl"] .landing .card-index { inset-inline: auto 1.45rem; }
+.landing .cycle-card .card-glyph { margin-bottom: 2.25rem; }
+.landing .cycle-card .code-row { max-width: 14rem; }
+.landing .cycle-card .card-meta {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-top: 1px solid color-mix(in oklab, var(--accent) 28%, transparent);
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.landing .speciality-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.landing .speciality-card {
+  min-height: 13.25rem;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 1.35rem;
+  border-radius: 18px;
+  background: color-mix(in oklab, var(--tint) 82%, white);
+}
+.landing .speciality-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 4.75rem;
+  height: 4.75rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 13%, transparent);
+  inset: -1.25rem -1.15rem auto auto;
+}
+.landing .speciality-card .card-glyph { margin-bottom: 1.25rem; }
+.landing .speciality-card .h3 { max-width: 15ch; }
+.landing .speciality-orbit {
+  position: absolute;
+  z-index: -1;
+  width: 6rem;
+  height: 6rem;
+  border: 1px dashed color-mix(in oklab, var(--accent) 50%, transparent);
+  border-radius: 999px;
+  inset: auto -2.25rem -2.65rem auto;
+}
+.landing .speciality-meta { display: flex; align-items: center; gap: 0.4rem; }
+.landing .status-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 16%, transparent);
+}
+
+.landing .curriculum-grid { display: grid; gap: 1rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.landing .curriculum-card {
+  position: relative;
+  min-width: 0;
+  padding: 1.35rem;
+  border: 1px solid color-mix(in oklab, var(--accent) 15%, #dfe9e7);
+  border-radius: 16px;
+  background: linear-gradient(145deg, white, color-mix(in oklab, var(--tint) 60%, white));
+  box-shadow: 0 14px 32px -32px rgb(19 53 98 / 0.72);
+}
+.landing .curriculum-card::before {
+  content: "";
+  position: absolute;
+  width: 2.75rem;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--accent);
+  inset: 0 auto auto 1.35rem;
+}
+[dir="rtl"] .landing .curriculum-card::before { inset-inline: auto 1.35rem; }
+.landing .curriculum-card-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.landing .curriculum-card .h3 { font-size: 1.125rem; }
+.landing .curriculum-count {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 14%, white);
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.landing .curriculum-card .subject-chip { background: rgba(255, 255, 255, 0.78); transition: border-color .2s ease, background-color .2s ease, transform .2s ease; }
+@media (prefers-reduced-motion: no-preference) {
+  .landing .subject-chip:hover { transform: translateY(-2px); border-color: var(--accent); background: white; }
+}
+
+.landing .role-tiles { border: 0; gap: 0.85rem; background: transparent; box-shadow: none; overflow: visible; }
+.landing .role-tile {
+  position: relative;
+  overflow: hidden;
+  min-height: 12.25rem;
+  border: 1px solid #e0e9e8;
+  border-radius: 18px;
+  background: linear-gradient(145deg, white, #f9fcfc);
+  box-shadow: 0 16px 34px -32px rgb(19 53 98 / 0.75);
+}
+.landing .role-tile::after {
+  content: "";
+  position: absolute;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 999px;
+  background: rgba(67, 148, 205, 0.08);
+  inset: auto -2.75rem -3.75rem auto;
+}
+.landing .role-parent { border-color: color-mix(in oklab, var(--coral) 24%, white); background: linear-gradient(145deg, #fffafa, #fff4f1); }
+.landing .role-parent::after { background: color-mix(in oklab, var(--coral) 11%, transparent); }
+.landing .role-teacher { border-color: color-mix(in oklab, var(--brand-cyan) 23%, white); background: linear-gradient(145deg, #fbfffd, #effaf5); }
+.landing .tile-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 1.15rem;
+  border-radius: 11px;
+  background: #edf5fc;
+  color: var(--brand-blue);
+}
+.landing .role-parent .tile-icon { background: #fff0ec; color: var(--coral); }
+.landing .role-teacher .tile-icon { background: #e8f9f0; color: var(--brand-cyan); }
+.landing .tile-icon .tile-glyph { width: 1.5rem; height: 1.5rem; margin: 0; color: currentColor; }
+.landing .tile-kicker {
+  position: absolute;
+  inset: 1.65rem 1.75rem auto auto;
+  color: #a0b1ba;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+[dir="rtl"] .landing .tile-kicker { inset-inline: auto 1.75rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .landing .role-tile:hover { transform: translateY(-4px); background: white; box-shadow: 0 22px 36px -28px rgb(19 53 98 / 0.34); }
+}
+
+.landing .experience-grid { gap: 1rem; }
+.landing .experience-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 15.5rem;
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: 0 16px 34px -32px rgb(19 53 98 / 0.68);
+}
+.landing .experience-card::after {
+  content: "";
+  position: absolute;
+  width: 8rem;
+  height: 8rem;
+  border: 1px solid rgba(67, 148, 205, 0.18);
+  border-radius: 999px;
+  inset: auto -3rem -4rem auto;
+}
+.landing .experience-featured { background: linear-gradient(145deg, #fffdfb, #fff5ef); }
+.landing .experience-icon {
+  display: grid;
+  place-items: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 18px -14px rgba(19, 53, 98, 0.45);
+}
+.landing .experience-card .figures { position: relative; z-index: 1; }
+
+.landing .flow-section { position: relative; overflow: hidden; }
+.landing .flow-section::before {
+  content: "";
+  position: absolute;
+  width: 34rem;
+  height: 34rem;
+  border: 1px solid rgba(67, 148, 205, 0.22);
+  border-radius: 999px;
+  inset: -19rem -11rem auto auto;
+}
+.landing .flow-section .shell { position: relative; z-index: 1; }
+.landing .steps { gap: 0.85rem; }
+.landing .step {
+  min-height: 13rem;
+  padding: 3.4rem 1.25rem 1.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+}
+.landing .step::before { top: 1.35rem; left: 1.35rem; }
+[dir="rtl"] .landing .step::before { inset-inline: auto 1.35rem; }
+.landing .step-node {
+  position: absolute;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--brass);
+  box-shadow: 0 0 0 5px rgba(241, 174, 42, 0.13);
+  inset: 1.45rem 1.35rem auto auto;
+}
+[dir="rtl"] .landing .step-node { inset-inline: 1.35rem auto; }
+
+.landing .faq-list { border-top: 1px solid rgba(19, 53, 98, 0.1); }
+.landing .qa { position: relative; padding: 1.85rem 0; border-bottom: 1px solid rgba(19, 53, 98, 0.1); }
+.landing .qa summary { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; }
+.landing .qa-number {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--brand-blue);
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.landing .qa[open] .qa-number { background: var(--brand-blue); color: white; }
+.landing .qa .qa-chevron { width: 1.65rem; height: 1.65rem; padding: 0.25rem; border-radius: 999px; background: rgba(255, 255, 255, 0.72); }
+.landing .qa p { margin-inline-start: 3rem; }
+[dir="rtl"] .landing .qa p { margin-inline: 0 3rem; }
+
+.landing .final-cta { position: relative; overflow: hidden; }
+.landing .cta-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(3rem, 2rem + 3vw, 5rem) 1.5rem;
+  border: 1px solid rgba(19, 53, 98, 0.09);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f8ff 52%, #effbf5 100%);
+  box-shadow: 0 28px 54px -46px rgba(19, 53, 98, 0.62);
+}
+.landing .cta-panel > :not(.cta-orbit) { position: relative; z-index: 1; }
+.landing .cta-orbit { position: absolute; z-index: -1; border: 1px solid rgba(67, 148, 205, 0.28); border-radius: 999px; }
+.landing .cta-orbit-a { width: 15rem; height: 15rem; inset: auto auto -9rem -6rem; }
+.landing .cta-orbit-b { width: 10rem; height: 10rem; border-color: rgba(18, 184, 120, 0.28); inset: -5rem -3rem auto auto; }
+.landing footer { border-top: 1px solid rgba(255, 255, 255, 0.09); }
+
+@media (max-width: 67.9375rem) {
+  .landing .cycle-grid, .landing .speciality-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .landing .curriculum-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 48rem) {
+  .landing .cycle-grid, .landing .speciality-grid { grid-template-columns: 1fr; }
+  .landing .cycle-card { min-height: 14.5rem; padding: 1.35rem; }
+  .landing .speciality-card { min-height: 11.5rem; }
+  .landing .curriculum-card { padding: 1.2rem; }
+  .landing .role-tile, .landing .experience-card { min-height: 0; }
+  .landing .step { min-height: 0; }
+  .landing .qa { padding-block: 1.35rem; }
+  .landing .qa p { margin-inline-start: 0; padding-inline-start: 3rem; }
+  [dir="rtl"] .landing .qa p { margin-inline: 0; padding-inline: 0 3rem; }
+  .landing .cta-panel { border-radius: 18px; padding-inline: 1rem; }
+}

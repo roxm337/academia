@@ -13,7 +13,9 @@
       "lead": "A digital space connecting the school, families, and every learning journey across our three campuses.",
       "ctaPrimary": "Sign in",
       "ctaSecondary": "Discover our approach",
-      "artifactLabel": "Report card · Semester 1"
+      "artifactLabel": "Report card · Semester 1",
+      "levels": "year groups",
+      "year": "School year {year}"
     },
     "bulletin": {
       "student": "Ahmed Benali",
@@ -41,6 +43,29 @@
       "classes": "Established",
       "languages": "Languages of instruction",
       "languagesValue": "AR · FR · EN"
+    },
+    "figures": {
+      "students": "Enrolled students",
+      "teachers": "Teachers",
+      "classes": "Classes",
+      "subjects": "Subjects taught"
+    },
+    "cycles": {
+      "eyebrow": "Our school",
+      "title": "From primary to the baccalauréat",
+      "lead": "Three cycles, twelve year groups, one continuous path in a single school.",
+      "levelCount": "{count} year groups"
+    },
+    "specialities": {
+      "eyebrow": "At lycée",
+      "title": "Specialist subjects",
+      "lead": "In Première each student chooses three; in Terminale they keep two.",
+      "badge": "Première and Terminale"
+    },
+    "subjects": {
+      "eyebrow": "Curriculum",
+      "title": "Subjects we teach",
+      "lead": "The French national curriculum, taught in French, Arabic and English."
     },
     "roles": {
       "eyebrow": "User portals",
@@ -87,6 +112,7 @@
     "faq": {
       "eyebrow": "Questions",
       "title": "What people ask us.",
+      "lead": "What families ask us most often before the start of term. Something not covered here? Write to us.",
       "q1": "Do parents need to install an app?",
       "a1": "No. The platform opens in a phone browser and can be added to the home screen with one tap if the parent wishes.",
       "q2": "What can a teacher see in other classes?",

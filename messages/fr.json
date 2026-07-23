@@ -13,7 +13,9 @@
       "lead": "Un espace numérique qui relie l'école, les familles et chaque parcours d'apprentissage, sur nos trois campus.",
       "ctaPrimary": "Se connecter",
       "ctaSecondary": "Découvrir notre approche",
-      "artifactLabel": "Bulletin · 1er semestre"
+      "artifactLabel": "Bulletin · 1er semestre",
+      "levels": "niveaux",
+      "year": "Année scolaire {year}"
     },
     "bulletin": {
       "student": "Ahmed Benali",
@@ -41,6 +43,29 @@
       "classes": "Depuis",
       "languages": "Langues d'apprentissage",
       "languagesValue": "AR · FR · EN"
+    },
+    "figures": {
+      "students": "Élèves inscrits",
+      "teachers": "Enseignants",
+      "classes": "Classes",
+      "subjects": "Matières enseignées"
+    },
+    "cycles": {
+      "eyebrow": "Notre scolarité",
+      "title": "De la primaire au baccalauréat",
+      "lead": "Trois cycles, douze niveaux, un parcours continu au sein du même établissement.",
+      "levelCount": "{count} niveaux"
+    },
+    "specialities": {
+      "eyebrow": "Au lycée",
+      "title": "Les enseignements de spécialité",
+      "lead": "En Première, chaque élève en choisit trois ; en Terminale, il en conserve deux.",
+      "badge": "Première et Terminale"
+    },
+    "subjects": {
+      "eyebrow": "Programme",
+      "title": "Les matières enseignées",
+      "lead": "Le programme officiel français, enseigné en français, en arabe et en anglais."
     },
     "roles": {
       "eyebrow": "Les espaces",
@@ -87,6 +112,7 @@
     "faq": {
       "eyebrow": "Questions",
       "title": "Ce que l'on nous demande.",
+      "lead": "Ce que les familles nous demandent le plus souvent avant la rentrée. Une question qui n'y figure pas ? Écrivez-nous.",
       "q1": "Les parents doivent-ils installer une application ?",
       "a1": "Non. La plateforme s'ouvre dans le navigateur du téléphone, et s'installe sur l'écran d'accueil en un geste si le parent le souhaite.",
       "q2": "Qu'est-ce qu'un enseignant voit des autres classes ?",
