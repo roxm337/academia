@@ -6,13 +6,13 @@ import { localeTag } from "@/i18n/routing";
 import { PageHeader } from "@/components/page-header";
 import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
 import {
-  DocumentUpload, GuardianForm, PhotoUpload, StatusForm, StudentForm, TransferForm,
+  DocumentUpload, GuardianForm, PhotoUpload, SpecialityPicker, StatusForm, StudentForm, TransferForm,
 } from "@/components/director/student-forms";
 import { DeleteForm } from "@/components/director/delete-form";
 import { removeGuardian } from "@/lib/actions/students";
 import { requireRole } from "@/lib/dal";
 import { listClasses } from "@/lib/data/structure";
-import { getStudent } from "@/lib/data/students";
+import { getStudent, studentSpecialityPicture } from "@/lib/data/students";
 
 export default async function StudentDetailPage({
   params,
@@ -26,6 +26,9 @@ export default async function StudentDetailPage({
 
   const [student, classes] = await Promise.all([getStudent(id), listClasses()]);
   if (!student) notFound();
+
+  // Only present at the lycée levels that actually choose spécialités.
+  const speciality = await studentSpecialityPicture(id);
 
   const classOptions = classes.map((c) => ({ id: c.id, label: c.name }));
   const active = student.enrollments.find((e) => e.isActive);
@@ -116,6 +119,23 @@ export default async function StudentDetailPage({
             <PhotoUpload studentId={student.id} />
           </div>
         </Card>
+
+        {/* ------------------------------------------------------ spécialités */}
+        {speciality ? (
+          <Card>
+            <h2 className="mb-1 font-medium">{t("specialities")}</h2>
+            <p className="mb-4 text-sm text-[var(--muted)]">
+              {t("specialitiesHint", { required: speciality.required })}
+            </p>
+            <SpecialityPicker
+              studentId={student.id}
+              locale={locale}
+              required={speciality.required}
+              offered={speciality.offered}
+              chosenIds={speciality.chosenIds}
+            />
+          </Card>
+        ) : null}
 
         {/* -------------------------------------------------------- guardians */}
         <Card>

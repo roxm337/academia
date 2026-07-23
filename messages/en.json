@@ -96,6 +96,22 @@
       "familiesText": "Messages, calendars, homework, and important information are brought together in one easy-to-use space.",
       "formula": "Observe · understand · progress"
     },
+    "campus": {
+      "eyebrow": "Day to day",
+      "title": "Life on campus",
+      "lead": "Our learning spaces, in Targa, Marrakech."
+    },
+    "voices": {
+      "eyebrow": "Testimonials",
+      "title": "What our community says",
+      "lead": "Illustrative excerpts — to be replaced with real quotes gathered from families.",
+      "parentQuote": "I see my children's grades, absences and homework in one place, without installing an app.",
+      "parentRole": "A parent",
+      "teacherQuote": "I enter my marks once; the report card, average and rank compute themselves.",
+      "teacherRole": "A teacher",
+      "studentQuote": "My lessons, homework and revision documents are right there in the page.",
+      "studentRole": "A Terminale student"
+    },
     "flow": {
       "eyebrow": "How an absence is handled",
       "title": "One absence, and the parent knows.",
@@ -476,7 +492,10 @@
         "MEDICAL": "Medical certificate",
         "OTHER": "Other"
       },
-      "truncated": "Showing {shown} of {total} students — refine your search or filter by class."
+      "truncated": "Showing {shown} of {total} students — refine your search or filter by class.",
+      "specialities": "Specialist subjects",
+      "specialitiesHint": "Choose exactly {required} specialities for this year.",
+      "specialityCount": "{count} / {required} chosen"
     },
     "staff": {
       "title": "Staff",
@@ -566,7 +585,12 @@
       "nothingToCopy": "No lessons to copy into the regular timetable.",
       "notAllowed": "You are not authorized to perform this action.",
       "specialityHasStudents": "Students have chosen this speciality. Remove it from their choices first.",
-      "legacyDoc": "Old Word format (.doc). Save the file as .docx and try again."
+      "legacyDoc": "Old Word format (.doc). Save the file as .docx and try again.",
+      "wrongCount": "The number of specialities does not match the level.",
+      "notOffered": "A speciality is not offered at this level.",
+      "duplicate": "A speciality was chosen twice.",
+      "notApplicable": "This level has no specialities.",
+      "notEnrolled": "The student has no active enrolment."
     }
   },
   "timetable": {

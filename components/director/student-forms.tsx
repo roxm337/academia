@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Plus, Pencil, Upload } from "lucide-react";
 import {
   addGuardian,
   saveStudent,
+  setStudentSpecialities,
   setStudentStatus,
   transferStudent,
   uploadStudentDocument,
@@ -16,6 +17,7 @@ import type { ActionState } from "@/lib/actions/structure";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label, Select } from "@/components/ui/field";
 import { CloseOnSuccess, Modal } from "@/components/ui/modal";
+import { cn } from "@/lib/utils";
 
 type Option = { id: string; label: string };
 
@@ -407,6 +409,92 @@ export function StatusForm({
       >
         {archiving ? t("archive") : t("restore")}
       </Button>
+    </form>
+  );
+}
+
+// ---------------------------------------------------------------- spécialités
+
+type Speciality = { id: string; code: string; nameAr: string; nameFr: string };
+
+/**
+ * Assigns a Première/Terminale student's enseignements de spécialité.
+ *
+ * The count the level requires is shown and enforced in the UI (the Save button
+ * only enables at exactly that number), but the same rule is re-checked on the
+ * server — this is a convenience, not the guard. Live locale: the label reads
+ * the chosen count against the required one so a director sees "2 / 3" fill up.
+ */
+export function SpecialityPicker({
+  studentId,
+  locale,
+  required,
+  offered,
+  chosenIds,
+}: {
+  studentId: string;
+  locale: string;
+  required: number;
+  offered: Speciality[];
+  chosenIds: string[];
+}) {
+  const t = useTranslations("director.students");
+  const tc = useTranslations("common");
+  const [state, action, pending] = useActionState<ActionState, FormData>(
+    setStudentSpecialities,
+    null,
+  );
+  const [count, setCount] = useState(chosenIds.length);
+  const arabic = locale === "ar";
+  // Valid to submit at exactly the required count, or empty (clearing a
+  // mistaken entry) — mirrors validateSpecialityChoice on the server.
+  const canSave = count === required || count === 0;
+
+  return (
+    <form
+      action={action}
+      onChange={(e) => {
+        const form = e.currentTarget;
+        setCount(form.querySelectorAll<HTMLInputElement>("input[name=specialityId]:checked").length);
+      }}
+    >
+      <input type="hidden" name="studentId" value={studentId} />
+      <div className="space-y-2">
+        {offered.map((sp) => (
+          <label key={sp.id} className="flex items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              name="specialityId"
+              value={sp.id}
+              defaultChecked={chosenIds.includes(sp.id)}
+              className="size-4 accent-[var(--brand)]"
+            />
+            {arabic ? sp.nameAr : sp.nameFr}
+          </label>
+        ))}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <span
+          className={cn(
+            "text-sm tabular-nums",
+            canSave ? "text-[var(--muted)]" : "text-[var(--warn)]",
+          )}
+        >
+          {t("specialityCount", { count, required })}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button type="submit" size="sm" disabled={pending || !canSave}>
+            {pending ? tc("loading") : tc("save")}
+          </Button>
+        </div>
+      </div>
+      {state?.error ? <Err error={state.error} /> : null}
+      {state?.ok ? (
+        <p role="status" className="mt-2 text-sm text-[var(--brand)]">
+          {tc("saved")}
+        </p>
+      ) : null}
     </form>
   );
 }

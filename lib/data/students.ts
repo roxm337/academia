@@ -86,3 +86,52 @@ export function activeClassOf(student: {
 }) {
   return student.enrollments.find((e) => e.isActive)?.class ?? null;
 }
+
+/**
+ * The spécialité picture for one student: what their level offers, what they
+ * currently hold this year, and how many the level requires.
+ *
+ * Returns null when spécialités do not apply (below Première, or the student
+ * has no active enrolment) so the page can simply omit the section rather than
+ * render an empty one. The choice is scoped to the current year because it
+ * changes between Première and Terminale — three become two.
+ */
+export const studentSpecialityPicture = cache(async (studentId: string) => {
+  const { requiredSpecialityCount } = await import("@/lib/specialities");
+  const { currentYear } = await import("@/lib/data/structure");
+
+  const student = await prisma.studentProfile.findUnique({
+    where: { id: studentId },
+    select: {
+      enrollments: {
+        where: { isActive: true },
+        take: 1,
+        select: { class: { select: { level: { select: { id: true, code: true } } } } },
+      },
+    },
+  });
+  const level = student?.enrollments[0]?.class.level;
+  if (!level || requiredSpecialityCount(level.code) === 0) return null;
+
+  const year = await currentYear();
+  if (!year) return null;
+
+  const [offered, chosen] = await Promise.all([
+    prisma.speciality.findMany({
+      where: { levelId: level.id },
+      orderBy: { code: "asc" },
+      select: { id: true, code: true, nameAr: true, nameFr: true },
+    }),
+    prisma.studentSpeciality.findMany({
+      where: { studentId, schoolYearId: year.id },
+      select: { specialityId: true },
+    }),
+  ]);
+
+  return {
+    levelCode: level.code,
+    required: requiredSpecialityCount(level.code),
+    offered,
+    chosenIds: chosen.map((c) => c.specialityId),
+  };
+});

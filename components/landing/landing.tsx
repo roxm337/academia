@@ -43,6 +43,30 @@ const TINTS = [
 const tintAt = (i: number) => TINTS[i % TINTS.length];
 
 /**
+ * Campus photographs. Real images only — the section renders whatever is listed
+ * and is omitted entirely below two, so an empty or thin gallery never ships.
+ * Drop more into public/brand/gallery/ and add them here to grow it.
+ */
+const GALLERY = [
+  "/brand/campus-life.jpg",
+  "/brand/hero-campus-v2.webp",
+] as const;
+
+/**
+ * Testimonials.
+ *
+ * Attributed to roles, not to invented named individuals, and shown with a
+ * monogram rather than a stock face: these are illustrative until the school
+ * supplies real, consented quotes. The content lives in the message files so it
+ * can be replaced without a deploy.
+ */
+const VOICES = [
+  { key: "parent", mono: "P", accent: "var(--brand-blue)" },
+  { key: "teacher", mono: "E", accent: "var(--brand-cyan)" },
+  { key: "student", mono: "É", accent: "var(--brass)" },
+] as const;
+
+/**
  * An icon per spécialité and per cycle.
  *
  * Not decoration: on a grid of eight cards the glyph is what the eye sorts by
@@ -470,6 +494,32 @@ export async function Landing({ locale }: { locale: string }) {
         </div>
       </section>
 
+      {/* --------------------------------------------------------- campus */}
+      {GALLERY.length >= 2 ? (
+        <section id="campus">
+          <div className="shell">
+            <div className="section-head reveal">
+              <p className="eyebrow">{t("campus.eyebrow")}</p>
+              <h2 className="h2 mt-4">{t("campus.title")}</h2>
+              <p className="lead text-[var(--muted-ink)]">{t("campus.lead")}</p>
+            </div>
+            <div className="gallery-grid reveal">
+              {GALLERY.map((src, i) => (
+                <figure key={src} className="gallery-item">
+                  <Image
+                    src={src}
+                    alt=""
+                    width={900}
+                    height={675}
+                    sizes={i === 0 ? "(min-width: 60rem) 50vw, 100vw" : "(min-width: 60rem) 25vw, 100vw"}
+                  />
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* ----------------------------------------------------------- flow */}
       <section className="band-dark flow-section">
         <div className="shell">
@@ -491,6 +541,34 @@ export async function Landing({ locale }: { locale: string }) {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------- voices */}
+      <section id="voices" className="band-chaux">
+        <div className="shell">
+          <div className="section-head reveal">
+            <p className="eyebrow">{t("voices.eyebrow")}</p>
+            <h2 className="h2 mt-4">{t("voices.title")}</h2>
+            <p className="lead text-[var(--muted-ink)]">{t("voices.lead")}</p>
+          </div>
+          <div className="voice-grid reveal">
+            {VOICES.map((v) => (
+              <figure
+                key={v.key}
+                className="voice-card"
+                style={{ "--accent": v.accent } as React.CSSProperties}
+              >
+                <blockquote className="voice-quote">
+                  {t(`voices.${v.key}Quote`)}
+                </blockquote>
+                <figcaption className="voice-who">
+                  <span className="voice-mono" aria-hidden="true">{v.mono}</span>
+                  <span className="voice-role">{t(`voices.${v.key}Role`)}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
 

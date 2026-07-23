@@ -441,3 +441,45 @@ export async function uploadStudentDocument(
   revalidatePath("/[locale]/(dashboard)/director/students/[id]", "page");
   return { ok: true };
 }
+
+// ---------------------------------------------------------------- spécialités
+
+/**
+ * Sets a student's enseignements de spécialité for the current year.
+ *
+ * The reason this exists at all: every read path for spécialités was built —
+ * bulletins, averages, lesson visibility — but nothing wrote them except the
+ * seed. Without this a Première student's choice could never be recorded, and
+ * their bulletin would silently show only the tronc commun, forever.
+ *
+ * Everything that decides validity is re-derived from the database here: the
+ * student's level (never the form), the count that level requires, and the set
+ * of spécialités actually offered there. The form supplies only which ids were
+ * ticked.
+ */
+export async function setStudentSpecialities(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const actor = await requireRole("DIRECTOR");
+  const { setSpecialities } = await import("@/lib/student-specialities");
+
+  const studentId = String(formData.get("studentId") ?? "");
+  if (!studentId) return { error: "invalid" };
+  const chosen = formData.getAll("specialityId").map(String).filter(Boolean);
+
+  const result = await setSpecialities(studentId, chosen);
+  if (!result.ok) return { error: result.error };
+
+  await audit({
+    actorId: actor.id,
+    action: "STUDENT_SPECIALITIES",
+    entity: "StudentProfile",
+    entityId: studentId,
+    before: { specialityIds: result.before },
+    after: { specialityIds: result.after },
+  });
+
+  revalidatePath("/[locale]/(dashboard)/director/students/[id]", "page");
+  return { ok: true };
+}

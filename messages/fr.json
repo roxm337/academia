@@ -96,6 +96,22 @@
       "familiesText": "Messages, calendrier, devoirs et informations importantes sont réunis dans un espace simple à consulter.",
       "formula": "Observer · comprendre · progresser"
     },
+    "campus": {
+      "eyebrow": "Au quotidien",
+      "title": "La vie au campus",
+      "lead": "Nos espaces d'apprentissage, à Targa, Marrakech."
+    },
+    "voices": {
+      "eyebrow": "Témoignages",
+      "title": "Ce qu'en disent nos communautés",
+      "lead": "Extraits illustratifs — à remplacer par de vrais témoignages recueillis auprès des familles.",
+      "parentQuote": "Je vois les notes, les absences et les devoirs de mes enfants au même endroit, sans installer d'application.",
+      "parentRole": "Un parent d'élève",
+      "teacherQuote": "Je saisis mes notes une fois ; le bulletin, la moyenne et le rang se calculent tout seuls.",
+      "teacherRole": "Une enseignante",
+      "studentQuote": "Je retrouve mes cours, mes devoirs et mes documents à réviser directement dans la page.",
+      "studentRole": "Un élève de Terminale"
+    },
     "flow": {
       "eyebrow": "Le circuit d'une absence",
       "title": "Une absence, et le parent le sait.",
@@ -476,7 +492,10 @@
         "MEDICAL": "Certificat médical",
         "OTHER": "Autre"
       },
-      "truncated": "Affichage de {shown} élèves sur {total} — affinez la recherche ou filtrez par classe."
+      "truncated": "Affichage de {shown} élèves sur {total} — affinez la recherche ou filtrez par classe.",
+      "specialities": "Enseignements de spécialité",
+      "specialitiesHint": "Choisissez exactement {required} spécialités pour cette année.",
+      "specialityCount": "{count} / {required} choisies"
     },
     "staff": {
       "title": "Personnel",
@@ -566,7 +585,12 @@
       "nothingToCopy": "Aucun cours à copier dans l'emploi du temps normal.",
       "notAllowed": "Vous n'êtes pas autorisé à effectuer cette action.",
       "specialityHasStudents": "Des élèves ont choisi cette spécialité. Retirez-la de leurs choix d'abord.",
-      "legacyDoc": "Format Word ancien (.doc). Enregistrez le fichier au format .docx puis réessayez."
+      "legacyDoc": "Format Word ancien (.doc). Enregistrez le fichier au format .docx puis réessayez.",
+      "wrongCount": "Le nombre de spécialités ne correspond pas au niveau.",
+      "notOffered": "Une spécialité n'est pas proposée à ce niveau.",
+      "duplicate": "Une spécialité a été choisie deux fois.",
+      "notApplicable": "Ce niveau ne comporte pas de spécialités.",
+      "notEnrolled": "L'élève n'a pas d'inscription active."
     }
   },
   "timetable": {
