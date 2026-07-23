@@ -220,6 +220,11 @@ export async function Landing({ locale }: { locale: string }) {
           {/* Decorative: the photograph carries no information the text does
               not already state, so it is hidden from assistive tech. */}
           <div className="hero-visual" aria-hidden="true">
+            <span className="hero-aura hero-aura-a" />
+            <span className="hero-aura hero-aura-b" />
+            <span className="hero-spark hero-spark-a" />
+            <span className="hero-spark hero-spark-b" />
+            <span className="hero-spark hero-spark-c" />
             <span className="hero-dot dot-brass" />
             <span className="hero-dot dot-blue" />
             <span className="hero-ring" />
@@ -615,6 +620,7 @@ export async function Landing({ locale }: { locale: string }) {
           <div className="cta-panel text-center">
             <span className="cta-orbit cta-orbit-a" aria-hidden="true" />
             <span className="cta-orbit cta-orbit-b" aria-hidden="true" />
+            <span className="cta-glow" aria-hidden="true" />
           <BadgeCheck
             className="mx-auto size-9 text-[var(--brass)]"
             strokeWidth={1.4}

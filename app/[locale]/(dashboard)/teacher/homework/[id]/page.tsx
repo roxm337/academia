@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Paperclip } from "lucide-react";
+import { Mark } from "@/components/ui/mark";
 import { PageHeader, EmptyState } from "@/components/page-header";
 import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
 import { ReviewSubmissionModal } from "@/components/pedagogy/homework-forms";
@@ -66,11 +67,11 @@ export default async function Page({
                       ))}
                     </div>
                   </Td>
-                  <Td className="text-center font-mono">
+                  <Td className="text-center">
                     {s.grade === null ? (
                       <span className="text-xs text-[var(--muted)]">{t("awaitingReview")}</span>
                     ) : (
-                      Number(s.grade).toFixed(2)
+                      <Mark value={Number(s.grade)} emptyLabel="—" size="sm" />
                     )}
                   </Td>
                   <Td>

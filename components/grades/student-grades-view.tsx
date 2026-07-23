@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { FileText } from "lucide-react";
 import { Badge, Card, Table, TableWrap, Td, Th } from "@/components/ui/field";
+import { Mark, MarkHeadline } from "@/components/ui/mark";
 import { localized } from "@/lib/school";
 import { studentResult } from "@/lib/data/grades";
 
@@ -8,6 +9,10 @@ import { studentResult } from "@/lib/data/grades";
  * A student's published results for one semester — the per-subject averages,
  * the coefficient-weighted general average, mention and rank, plus a link to
  * the bulletin PDF. Shared by the student's own page and the parent view.
+ *
+ * Every /20 here is the `Mark` signature, the same one the bulletin and the
+ * gradebook use, so a family sees one consistent treatment of a mark wherever
+ * it appears — not a different arrangement of `toFixed(2)` per screen.
  */
 export async function StudentGradesView({
   studentId,
@@ -27,13 +32,25 @@ export async function StudentGradesView({
     return <Card className="text-sm text-[var(--muted)]">{t("noItems")}</Card>;
   }
 
+  const mention = result.mention ? t(`mentions.${result.mention}`) : "";
+  const rankMeta = [
+    `${t("rank")} ${result.rank ?? "—"} ${t("of")} ${classSize}`,
+    mention,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Summary label={t("generalAverage")} value={result.general?.toFixed(2) ?? "—"} suffix="/ 20" />
-        <Summary label={t("rank")} value={result.rank ?? "—"} suffix={`${t("of")} ${classSize}`} />
-        <Summary label={t("classAverage")} value={stats.average?.toFixed(2) ?? "—"} suffix="/ 20" />
-      </div>
+    <div className="space-y-5">
+      {/* The one place the mark is allowed to be loud: the headline average. */}
+      <Card>
+        <MarkHeadline
+          value={result.general}
+          label={t("generalAverage")}
+          emptyLabel="—"
+          meta={rankMeta}
+        />
+      </Card>
 
       <Card>
         <div className="mb-4 flex items-center justify-between gap-3">
@@ -41,20 +58,16 @@ export async function StudentGradesView({
           <span className="text-xs text-[var(--muted)]">/ 20</span>
         </div>
         <div className="grid gap-x-8 gap-y-4 md:grid-cols-2">
-          {result.subjects.map((s) => {
-            const percentage = s.average == null ? 0 : Math.min(100, Math.max(0, s.average * 5));
-            return (
-              <div key={s.subjectId}>
-                <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
-                  <span className="truncate font-medium text-[var(--ink)]">{localized(s, locale)}</span>
-                  <span className="shrink-0 font-mono text-xs text-[var(--muted)]">{s.average?.toFixed(2) ?? "—"}</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-black/[0.06]" role="progressbar" aria-valuenow={s.average ?? 0} aria-valuemin={0} aria-valuemax={20} aria-label={localized(s, locale)}>
-                  <div className="h-full rounded-full bg-[var(--brand)] transition-[width] duration-700" style={{ width: `${percentage}%` }} />
-                </div>
-              </div>
-            );
-          })}
+          {result.subjects.map((s) => (
+            <div key={s.subjectId} className="flex items-center justify-between gap-4">
+              <span className="min-w-0 truncate text-sm font-medium text-[var(--ink)]">
+                {localized(s, locale)}
+              </span>
+              {/* showBar: a subject list is a set of marks being compared, which
+                  is exactly where the band bar earns its place. */}
+              <Mark value={s.average} emptyLabel="—" size="sm" showBar className="items-end" />
+            </div>
+          ))}
         </div>
       </Card>
 
@@ -64,15 +77,17 @@ export async function StudentGradesView({
             <tr>
               <Th>{t("selectSubject")}</Th>
               <Th className="text-center">{t("coefficient")}</Th>
-              <Th className="text-center">{t("average")}</Th>
+              <Th className="text-end">{t("average")}</Th>
             </tr>
           </thead>
           <tbody>
             {result.subjects.map((s) => (
               <tr key={s.subjectId}>
                 <Td>{localized(s, locale)}</Td>
-                <Td className="text-center">{s.coefficient}</Td>
-                <Td className="text-center font-mono">{s.average?.toFixed(2) ?? "—"}</Td>
+                <Td className="text-center tabular">{s.coefficient}</Td>
+                <Td className="text-end">
+                  <Mark value={s.average} emptyLabel="—" size="sm" className="items-end" />
+                </Td>
               </tr>
             ))}
           </tbody>
@@ -80,15 +95,14 @@ export async function StudentGradesView({
       </TableWrap>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <p className="text-lg font-semibold">
-            {t("generalAverage")}: {result.general?.toFixed(2) ?? "—"} / 20
-          </p>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--muted)]">
-            <span>{t("rank")}: {result.rank ?? "—"} {t("of")} {classSize}</span>
-            {result.mention ? <Badge tone="neutral">{t(`mentions.${result.mention}`)}</Badge> : null}
-            <span>{t("classAverage")}: {stats.average?.toFixed(2) ?? "—"}</span>
-          </div>
+        <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--muted)]">
+          {result.mention ? <Badge tone="neutral">{mention}</Badge> : null}
+          <span>
+            {t("classAverage")}:{" "}
+            <span className="tabular text-[var(--ink)]">
+              {stats.average === null ? "—" : stats.average.toFixed(2)}
+            </span>
+          </span>
         </div>
         <a
           href={`/api/bulletin/pdf?student=${studentId}&semester=${semesterId}&locale=${locale}`}
@@ -101,14 +115,5 @@ export async function StudentGradesView({
         </a>
       </div>
     </div>
-  );
-}
-
-function Summary({ label, value, suffix }: { label: string; value: string | number; suffix: string }) {
-  return (
-    <Card className="p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-[var(--ink)]">{value} <span className="text-sm font-normal text-[var(--muted)]">{suffix}</span></p>
-    </Card>
   );
 }

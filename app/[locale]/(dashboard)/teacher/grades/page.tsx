@@ -19,6 +19,7 @@ import {
 } from "@/lib/data/grades";
 import { localized } from "@/lib/school";
 import { subjectAverage } from "@/lib/grades";
+import { Mark } from "@/components/ui/mark";
 
 export default async function Page({
   params,
@@ -178,8 +179,11 @@ export default async function Page({
                           </Td>
                         );
                       })}
-                      <Td className="text-center font-mono font-semibold">
-                        {avg === null ? "—" : avg.toFixed(2)}
+                      {/* The subject average is a /20: it gets the same Mark
+                          signature the bulletin uses, with the band bar since a
+                          gradebook column is exactly where marks are compared. */}
+                      <Td className="text-center">
+                        <Mark value={avg} emptyLabel="—" size="sm" showBar />
                       </Td>
                       <Td className="text-center">
                         {!locked ? (
