@@ -48,8 +48,16 @@ export async function generateMetadata({
   return {
     title: t("appName"),
     icons: {
-      icon: "/brand/favicon.png",
-      apple: "/brand/favicon.png",
+      // SVG first so the tab icon stays crisp at any density; the PNG is the
+      // fallback for anything that will not take an SVG favicon. Both carry
+      // their own navy plate — the old icon was the white-on-transparent
+      // wordmark, which disappeared entirely on a light browser tab.
+      icon: [
+        { url: "/brand/favicon.svg", type: "image/svg+xml" },
+        { url: "/brand/apple-icon.png", type: "image/png", sizes: "180x180" },
+      ],
+      // Safari does not accept SVG here, so this must stay a PNG.
+      apple: "/brand/apple-icon.png",
     },
   };
 }
