@@ -1078,6 +1078,7 @@
     "feeLedger": "حالة الأداءات",
     "attendanceStats": "إحصائيات الغياب",
     "semester": "الأسدس",
+    "semesterN": "الأسدس {n}",
     "needsSemester": "اختر أسدساً",
     "noClass": "لا يوجد قسم.",
     "codeMassar": "رمز مسار",

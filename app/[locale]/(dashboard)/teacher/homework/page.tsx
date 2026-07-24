@@ -50,12 +50,18 @@ export default async function Page({
   const owns = profile.assignments.some((a) => a.class.id === classId && a.subject.id === subjectId);
 
   const homework = owns ? await teacherHomework(classId, subjectId) : [];
+  const scope = [
+    classes.find((c) => c.id === classId)?.label,
+    subs.find((x) => x.id === subjectId)?.label,
+  ]
+    .filter(Boolean)
+    .join(" \u00b7 ");
   const now = new Date();
   const dateStr = (d: Date) => d.toISOString().slice(0, 10);
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} actions={<HomeworkModal classId={classId} subjectId={subjectId} />} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} eyebrow={scope} actions={<HomeworkModal classId={classId} subjectId={subjectId} />} />
       <ClassSubjectPicker ns="homework" classes={classes} subjectsByClass={subjectsByClass} classId={classId} subjectId={subjectId} />
 
       {homework.length === 0 ? (

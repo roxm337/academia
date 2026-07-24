@@ -33,13 +33,19 @@ export default async function Page({
   const semesterId = semesters.some((s) => s.id === sp.semester) ? String(sp.semester) : semesters[0].id;
 
   const { students, stats } = await computeClassResults(classId, semesterId);
+  const scope = [
+    classes.find((c) => c.id === classId)?.name,
+    t("semesterN", { n: semesters.find((s) => s.id === semesterId)!.index }),
+  ]
+    .filter(Boolean)
+    .join(" \u00b7 ");
 
   const name = (s: { firstNameAr: string; lastNameAr: string; firstNameFr: string; lastNameFr: string }) =>
     locale === "ar" ? `${s.firstNameAr} ${s.lastNameAr}` : `${s.firstNameFr} ${s.lastNameFr}`;
 
   return (
     <>
-      <PageHeader title={t("overviewTitle")} subtitle={t("overviewSubtitle")} />
+      <PageHeader title={t("overviewTitle")} subtitle={t("overviewSubtitle")} eyebrow={scope} />
 
       {/* Lock / publish each semester */}
       <div className="mb-6 space-y-2">

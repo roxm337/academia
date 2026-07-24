@@ -40,6 +40,12 @@ export default async function Page({
     semesterId,
   );
   const locked = Boolean(semester?.isLocked);
+  const scope = [
+    classes.find((c) => c.id === classId)?.name,
+    semester ? t("semesterN", { n: semester.index }) : null,
+  ]
+    .filter(Boolean)
+    .join(" \u00b7 ");
 
   const name = (s: {
     firstNameAr: string;
@@ -50,7 +56,7 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={tc("title")} subtitle={tc("subtitle")} />
+      <PageHeader title={tc("title")} subtitle={tc("subtitle")} eyebrow={scope} />
 
       <ClassSemesterPicker
         classes={classes.map((c) => ({ id: c.id, label: c.name }))}

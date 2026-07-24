@@ -33,10 +33,11 @@ export default async function Page({
   const name = (u: { firstNameAr: string; lastNameAr: string; firstNameFr: string; lastNameFr: string }) =>
     locale === "ar" ? `${u.firstNameAr} ${u.lastNameAr}` : `${u.firstNameFr} ${u.lastNameFr}`;
   const money = (n: number) => formatMAD(n, locale);
+  const scope = classes.find((c) => c.id === classId)?.name ?? "";
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} eyebrow={scope} />
 
       <ReceiptBookletForm classes={classes.map((c) => ({ id: c.id, name: c.name }))} />
 

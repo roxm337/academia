@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { UserCheck } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/page-header";
+import { localeTag } from "@/i18n/routing";
 import { Badge, Card } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { DayPicker } from "@/components/vie/day-picker";
@@ -43,6 +44,9 @@ export default async function Page({
 
   const date = parseDay(typeof sp.date === "string" ? sp.date : null) ?? dayStart(new Date());
   const dateStr = date.toISOString().slice(0, 10);
+  const dayLabel = new Intl.DateTimeFormat(localeTag(locale), {
+    weekday: "long", day: "numeric", month: "long",
+  }).format(date);
   const { ctx, lessons } = await teacherDaySlots(profile.id, date);
   const canMark = settings?.teachersCanTakeAttendance ?? false;
 
@@ -51,7 +55,7 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} eyebrow={dayLabel} />
       <DayPicker date={dateStr} />
 
       {!canMark ? (

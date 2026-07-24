@@ -1078,6 +1078,7 @@
     "feeLedger": "État des paiements",
     "attendanceStats": "Statistiques d'absences",
     "semester": "Trimestre",
+    "semesterN": "Trimestre {n}",
     "needsSemester": "Choisissez un trimestre",
     "noClass": "Aucune classe.",
     "codeMassar": "Code Massar",

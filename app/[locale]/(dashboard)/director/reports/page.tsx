@@ -30,6 +30,13 @@ export default async function Page({
 
   const classId = classes.some((c) => c.id === sp.class) ? String(sp.class) : classes[0].id;
   const semesterId = semesters.some((s) => s.id === sp.semester) ? String(sp.semester) : (semesters[0]?.id ?? "");
+  const sem = semesters.find((s) => s.id === semesterId);
+  const scope = [
+    classes.find((c) => c.id === classId)?.name,
+    sem ? t("semesterN", { n: sem.index }) : null,
+  ]
+    .filter(Boolean)
+    .join(" \u00b7 ");
 
   const link = (kind: string) =>
     `/api/reports?kind=${kind}&class=${classId}&semester=${semesterId}&locale=${locale}`;
@@ -43,7 +50,7 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} eyebrow={scope} />
       <ClassSemesterPicker
         classes={classes.map((c) => ({ id: c.id, label: c.name }))}
         semesters={semesters.map((s, i) => ({ id: s.id, label: `${t("semester")} ${s.index ?? i + 1}` }))}

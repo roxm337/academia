@@ -92,7 +92,17 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={t("gradebook")} subtitle={t("subtitle")} />
+      <PageHeader
+        title={t("gradebook")}
+        subtitle={t("subtitle")}
+        eyebrow={[
+          classMap.get(classId),
+          validSubjects.find((s) => s.id === subjectId)?.label,
+          t("semesterN", { n: semester.index }),
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+      />
       <GradePicker
         classes={classes}
         subjectsByClass={subjectsByClass}

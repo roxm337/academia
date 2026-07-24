@@ -47,10 +47,16 @@ export default async function Page({
 
   const entries = owns ? await cahierEntries(classId, subjectId) : [];
   const dateStr = (d: Date) => d.toISOString().slice(0, 10);
+  const scope = [
+    classes.find((c) => c.id === classId)?.label,
+    subs.find((x) => x.id === subjectId)?.label,
+  ]
+    .filter(Boolean)
+    .join(" \u00b7 ");
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} eyebrow={scope} />
       <ClassSubjectPicker ns="cahier" classes={classes} subjectsByClass={subjectsByClass} classId={classId} subjectId={subjectId} />
 
       <div className="mb-4">

@@ -1078,6 +1078,7 @@
     "feeLedger": "Payment statement",
     "attendanceStats": "Absence statistics",
     "semester": "Term",
+    "semesterN": "Term {n}",
     "needsSemester": "Choose a term",
     "noClass": "No classes.",
     "codeMassar": "Massar code",

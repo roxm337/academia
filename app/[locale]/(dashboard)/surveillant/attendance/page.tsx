@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { UserCheck } from "lucide-react";
 import { PageHeader, EmptyState } from "@/components/page-header";
+import { localeTag } from "@/i18n/routing";
 import { Badge, Card } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { DayPicker } from "@/components/vie/day-picker";
@@ -44,6 +45,12 @@ export default async function Page({
       : null) ?? classes[0].id;
   const date = parseDay(typeof sp.date === "string" ? sp.date : null) ?? dayStart(new Date());
   const dateStr = date.toISOString().slice(0, 10);
+  const scope = [
+    classes.find((c) => c.id === classId)?.name,
+    new Intl.DateTimeFormat(localeTag(locale), { weekday: "long", day: "numeric", month: "long" }).format(date),
+  ]
+    .filter(Boolean)
+    .join(" \u00b7 ");
 
   const [{ ctx, lessons }, roster] = await Promise.all([
     classDaySlots(classId, date),
@@ -56,7 +63,7 @@ export default async function Page({
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} eyebrow={scope} />
       <DayPicker classes={classes} classId={classId} date={dateStr} />
 
       {ctx.holiday ? (
